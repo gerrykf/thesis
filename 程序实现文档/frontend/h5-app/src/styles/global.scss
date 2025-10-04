@@ -1,0 +1,278 @@
+@use './variables.scss' as *;
+@use './mixins.scss' as *;
+
+// ========== 全局样式重置 ==========
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: $background-color;
+  color: $text-color;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  position: relative;
+  background-color: $white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+// ========== Vant 组件全局样式 ==========
+
+// 导航栏固定宽度和居中
+.van-nav-bar {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// 弹出层居中
+.van-popup {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// 遮罩层居中
+.van-overlay {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// 底部标签栏居中
+.van-tabbar {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// Toast 提示居中
+.van-toast {
+  left: 50% !important;
+  transform: translateX(-50%) translateY(-50%) !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  color: $white !important;
+
+  .van-toast__text {
+    color: $white !important;
+  }
+
+  .van-icon {
+    color: $white !important;
+  }
+}
+
+// Loading 加载居中（带背景遮罩）
+.van-loading {
+  left: 50% !important;
+  color: $white !important;
+}
+
+// Loading 外层容器添加半透明背景
+.van-toast--loading {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+
+  .van-loading__spinner {
+    color: $white !important;
+  }
+
+  .van-toast__text {
+    color: $white !important;
+  }
+}
+
+// ActionSheet 动作面板居中
+.van-action-sheet {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// DatePicker 日期选择器居中
+.van-picker {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// Dialog 弹窗居中
+.van-dialog {
+  left: 50% !important;
+  transform: translateX(-50%) translateY(-50%) !important;
+}
+
+// ImagePreview 图片预览居中
+.van-image-preview {
+  max-width: 375px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+}
+
+// ========== 通用工具类 ==========
+
+// 内容区域
+.content {
+  padding: 0 $space-md;
+  padding-bottom: 60px;
+}
+
+// 卡片样式
+.data-card {
+  @include gradient-bg(#667eea, #764ba2);
+  border-radius: $radius-md;
+  padding: $space-lg;
+  margin: $space-md 0;
+  color: $white;
+}
+
+// 统计格子
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-sm;
+  margin: $space-md 0;
+}
+
+.stats-item {
+  background: $white;
+  border-radius: $radius-sm;
+  padding: $space-md;
+  text-align: center;
+  box-shadow: $shadow-md;
+}
+
+// ========== Flex 布局工具类 ==========
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-start {
+  @include flex-start;
+}
+
+.flex-end {
+  @include flex-end;
+}
+
+.flex-column {
+  @include flex-column;
+}
+
+// ========== 文本省略 ==========
+.ellipsis-1 {
+  @include ellipsis(1);
+}
+
+.ellipsis-2 {
+  @include ellipsis(2);
+}
+
+.ellipsis-3 {
+  @include ellipsis(3);
+}
+
+// ========== 间距工具类 ==========
+.m-xs { margin: $space-xs; }
+.m-sm { margin: $space-sm; }
+.m-md { margin: $space-md; }
+.m-lg { margin: $space-lg; }
+.m-xl { margin: $space-xl; }
+
+.mt-xs { margin-top: $space-xs; }
+.mt-sm { margin-top: $space-sm; }
+.mt-md { margin-top: $space-md; }
+.mt-lg { margin-top: $space-lg; }
+.mt-xl { margin-top: $space-xl; }
+
+.mb-xs { margin-bottom: $space-xs; }
+.mb-sm { margin-bottom: $space-sm; }
+.mb-md { margin-bottom: $space-md; }
+.mb-lg { margin-bottom: $space-lg; }
+.mb-xl { margin-bottom: $space-xl; }
+
+.p-xs { padding: $space-xs; }
+.p-sm { padding: $space-sm; }
+.p-md { padding: $space-md; }
+.p-lg { padding: $space-lg; }
+.p-xl { padding: $space-xl; }
+
+.pt-xs { padding-top: $space-xs; }
+.pt-sm { padding-top: $space-sm; }
+.pt-md { padding-top: $space-md; }
+.pt-lg { padding-top: $space-lg; }
+.pt-xl { padding-top: $space-xl; }
+
+.pb-xs { padding-bottom: $space-xs; }
+.pb-sm { padding-bottom: $space-sm; }
+.pb-md { padding-bottom: $space-md; }
+.pb-lg { padding-bottom: $space-lg; }
+.pb-xl { padding-bottom: $space-xl; }
+
+// ========== 文本对齐 ==========
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+// ========== 字体大小 ==========
+.text-xs { font-size: $font-size-xs; }
+.text-sm { font-size: $font-size-sm; }
+.text-md { font-size: $font-size-md; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+.text-xxl { font-size: $font-size-xxl; }
+
+// ========== 文本颜色 ==========
+.text-primary { color: $primary-color; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-danger { color: $danger-color; }
+.text-secondary { color: $text-color-2; }
+.text-gray { color: $text-color-3; }
+
+// ========== 背景颜色 ==========
+.bg-primary { background-color: $primary-color; }
+.bg-success { background-color: $success-color; }
+.bg-warning { background-color: $warning-color; }
+.bg-danger { background-color: $danger-color; }
+.bg-white { background-color: $white; }
+.bg-gray { background-color: $background-color; }
+
+// ========== 圆角 ==========
+.radius-xs { border-radius: $radius-xs; }
+.radius-sm { border-radius: $radius-sm; }
+.radius-md { border-radius: $radius-md; }
+.radius-lg { border-radius: $radius-lg; }
+.radius-round { border-radius: $radius-round; }
+
+// ========== 阴影 ==========
+.shadow-sm { box-shadow: $shadow-sm; }
+.shadow-md { box-shadow: $shadow-md; }
+.shadow-lg { box-shadow: $shadow-lg; }
+.shadow-xl { box-shadow: $shadow-xl; }

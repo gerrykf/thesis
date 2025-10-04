@@ -1,0 +1,75 @@
+// ========== 设计规范变量 ==========
+
+// 颜色系统
+$primary-color: #1989fa;      // 主色调
+$success-color: #07c160;      // 辅色/成功色
+$warning-color: #ff976a;      // 警告色
+$danger-color: #ee0a24;       // 危险色
+$text-color: #323233;         // 主文本色
+$text-color-2: #646566;       // 次要文本色
+$text-color-3: #969799;       // 三级文本色
+$background-color: #f7f8fa;   // 背景色
+$white: #ffffff;              // 白色
+$border-color: #ebedf0;       // 边框色
+
+// 字体系统 (基础16px起步)
+$font-size-xs: 10px;
+$font-size-sm: 12px;
+$font-size-md: 14px;
+$font-size-base: 16px;        // 基础字号
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// 间距系统 (8px基础单位)
+$space-base: 8px;
+$space-xs: $space-base;       // 8px
+$space-sm: $space-base * 1.5; // 12px
+$space-md: $space-base * 2;   // 16px
+$space-lg: $space-base * 3;   // 24px
+$space-xl: $space-base * 4;   // 32px
+$space-xxl: $space-base * 5;  // 40px
+
+// 圆角系统 (4px基础单位)
+$radius-base: 4px;
+$radius-xs: $radius-base;      // 4px
+$radius-sm: $radius-base * 2;  // 8px
+$radius-md: $radius-base * 3;  // 12px
+$radius-lg: $radius-base * 4;  // 16px
+$radius-xl: $radius-base * 5;  // 20px
+$radius-round: 999px;          // 圆形
+
+// 按钮规范
+$button-height: 44px;          // 按钮高度
+$button-radius: $radius-sm;    // 按钮圆角 8px
+$button-font-size: $font-size-base; // 按钮字号
+
+// 阴影
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+// 层级
+$z-index-dropdown: 1000;
+$z-index-sticky: 1010;
+$z-index-fixed: 1020;
+$z-index-modal-backdrop: 1030;
+$z-index-modal: 1040;
+$z-index-popover: 1050;
+$z-index-tooltip: 1060;
+
+// 容器宽度
+$container-width: 375px;       // 设计稿宽度
+
+// 动画时长
+$duration-fast: 0.15s;
+$duration-base: 0.3s;
+$duration-slow: 0.5s;
+
+// 过渡效果
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
