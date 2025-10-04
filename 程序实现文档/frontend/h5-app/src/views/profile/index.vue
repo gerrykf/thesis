@@ -39,6 +39,9 @@
 
 <script setup lang="ts">
 import { showToast, showConfirmDialog } from 'vant'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 function onLogout() {
   showConfirmDialog({
@@ -46,8 +49,14 @@ function onLogout() {
     message: '确定要退出登录吗？',
   })
     .then(() => {
+      // 清除本地存储的登录信息
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+
       showToast('已退出登录')
-      // 这里可以添加退出登录的逻辑
+
+      // 跳转到登录页
+      router.replace('/login')
     })
     .catch(() => {
       // 取消退出

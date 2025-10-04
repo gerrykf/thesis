@@ -16,9 +16,9 @@ export function setRem(): void {
 }
 
 // 防抖函数
-function debounce(func: Function, wait: number) {
+function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
   let timeout: number | undefined
-  return function executedFunction(...args: any[]) {
+  return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       timeout = undefined
       func(...args)

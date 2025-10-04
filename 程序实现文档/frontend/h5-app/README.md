@@ -4,13 +4,125 @@
 
 ## 技术栈
 
-- **框架**: Vue 3.5 + TypeScript
+- **框架**: Vue 3.5 + TypeScript 5.9
 - **构建工具**: Vite 7.1
 - **UI组件库**: Vant 4.9
 - **路由**: Vue Router 4.5
 - **状态管理**: Pinia 2.3
 - **HTTP客户端**: Axios 1.12
 - **移动端适配**: PostCSS + pxtorem + flexible.ts
+- **API生成**: @umijs/openapi 1.14
+
+## 主要依赖说明
+
+### 生产依赖 (dependencies)
+
+#### 核心框架
+- **vue** (^3.5.22) - Vue.js 核心库，使用 Composition API
+  - 用途：构建用户界面
+  - 示例：`<script setup lang="ts">` 语法
+
+- **vue-router** (^4.5.1) - 官方路由管理器
+  - 用途：页面导航、路由守卫、参数传递
+  - 示例：`router.push('/login')`, `const route = useRoute()`
+
+- **pinia** (^2.3.1) - 新一代状态管理库
+  - 用途：全局状态存储（用户信息、配置等）
+  - 示例：
+    ```typescript
+    const userStore = useUserStore()
+    userStore.setUserInfo(userData)
+    ```
+
+#### UI 组件
+- **vant** (^4.9.21) - 移动端 UI 组件库
+  - 提供：Button、Field、Form、Toast、Dialog 等 60+ 组件
+  - 特点：轻量、可靠、支持按需引入
+  - 示例：
+    ```vue
+    <van-button type="primary" @click="submit">提交</van-button>
+    <van-field v-model="username" label="用户名" />
+    ```
+
+- **@vant/touch-emulator** (^1.4.0) - 触摸模拟器
+  - 用途：在 PC 浏览器模拟移动端触摸事件
+  - 场景：开发调试时无需真机
+
+#### 网络请求
+- **axios** (^1.12.2) - HTTP 请求库
+  - 用途：与后端 API 通信
+  - 特性：拦截器、自动转换 JSON、取消请求
+  - 封装位置：`src/utils/request.ts`
+  - 示例：
+    ```typescript
+    import { postAuthLogin } from '@/api/auth'
+    const result = await postAuthLogin({ username, password })
+    ```
+
+### 开发依赖 (devDependencies)
+
+#### 构建工具
+- **vite** (^7.1.7) - 下一代前端构建工具
+  - 特点：极速冷启动（ESM）、HMR 热更新、按需编译
+  - 配置：`vite.config.ts`
+
+- **@vitejs/plugin-vue** (^6.0.1) - Vite 的 Vue 插件
+  - 用途：解析 .vue 单文件组件
+  - 支持：`<script setup>`、`<style scoped>` 等
+
+#### TypeScript
+- **typescript** (~5.9.3) - 类型安全的 JavaScript 超集
+  - 用途：类型检查、代码提示、重构支持
+
+- **vue-tsc** (^3.1.0) - Vue TypeScript 编译器
+  - 用途：构建时进行类型检查
+  - 命令：`vue-tsc -b`
+
+- **@types/node** (^24.6.0) - Node.js 类型定义
+  - 用途：在 TS 中使用 path、fs 等 Node API
+
+- **tslib** (^2.8.1) - TypeScript 运行时库
+  - 用途：减少重复的辅助代码
+
+- **ts-node** (^10.9.2) - 运行 TypeScript 文件
+  - 用途：执行 openapi 配置脚本
+
+#### 样式处理
+- **sass** (^1.93.2) - CSS 预处理器
+  - 用途：变量、嵌套、混入、函数
+  - 示例：
+    ```scss
+    $primary-color: #1989fa;
+    .container {
+      .title { color: $primary-color; }
+    }
+    ```
+
+- **autoprefixer** (^10.4.21) - 自动添加浏览器前缀
+  - 示例：`display: flex` → `-webkit-box-flex`
+
+- **postcss-pxtorem** (^6.1.0) - px 转 rem
+  - 配置：rootValue=16, 忽略 Vant 组件
+  - 示例：`width: 32px` → `width: 2rem`
+
+- **@types/postcss-pxtorem** (^6.1.0) - postcss-pxtorem 类型定义
+
+#### 组件自动导入
+- **unplugin-vue-components** (^29.1.0) - 组件自动导入
+  - 用途：无需手动 import，使用即导入
+  - 生成：`components.d.ts` 类型文件
+
+- **@vant/auto-import-resolver** (^1.3.0) - Vant 自动导入解析器
+  - 配合 unplugin-vue-components 使用
+  - 自动按需引入 Vant 组件
+
+#### API 代码生成
+- **@umijs/openapi** (^1.14.1) - OpenAPI/Swagger 代码生成器
+  - 用途：根据后端 API 文档自动生成 TypeScript 接口
+  - 配置：`openapi2ts.config.ts`
+  - 命令：`pnpm run openapi`
+  - 输出：`src/api/` 目录
+  - 优势：类型安全、自动更新、减少手写代码
 
 ## 项目特性
 
