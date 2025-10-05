@@ -155,6 +155,7 @@ backend/
 │   ├── controllers/           # 控制器（业务逻辑）
 │   │   ├── authController.ts  # 认证控制器
 │   │   ├── healthController.ts # 健康记录控制器
+│   │   ├── goalsController.ts # 健康目标控制器
 │   │   ├── foodController.ts  # 食物管理控制器
 │   │   ├── dietController.ts  # 饮食记录控制器
 │   │   ├── statsController.ts # 统计数据控制器
@@ -166,6 +167,7 @@ backend/
 │   ├── routes/                # 路由定义
 │   │   ├── authRoutes.ts      # 认证路由
 │   │   ├── healthRoutes.ts    # 健康记录路由
+│   │   ├── goalsRoutes.ts     # 健康目标路由
 │   │   ├── foodRoutes.ts      # 食物管理路由
 │   │   ├── dietRoutes.ts      # 饮食记录路由
 │   │   ├── statsRoutes.ts     # 统计路由
@@ -267,6 +269,12 @@ pnpm test
 - `PUT /api/health/records/:id` - 更新记录
 - `DELETE /api/health/records/:id` - 删除记录
 
+### 健康目标 (Goals)
+- `GET /api/goals` - 获取用户健康目标
+- `POST /api/goals` - 创建健康目标
+- `PUT /api/goals` - 更新健康目标
+- `DELETE /api/goals` - 删除健康目标
+
 ### 食物管理 (Food)
 - `GET /api/foods` - 获取食物列表
 - `POST /api/foods` - 创建食物
@@ -362,8 +370,11 @@ API 统一返回格式：
 
 - **users** - 用户表
 - **health_records** - 健康记录表
+- **user_goals** - 用户目标表
 - **foods** - 食物数据表
+- **food_categories** - 食物分类表
 - **diet_records** - 饮食记录表
+- **system_logs** - 系统日志表
 
 详见数据库设计文档：`/db/数据库设计文档.md`
 

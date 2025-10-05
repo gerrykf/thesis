@@ -19,6 +19,7 @@ import foodRoutes from './routes/foodRoutes';
 import dietRoutes from './routes/dietRoutes';
 import statsRoutes from './routes/statsRoutes';
 import adminRoutes from './routes/adminRoutes';
+import goalsRoutes from './routes/goalsRoutes';
 
 // 加载环境变量
 dotenv.config();
@@ -77,6 +78,10 @@ const swaggerOptions = {
       {
         name: 'Health',
         description: '健康记录 - 健康数据的记录与管理'
+      },
+      {
+        name: 'Goals',
+        description: '健康目标 - 用户健康目标设置与管理'
       },
       {
         name: 'Food',
@@ -150,6 +155,7 @@ app.get('/health', (req: Request, res: Response) => {
 // API路由
 app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/goals', goalsRoutes);
 app.use('/api/foods', foodRoutes);
 app.use('/api/diet', dietRoutes);
 app.use('/api/stats', statsRoutes);
@@ -164,6 +170,7 @@ app.get('/api', (req: Request, res: Response) => {
     endpoints: {
       auth: '/api/auth',
       health: '/api/health',
+      goals: '/api/goals',
       foods: '/api/foods',
       diet: '/api/diet',
       stats: '/api/stats',

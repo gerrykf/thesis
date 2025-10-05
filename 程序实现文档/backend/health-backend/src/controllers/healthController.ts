@@ -276,6 +276,14 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
 export const getHealthRecords = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: '未授权'
+      });
+      return;
+    }
+
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
@@ -284,8 +292,8 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
 
     let query = 'SELECT * FROM health_records WHERE user_id = ?';
     let countQuery = 'SELECT COUNT(*) as total FROM health_records WHERE user_id = ?';
-    const params: any[] = [userId];
-    const countParams: any[] = [userId];
+    const params: (number | string)[] = [userId];
+    const countParams: (number | string)[] = [userId];
 
     if (startDate) {
       query += ' AND record_date >= ?';
@@ -301,8 +309,7 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
       countParams.push(endDate);
     }
 
-    query += ' ORDER BY record_date DESC LIMIT ? OFFSET ?';
-    params.push(limit, offset);
+    query += ` ORDER BY record_date DESC LIMIT ${limit} OFFSET ${offset}`;
 
     const [records] = await db.execute(query, params);
     const [countResult] = await db.execute(countQuery, countParams);
@@ -322,9 +329,11 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
     });
   } catch (error) {
     console.error('获取健康记录错误:', error);
+    console.error('错误详情:', JSON.stringify(error, null, 2));
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: '服务器内部错误',
+      error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
     });
   }
 };
