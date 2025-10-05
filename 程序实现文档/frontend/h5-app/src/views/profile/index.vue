@@ -11,7 +11,7 @@
           height="80"
           src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
         />
-        <div class="user-name">用户昵称</div>
+        <div class="user-name">{{ userName }}</div>
         <div class="user-desc">健康生活，从今天开始</div>
       </div>
 
@@ -38,10 +38,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { showToast, showConfirmDialog } from 'vant'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
+
+// 从 store 获取用户信息
+const userName = computed(() => userStore.nickname)
 
 function onLogout() {
   showConfirmDialog({
@@ -49,9 +55,8 @@ function onLogout() {
     message: '确定要退出登录吗？',
   })
     .then(() => {
-      // 清除本地存储的登录信息
-      localStorage.removeItem('token')
-      localStorage.removeItem('userInfo')
+      // 使用 store 的 logout 方法（会保留记住的密码）
+      userStore.logout()
 
       showToast('已退出登录')
 

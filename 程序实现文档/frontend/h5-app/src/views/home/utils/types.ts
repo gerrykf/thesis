@@ -10,6 +10,9 @@ export interface HealthData {
   exercise: number
   sleep: number
   calories: number
+  exercise_type?: string
+  sleep_quality?: string
+  mood?: string
 }
 
 /**

@@ -18,23 +18,23 @@
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-icon">⚖️</div>
-            <div class="stat-value">{{ todayData.weight }}kg</div>
+            <div class="stat-value">{{ todayData.weight || '--' }}kg</div>
             <div class="stat-label">体重</div>
           </div>
           <div class="stat-item">
             <div class="stat-icon">🏃</div>
-            <div class="stat-value">{{ todayData.exercise }}min</div>
-            <div class="stat-label">运动</div>
+            <div class="stat-value">{{ exerciseDisplay }}</div>
+            <div class="stat-label">{{ exerciseTypeDisplay }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-icon">😴</div>
-            <div class="stat-value">{{ todayData.sleep }}h</div>
-            <div class="stat-label">睡眠</div>
+            <div class="stat-value">{{ sleepDisplay }}</div>
+            <div class="stat-label">{{ sleepQualityDisplay }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-value">{{ todayData.calories }}</div>
-            <div class="stat-label">卡路里</div>
+            <div class="stat-icon">{{ moodIcon }}</div>
+            <div class="stat-value">{{ moodDisplay }}</div>
+            <div class="stat-label">心情</div>
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@
           <van-grid-item icon="add-o" text="健康打卡" @click="goToHealth" />
           <van-grid-item icon="goods-collect-o" text="饮食记录" @click="goToDiet" />
           <van-grid-item icon="chart-trending-o" text="数据分析" @click="showToast('功能开发中')" />
-          <van-grid-item icon="setting-o" text="目标设置" @click="showToast('功能开发中')" />
+          <van-grid-item icon="setting-o" text="目标设置" @click="goToGoals" />
         </van-grid>
       </div>
 
@@ -67,34 +67,93 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
+import { useUserStore } from '@/stores/user'
 import {
   formatChineseDate,
   getWeekday,
   getGreeting,
   calculateHealthScore,
   generateHealthTips,
-  type HealthData
+  useTodayData
 } from './utils'
 
 const router = useRouter()
+const userStore = useUserStore()
 
-const userName = ref('用户')
-const greeting = ref(getGreeting())
+const greeting = computed(() => getGreeting())
 const currentDate = computed(() => formatChineseDate())
 const weekday = computed(() => getWeekday())
 
-const todayData = ref<HealthData>({
-  weight: 65.5,
-  exercise: 30,
-  sleep: 8,
-  calories: 1200
-})
+// 从 Pinia store 获取用户名
+const userName = computed(() => userStore.nickname)
+
+// 使用今日数据 Hook
+const { todayData, loading, refreshData } = useTodayData()
 
 const healthScore = computed(() => calculateHealthScore(todayData.value))
 const healthTips = computed(() => generateHealthTips(todayData.value))
+
+// 格式化运动时长显示
+const exerciseDisplay = computed(() => {
+  const minutes = todayData.value.exercise
+  if (!minutes) return '--'
+  if (minutes >= 60) {
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    if (remainingMinutes === 0) {
+      return `${hours}小时`
+    }
+    return `${hours}小时${remainingMinutes}分钟`
+  }
+  return `${minutes}分钟`
+})
+
+// 运动类型显示
+const exerciseTypeDisplay = computed(() => {
+  return todayData.value.exercise_type || '运动'
+})
+
+// 睡眠时长显示
+const sleepDisplay = computed(() => {
+  const hours = todayData.value.sleep
+  return hours ? `${hours}小时` : '--'
+})
+
+// 睡眠质量显示
+const sleepQualityDisplay = computed(() => {
+  const qualityMap: Record<string, string> = {
+    'excellent': '睡眠·优秀',
+    'good': '睡眠·良好',
+    'fair': '睡眠·一般',
+    'poor': '睡眠·较差'
+  }
+  return qualityMap[todayData.value.sleep_quality] || '睡眠'
+})
+
+// 心情状态显示
+const moodDisplay = computed(() => {
+  const moodMap: Record<string, string> = {
+    'excellent': '很好',
+    'good': '不错',
+    'fair': '一般',
+    'poor': '较差'
+  }
+  return moodMap[todayData.value.mood] || '未记录'
+})
+
+// 心情图标
+const moodIcon = computed(() => {
+  const iconMap: Record<string, string> = {
+    'excellent': '😄',
+    'good': '😊',
+    'fair': '😐',
+    'poor': '😔'
+  }
+  return iconMap[todayData.value.mood] || '😶'
+})
 
 function goToHealth() {
   router.push('/health')
@@ -102,6 +161,10 @@ function goToHealth() {
 
 function goToDiet() {
   router.push('/diet')
+}
+
+function goToGoals() {
+  router.push('/goals')
 }
 </script>
 
@@ -204,6 +267,10 @@ function goToDiet() {
     font-size: $font-size-lg;
     margin-bottom: $space-sm;
     color: $text-color;
+  }
+
+  :deep(.van-cell-group--inset) {
+    margin: 0;
   }
 }
 </style>

@@ -82,11 +82,12 @@ export function useHealthData(initialData?: HealthData) {
  * 使用今日数据Hook
  */
 export function useTodayData() {
+  const loading = ref(false)
   const todayData = ref<HealthData>({
-    weight: 65.5,
-    exercise: 30,
-    sleep: 8,
-    calories: 1200
+    weight: 0,
+    exercise: 0,
+    sleep: 0,
+    calories: 0
   })
 
   const isDataComplete = computed(() => {
@@ -100,9 +101,71 @@ export function useTodayData() {
    * 加载今日数据
    */
   async function loadTodayData() {
-    // TODO: 从API获取今日数据
-    // const data = await api.getTodayData()
-    // todayData.value = data
+    loading.value = true
+    try {
+      // 导入 API
+      const { getStatsOverview } = await import('@/api/stats')
+      const { getHealthRecords } = await import('@/api/health')
+      const { getUserGoals } = await import('@/views/goals/utils/api')
+
+      // 获取今日日期
+      const today = new Date().toISOString().split('T')[0]
+
+      // 并行请求统计概览、今日健康记录和用户目标
+      const [overviewRes, recordsRes, goalsRes] = await Promise.all([
+        getStatsOverview({ days: 1 }),
+        getHealthRecords({ start_date: today, end_date: today, limit: 1 }),
+        getUserGoals()
+      ])
+
+      const overview = overviewRes as {
+        success?: boolean
+        data?: {
+          health_records_count?: number
+          diet_records_count?: number
+          avg_weight?: number
+          avg_exercise_duration?: number
+          avg_sleep_hours?: number
+          total_calories?: number
+          avg_daily_calories?: number
+        }
+      }
+      const records = recordsRes as { success?: boolean; data?: { records?: API.HealthRecord[] } }
+
+      // 体重数据优先级：今日健康记录 > 第一条进行中目标的当前体重 > 0
+      let weightValue = 0
+
+      // 1. 先从第一条进行中的目标获取当前体重
+      if (goalsRes && goalsRes.length > 0) {
+        const activeGoal = goalsRes.find(goal => goal.status === 'active')
+        if (activeGoal && activeGoal.goal_type === 'weight') {
+          weightValue = activeGoal.current_value || 0
+        }
+      }
+
+      // 2. 如果存在今日健康记录，则覆盖体重数据
+      if (records.success && records.data?.records && records.data.records.length > 0) {
+        const record = records.data.records[0]
+        if (record) {
+          if (record.weight) {
+            weightValue = record.weight
+          }
+          todayData.value.exercise = record.exercise_duration || 0
+          todayData.value.sleep = record.sleep_hours || 0
+        }
+      }
+
+      todayData.value.weight = weightValue
+
+      // 从统计概览获取卡路里数据
+      if (overview.success && overview.data) {
+        todayData.value.calories = overview.data.avg_daily_calories || 0
+      }
+    } catch (error) {
+      console.error('加载今日数据失败:', error)
+    } finally {
+      loading.value = false
+    }
   }
 
   /**
@@ -120,6 +183,7 @@ export function useTodayData() {
     todayData,
     isDataComplete,
     loadTodayData,
-    refreshData
+    refreshData,
+    loading
   }
 }

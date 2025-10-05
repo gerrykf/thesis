@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
 import { initFlexible } from './utils/flexible'
+import { useUserStore } from './stores/user'
 import '@vant/touch-emulator'
 import 'vant/lib/index.css'
 import './styles/global.scss'
@@ -15,4 +16,9 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+
+// 初始化用户信息
+const userStore = useUserStore()
+userStore.initUserInfo()
+
 app.mount('#app')

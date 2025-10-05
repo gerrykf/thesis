@@ -108,10 +108,58 @@ export function validateLoginForm(formData: LoginFormData): ValidationResult {
  * 保存登录信息到本地存储
  * @param token 登录令牌
  * @param remember 是否记住登录
+ * @param username 用户名
+ * @param password 密码
  */
-export function saveLoginInfo(token: string, remember: boolean = false): void {
+export function saveLoginInfo(
+  token: string,
+  remember: boolean = false,
+  username?: string,
+  password?: string
+): void {
   const storage = remember ? localStorage : sessionStorage
   storage.setItem('token', token)
+
+  // 如果勾选记住密码，保存用户名和密码
+  if (remember && username && password) {
+    localStorage.setItem('rememberedUsername', username)
+    localStorage.setItem('rememberedPassword', password)
+    localStorage.setItem('rememberMe', 'true')
+  } else {
+    // 如果没有勾选，清除已保存的用户名密码
+    localStorage.removeItem('rememberedUsername')
+    localStorage.removeItem('rememberedPassword')
+    localStorage.removeItem('rememberMe')
+  }
+}
+
+/**
+ * 获取记住的登录信息
+ * @returns 记住的用户名和密码
+ */
+export function getRememberedLoginInfo(): {
+  username: string
+  password: string
+  remember: boolean
+} | null {
+  const rememberMe = localStorage.getItem('rememberMe') === 'true'
+
+  if (!rememberMe) {
+    return null
+  }
+
+  const username = localStorage.getItem('rememberedUsername')
+  const password = localStorage.getItem('rememberedPassword')
+
+  if (username && password) {
+    return {
+      username,
+      password,
+      remember: true
+    }
+  }
+
+  return null
 }
 
 /**
@@ -124,8 +172,17 @@ export function getToken(): string | null {
 
 /**
  * 清除登录信息
+ * @param clearRemembered 是否清除记住的密码，默认 false（保留记住的密码）
  */
-export function clearLoginInfo(): void {
+export function clearLoginInfo(clearRemembered: boolean = false): void {
   localStorage.removeItem('token')
   sessionStorage.removeItem('token')
+  localStorage.removeItem('userInfo')
+
+  // 只有明确指定时才清除记住的密码
+  if (clearRemembered) {
+    localStorage.removeItem('rememberedUsername')
+    localStorage.removeItem('rememberedPassword')
+    localStorage.removeItem('rememberMe')
+  }
 }

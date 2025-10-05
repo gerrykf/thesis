@@ -138,24 +138,148 @@
 ```
 h5-app/
 ├── src/
-│   ├── assets/          # 静态资源
-│   ├── components/      # 公共组件
-│   ├── router/          # 路由配置
-│   ├── stores/          # Pinia状态管理
-│   ├── utils/           # 工具函数
-│   │   └── flexible.ts  # rem适配脚本
-│   ├── views/           # 页面组件
-│   │   ├── Home.vue     # 首页-今日概览
-│   │   ├── Health.vue   # 健康打卡
-│   │   ├── Diet.vue     # 饮食记录
-│   │   ├── History.vue  # 历史记录
-│   │   └── Profile.vue  # 个人中心
-│   ├── App.vue          # 根组件
-│   ├── main.ts          # 入口文件
-│   └── style.css        # 全局样式
-├── index.html
-├── vite.config.ts       # Vite配置
-└── package.json
+│   ├── api/                    # API接口（自动生成）
+│   │   ├── typings.d.ts        # API类型定义
+│   │   ├── auth.ts             # 认证接口
+│   │   ├── health.ts           # 健康记录接口
+│   │   ├── diet.ts             # 饮食记录接口
+│   │   ├── food.ts             # 食物管理接口
+│   │   ├── stats.ts            # 数据统计接口
+│   │   ├── admin.ts            # 管理员接口
+│   │   └── index.ts            # 统一导出
+│   ├── assets/                 # 静态资源
+│   │   └── vue.svg             # Vue Logo
+│   ├── components/             # 公共组件
+│   │   └── HelloWorld.vue      # 示例组件
+│   ├── router/                 # 路由配置
+│   │   └── index.ts            # 路由定义
+│   ├── stores/                 # Pinia状态管理
+│   │   └── user.ts             # 用户状态管理
+│   ├── styles/                 # 全局样式
+│   │   ├── global.scss         # 全局样式
+│   │   ├── variables.scss      # SCSS变量
+│   │   └── mixins.scss         # SCSS混入
+│   ├── types/                  # 类型定义
+│   │   └── request.ts          # 请求相关类型
+│   ├── utils/                  # 全局工具函数
+│   │   ├── flexible.ts         # rem适配脚本
+│   │   └── request.ts          # axios封装
+│   ├── views/                  # 页面组件
+│   │   ├── login/              # 登录页
+│   │   │   ├── index.vue       # 登录页面主文件
+│   │   │   └── utils/          # 页面级工具函数
+│   │   │       ├── index.ts    # 统一导出
+│   │   │       ├── types.ts    # 类型定义
+│   │   │       ├── enums.ts    # 枚举定义
+│   │   │       ├── options.ts  # 选项配置
+│   │   │       ├── hooks.ts    # 组合式函数
+│   │   │       └── tools.ts    # 工具函数
+│   │   ├── register/           # 注册页
+│   │   │   ├── index.vue
+│   │   │   └── utils/
+│   │   │       ├── index.ts
+│   │   │       ├── types.ts
+│   │   │       ├── enums.ts
+│   │   │       ├── options.ts
+│   │   │       ├── hooks.ts
+│   │   │       └── tools.ts
+│   │   ├── home/               # 首页-今日概览
+│   │   │   ├── index.vue
+│   │   │   └── utils/
+│   │   │       ├── index.ts
+│   │   │       ├── types.ts
+│   │   │       ├── enums.ts
+│   │   │       ├── options.ts
+│   │   │       ├── hooks.ts
+│   │   │       └── tools.ts
+│   │   ├── health/             # 健康打卡
+│   │   │   ├── index.vue
+│   │   │   └── utils/
+│   │   │       ├── index.ts
+│   │   │       ├── types.ts
+│   │   │       ├── enums.ts
+│   │   │       ├── options.ts
+│   │   │       └── hooks.ts
+│   │   ├── diet/               # 饮食记录
+│   │   │   ├── index.vue
+│   │   │   └── utils/
+│   │   │       ├── index.ts
+│   │   │       ├── types.ts
+│   │   │       ├── enums.ts
+│   │   │       ├── options.ts
+│   │   │       └── hooks.ts
+│   │   ├── history/            # 历史记录
+│   │   │   ├── index.vue
+│   │   │   └── utils/
+│   │   │       ├── index.ts
+│   │   │       └── types.ts
+│   │   └── profile/            # 个人中心
+│   │       ├── index.vue
+│   │       └── utils/
+│   │           ├── index.ts
+│   │           └── types.ts
+│   ├── App.vue                 # 根组件
+│   ├── main.ts                 # 入口文件
+│   └── env.d.ts                # 环境变量类型定义
+├── index.html                  # HTML模板
+├── vite.config.ts              # Vite配置
+├── tsconfig.json               # TypeScript配置
+├── openapi2ts.config.ts        # OpenAPI代码生成配置
+└── package.json                # 项目配置
+```
+
+### 目录说明
+
+#### utils 文件夹职责划分
+
+每个页面的 `utils/` 文件夹采用统一的模块化组织方式：
+
+- **index.ts** - 统一导出入口，便于外部引用
+- **types.ts** - TypeScript 类型定义和接口
+- **enums.ts** - 枚举常量（如状态码、选项值等）
+- **options.ts** - 配置项和选项数据（如下拉框选项、表单配置）
+- **hooks.ts** - Vue 组合式函数（如 useLogin、useForm 等）
+- **tools.ts** - 纯函数工具（如格式化、验证、计算等）
+
+**示例：登录页 utils 组织**
+
+```typescript
+// types.ts - 类型定义
+export interface LoginFormData {
+  username: string
+  password: string
+  remember?: boolean
+}
+
+// enums.ts - 枚举
+export enum LoginErrorCode {
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED'
+}
+
+// options.ts - 配置
+export const loginFormRules = {
+  username: [{ required: true, message: '请输入用户名' }]
+}
+
+// tools.ts - 工具函数
+export function validateUsername(value: string): boolean {
+  return /^[a-zA-Z0-9_]{3,20}$/.test(value)
+}
+
+// hooks.ts - 组合式函数
+export function useLogin() {
+  const formData = ref<LoginFormData>({ ... })
+  const handleLogin = async () => { ... }
+  return { formData, handleLogin }
+}
+
+// index.ts - 统一导出
+export * from './types'
+export * from './enums'
+export * from './options'
+export * from './hooks'
+export * from './tools'
 ```
 
 ## 开发指南
