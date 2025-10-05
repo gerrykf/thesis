@@ -169,48 +169,46 @@ INSERT INTO foods (
 -- 获取实际的用户ID并插入数据
 INSERT INTO health_records (
     user_id, record_date, weight, exercise_duration, exercise_type,
-    exercise_calories, sleep_hours, sleep_quality, mood,
-    blood_pressure_systolic, blood_pressure_diastolic, heart_rate,
-    body_temperature, notes
+    sleep_hours, sleep_quality, mood, notes
 )
-SELECT u.id, '2024-01-15', 57.50, 45, '慢跑', 300.00, 7.50, 'good', 'good',
- 115, 75, 72, 36.50, '今天跑步感觉不错，体重有所下降'
+SELECT u.id, '2024-01-15', 57.50, 45, '慢跑', 7.50, 'good', 'good',
+ '今天跑步感觉不错，体重有所下降'
 FROM users u WHERE u.username = 'li_na'
 UNION ALL
-SELECT u.id, '2024-01-15', 58.20, 30, '瑜伽', 150.00, 8.00, 'excellent', 'excellent',
- 110, 70, 68, 36.30, '瑜伽练习后身心放松'
+SELECT u.id, '2024-01-15', 58.20, 30, '瑜伽', 8.00, 'excellent', 'excellent',
+ '瑜伽练习后身心放松'
 FROM users u WHERE u.username = 'wang_fang'
 UNION ALL
-SELECT u.id, '2024-01-15', 78.50, 60, '游泳', 450.00, 7.00, 'good', 'good',
- 120, 80, 75, 36.60, '游泳一小时，很有成就感'
+SELECT u.id, '2024-01-15', 78.50, 60, '游泳', 7.00, 'good', 'good',
+ '游泳一小时，很有成就感'
 FROM users u WHERE u.username = 'liu_qiang'
 UNION ALL
-SELECT u.id, '2024-01-14', 62.30, 40, '骑行', 280.00, 6.50, 'fair', 'good',
- 118, 78, 73, 36.40, '骑行锻炼，天气不错'
+SELECT u.id, '2024-01-14', 62.30, 40, '骑行', 6.50, 'fair', 'good',
+ '骑行锻炼，天气不错'
 FROM users u WHERE u.username = 'chen_jing'
 UNION ALL
-SELECT u.id, '2024-01-14', 75.80, 50, '篮球', 380.00, 7.50, 'good', 'excellent',
- 122, 82, 78, 36.70, '打篮球出了一身汗'
+SELECT u.id, '2024-01-14', 75.80, 50, '篮球', 7.50, 'good', 'excellent',
+ '打篮球出了一身汗'
 FROM users u WHERE u.username = 'zhao_ming'
 UNION ALL
-SELECT u.id, '2024-01-14', 53.20, 35, '健身操', 200.00, 8.00, 'excellent', 'good',
- 112, 72, 70, 36.20, '跟着视频做健身操'
+SELECT u.id, '2024-01-14', 53.20, 35, '健身操', 8.00, 'excellent', 'good',
+ '跟着视频做健身操'
 FROM users u WHERE u.username = 'sun_li'
 UNION ALL
-SELECT u.id, '2024-01-13', 80.10, 55, '跑步', 420.00, 6.00, 'fair', 'fair',
- 125, 85, 80, 36.80, '跑步后有点累'
+SELECT u.id, '2024-01-13', 80.10, 55, '跑步', 6.00, 'fair', 'fair',
+ '跑步后有点累'
 FROM users u WHERE u.username = 'zhou_lei'
 UNION ALL
-SELECT u.id, '2024-01-13', 49.50, 25, '散步', 120.00, 7.00, 'good', 'good',
- 108, 68, 65, 36.10, '晚饭后散步半小时'
+SELECT u.id, '2024-01-13', 49.50, 25, '散步', 7.00, 'good', 'good',
+ '晚饭后散步半小时'
 FROM users u WHERE u.username = 'wu_xia'
 UNION ALL
-SELECT u.id, '2024-01-13', 76.20, 45, '爬山', 350.00, 7.50, 'good', 'excellent',
- 120, 80, 76, 36.50, '周末爬山，空气清新'
+SELECT u.id, '2024-01-13', 76.20, 45, '爬山', 7.50, 'good', 'excellent',
+ '周末爬山，空气清新'
 FROM users u WHERE u.username = 'zheng_hao'
 UNION ALL
-SELECT u.id, '2024-01-12', 73.50, 40, '羽毛球', 280.00, 8.00, 'excellent', 'excellent',
- 118, 78, 72, 36.30, '打羽毛球很开心'
+SELECT u.id, '2024-01-12', 73.50, 40, '羽毛球', 8.00, 'excellent', 'excellent',
+ '打羽毛球很开心'
 FROM users u WHERE u.username = 'zhang_wei';
 
 -- ================================
