@@ -1,8 +1,8 @@
 <template>
   <div class="login">
-    <van-nav-bar title="登录" fixed />
+    <van-nav-bar title="登录" fixed placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- Logo 区域 -->
       <div class="logo-section">
         <div class="logo-icon">🏃</div>

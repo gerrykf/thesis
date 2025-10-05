@@ -1,6 +1,6 @@
 <template>
   <div class="goals">
-    <van-nav-bar title="我的目标" fixed>
+    <van-nav-bar title="我的目标" fixed placeholder>
       <template #left>
         <van-icon name="arrow-left" @click="goBack" />
       </template>
@@ -9,7 +9,7 @@
       </template>
     </van-nav-bar>
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- 目标列表 -->
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <div v-if="goals.length > 0" class="goals-list">
@@ -56,9 +56,9 @@
     <!-- 添加目标弹窗 -->
     <van-popup v-model:show="showAddDialog" position="bottom" :style="{ height: '80%' }">
       <div class="dialog-header">
-        <van-button text @click="showAddDialog = false">取消</van-button>
+        <van-button plain @click="() => showAddDialog = false">取消</van-button>
         <span class="title">添加目标</span>
-        <van-button text type="primary" @click="handleAddGoal">保存</van-button>
+        <van-button plain type="primary" @click="handleAddGoal">保存</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="addFormRef">
@@ -109,7 +109,7 @@
             name="start_date"
             label="开始日期"
             placeholder="选择开始日期"
-            @click="showStartDatePicker = true"
+            @click="() => showStartDatePicker = true"
           />
           <van-field
             v-model="addForm.target_date"
@@ -118,7 +118,7 @@
             name="target_date"
             label="目标日期"
             placeholder="选择目标日期（可选）"
-            @click="showTargetDatePicker = true"
+            @click="() => showTargetDatePicker = true"
           />
           <van-field
             v-model="addForm.description"
@@ -137,9 +137,9 @@
     <!-- 编辑目标弹窗 -->
     <van-popup v-model:show="showEditDialog" position="bottom" :style="{ height: '80%' }">
       <div class="dialog-header">
-        <van-button text @click="showEditDialog = false">取消</van-button>
+        <van-button plain @click="() => showEditDialog = false">取消</van-button>
         <span class="title">编辑目标</span>
-        <van-button text type="danger" @click="handleDeleteGoal">删除</van-button>
+        <van-button plain type="danger" @click="handleDeleteGoal">删除</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="editFormRef">

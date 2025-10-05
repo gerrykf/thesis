@@ -173,7 +173,17 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
          weight = ?, exercise_duration = ?, exercise_type = ?,
          sleep_hours = ?, sleep_quality = ?, mood = ?, notes = ?
          WHERE user_id = ? AND record_date = ?`,
-        [weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes, userId, record_date]
+        [
+          weight,
+          exercise_duration ?? null,
+          exercise_type ?? null,
+          sleep_hours ?? null,
+          sleep_quality ?? null,
+          mood ?? null,
+          notes ?? null,
+          userId,
+          record_date
+        ]
       );
 
       res.json({
@@ -187,7 +197,17 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
         `INSERT INTO health_records
          (user_id, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes]
+        [
+          userId,
+          record_date,
+          weight,
+          exercise_duration ?? null,
+          exercise_type ?? null,
+          sleep_hours ?? null,
+          sleep_quality ?? null,
+          mood ?? null,
+          notes ?? null
+        ]
       );
 
       res.status(201).json({

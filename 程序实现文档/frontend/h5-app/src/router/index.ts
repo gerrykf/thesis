@@ -34,6 +34,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '健康打卡', anonymous: false }
   },
   {
+    path: '/health/form',
+    name: 'HealthForm',
+    component: () => import('@/views/health/components/HealthForm.vue'),
+    meta: { title: '健康打卡表单', anonymous: false }
+  },
+  {
     path: '/diet',
     name: 'Diet',
     component: () => import('@/views/diet/index.vue'),

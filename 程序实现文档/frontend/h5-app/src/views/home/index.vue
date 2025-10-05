@@ -1,41 +1,51 @@
 <template>
   <div class="home">
-    <van-nav-bar title="今日概览" fixed />
+    <van-nav-bar title="今日概览" fixed placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- 欢迎区域 -->
       <div class="welcome-section">
         <h2>{{ greeting }}，{{ userName }}</h2>
         <p class="date">{{ currentDate }} {{ weekday }}</p>
       </div>
 
-      <!-- 今日数据卡片 -->
-      <div class="data-card">
+      <!-- 今日打卡状态 -->
+      <div class="check-in-card">
         <div class="card-header">
-          <h3>📊 今日数据</h3>
-          <span class="health-score">健康评分: {{ healthScore }}</span>
+          <div class="title-row">
+            <h3>📊 今日打卡</h3>
+            <van-tag v-if="hasCheckedIn" type="success" size="medium">已打卡</van-tag>
+            <van-tag v-else type="warning" size="medium">未打卡</van-tag>
+          </div>
         </div>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-icon">⚖️</div>
-            <div class="stat-value">{{ todayData.weight || '--' }}kg</div>
-            <div class="stat-label">体重</div>
+
+        <!-- 已打卡：显示简要数据 -->
+        <div v-if="hasCheckedIn" class="checked-in-data">
+          <div class="data-row">
+            <span class="label">💪 状态</span>
+            <span class="value">{{ moodIcon }} {{ moodDisplay }}</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon">🏃</div>
-            <div class="stat-value">{{ exerciseDisplay }}</div>
-            <div class="stat-label">{{ exerciseTypeDisplay }}</div>
+          <div class="data-row">
+            <span class="label">⚖️ 体重</span>
+            <span class="value">{{ todayData.weight }}kg</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon">😴</div>
-            <div class="stat-value">{{ sleepDisplay }}</div>
-            <div class="stat-label">{{ sleepQualityDisplay }}</div>
+          <div class="data-row" v-if="todayData.exercise">
+            <span class="label">🏃 运动</span>
+            <span class="value">{{ exerciseDisplay }} · {{ exerciseTypeDisplay }}</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon">{{ moodIcon }}</div>
-            <div class="stat-value">{{ moodDisplay }}</div>
-            <div class="stat-label">心情</div>
+          <div class="data-row">
+            <span class="label">😴 睡眠</span>
+            <span class="value">{{ sleepDisplay }} · {{ sleepQualityText }}</span>
           </div>
+        </div>
+
+        <!-- 未打卡：显示提示 -->
+        <div v-else class="not-checked-in">
+          <div class="tip-icon">📝</div>
+          <p class="tip-text">今天还没有打卡哦，记录一下吧！</p>
+          <van-button type="primary" size="small" round @click="goToHealth">
+            立即打卡
+          </van-button>
         </div>
       </div>
 
@@ -75,7 +85,6 @@ import {
   formatChineseDate,
   getWeekday,
   getGreeting,
-  calculateHealthScore,
   generateHealthTips,
   useTodayData
 } from './utils'
@@ -91,15 +100,19 @@ const weekday = computed(() => getWeekday())
 const userName = computed(() => userStore.nickname)
 
 // 使用今日数据 Hook
-const { todayData, loading, refreshData } = useTodayData()
+const { todayData } = useTodayData()
 
-const healthScore = computed(() => calculateHealthScore(todayData.value))
 const healthTips = computed(() => generateHealthTips(todayData.value))
+
+// 是否已打卡
+const hasCheckedIn = computed(() => {
+  return todayData.value.weight > 0
+})
 
 // 格式化运动时长显示
 const exerciseDisplay = computed(() => {
   const minutes = todayData.value.exercise
-  if (!minutes) return '--'
+  if (!minutes) return '未运动'
   if (minutes >= 60) {
     const hours = Math.floor(minutes / 60)
     const remainingMinutes = minutes % 60
@@ -113,35 +126,35 @@ const exerciseDisplay = computed(() => {
 
 // 运动类型显示
 const exerciseTypeDisplay = computed(() => {
-  return todayData.value.exercise_type || '运动'
+  return todayData.value.exercise_type || '其他运动'
 })
 
 // 睡眠时长显示
 const sleepDisplay = computed(() => {
   const hours = todayData.value.sleep
-  return hours ? `${hours}小时` : '--'
+  return hours ? `${hours}小时` : '未记录'
 })
 
-// 睡眠质量显示
-const sleepQualityDisplay = computed(() => {
+// 睡眠质量文本
+const sleepQualityText = computed(() => {
   const qualityMap: Record<string, string> = {
-    'excellent': '睡眠·优秀',
-    'good': '睡眠·良好',
-    'fair': '睡眠·一般',
-    'poor': '睡眠·较差'
+    'excellent': '优秀',
+    'good': '良好',
+    'fair': '一般',
+    'poor': '较差'
   }
-  return qualityMap[todayData.value.sleep_quality] || '睡眠'
+  return qualityMap[todayData.value.sleep_quality || ''] || '未评价'
 })
 
 // 心情状态显示
 const moodDisplay = computed(() => {
   const moodMap: Record<string, string> = {
-    'excellent': '很好',
-    'good': '不错',
-    'fair': '一般',
-    'poor': '较差'
+    'excellent': '心情很好',
+    'good': '心情不错',
+    'fair': '心情一般',
+    'poor': '心情欠佳'
   }
-  return moodMap[todayData.value.mood] || '未记录'
+  return moodMap[todayData.value.mood || ''] || '未记录'
 })
 
 // 心情图标
@@ -152,7 +165,7 @@ const moodIcon = computed(() => {
     'fair': '😐',
     'poor': '😔'
   }
-  return iconMap[todayData.value.mood] || '😶'
+  return iconMap[todayData.value.mood || ''] || '😶'
 })
 
 function goToHealth() {
@@ -197,55 +210,63 @@ function goToGoals() {
   }
 }
 
-.data-card {
-  @include gradient-bg(#667eea, #764ba2);
+.check-in-card {
+  background: $white;
   border-radius: $radius-lg;
   padding: $space-lg;
   margin-bottom: $space-lg;
-  color: $white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
   .card-header {
-    @include flex-between;
     margin-bottom: $space-md;
 
-    h3 {
-      font-size: $font-size-lg;
-    }
+    .title-row {
+      @include flex-between;
+      align-items: center;
 
-    .health-score {
-      font-size: $font-size-sm;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px $space-sm;
-      border-radius: $radius-sm;
+      h3 {
+        font-size: $font-size-lg;
+        color: $text-color;
+      }
     }
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: $space-sm;
+  .checked-in-data {
+    .data-row {
+      @include flex-between;
+      padding: $space-sm 0;
+      border-bottom: 1px solid $border-color;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .label {
+        font-size: $font-size-base;
+        color: $text-color-2;
+      }
+
+      .value {
+        font-size: $font-size-base;
+        color: $text-color;
+        font-weight: 500;
+      }
+    }
   }
 
-  .stat-item {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: $radius-md;
-    padding: $space-md;
+  .not-checked-in {
     text-align: center;
+    padding: $space-xl 0;
 
-    .stat-icon {
-      font-size: 32px;
-      margin-bottom: $space-xs;
+    .tip-icon {
+      font-size: 48px;
+      margin-bottom: $space-md;
     }
 
-    .stat-value {
-      font-size: $font-size-xl;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: $font-size-sm;
-      opacity: 0.9;
+    .tip-text {
+      font-size: $font-size-base;
+      color: $text-color-2;
+      margin-bottom: $space-lg;
     }
   }
 }

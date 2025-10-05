@@ -1,8 +1,8 @@
 <template>
   <div class="diet">
-    <van-nav-bar title="饮食记录" left-arrow @click-left="onClickLeft" fixed />
+    <van-nav-bar title="饮食记录" left-arrow @click-left="onClickLeft" fixed placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- 日期选择 -->
       <van-cell-group inset>
         <van-cell

@@ -514,17 +514,17 @@ export const updateFood = async (req: AuthRequest, res: Response): Promise<void>
        WHERE id = ?`,
       [
         name,
-        name_en,
+        name_en ?? null,
         category,
-        brand,
+        brand ?? null,
         calories_per_100g,
-        protein_per_100g,
-        fat_per_100g,
-        carbs_per_100g,
-        fiber_per_100g,
-        sodium_per_100g,
-        sugar_per_100g,
-        barcode,
+        protein_per_100g ?? null,
+        fat_per_100g ?? null,
+        carbs_per_100g ?? null,
+        fiber_per_100g ?? null,
+        sodium_per_100g ?? null,
+        sugar_per_100g ?? null,
+        barcode ?? null,
         foodId
       ]
     );

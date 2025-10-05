@@ -108,8 +108,12 @@ export function useTodayData() {
       const { getHealthRecords } = await import('@/api/health')
       const { getUserGoals } = await import('@/views/goals/utils/api')
 
-      // 获取今日日期
-      const today = new Date().toISOString().split('T')[0]
+      // 获取今日日期（本地时间）
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const today = `${year}-${month}-${day}`
 
       // 并行请求统计概览、今日健康记录和用户目标
       const [overviewRes, recordsRes, goalsRes] = await Promise.all([
@@ -151,7 +155,10 @@ export function useTodayData() {
             weightValue = record.weight
           }
           todayData.value.exercise = record.exercise_duration || 0
+          todayData.value.exercise_type = record.exercise_type || ''
           todayData.value.sleep = record.sleep_hours || 0
+          todayData.value.sleep_quality = record.sleep_quality || ''
+          todayData.value.mood = record.mood || ''
         }
       }
 

@@ -251,7 +251,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // 创建用户
     const [result] = await db.execute(
       'INSERT INTO users (username, password, nickname, email) VALUES (?, ?, ?, ?)',
-      [username, hashedPassword, nickname, email]
+      [username, hashedPassword, nickname ?? null, email ?? null]
     );
 
     const userId = (result as any).insertId;

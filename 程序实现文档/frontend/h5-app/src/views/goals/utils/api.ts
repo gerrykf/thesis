@@ -14,7 +14,7 @@ export async function getUserGoals(): Promise<UserGoal[]> {
       url: '/api/goals',
       method: 'GET'
     })
-    return response.data || []
+    return (response.data as any)?.data || []
   } catch (error) {
     console.error('获取用户目标失败:', error)
     return []
@@ -40,7 +40,7 @@ export async function createUserGoal(data: CreateGoalFormData): Promise<boolean>
         description: data.description || undefined
       }
     })
-    return response.success
+    return !!(response.data as any)?.success
   } catch (error) {
     console.error('创建用户目标失败:', error)
     return false
@@ -57,7 +57,7 @@ export async function updateUserGoal(id: number, data: UpdateGoalFormData): Prom
       method: 'PUT',
       data
     })
-    return response.success
+    return !!(response.data as any)?.success
   } catch (error) {
     console.error('更新用户目标失败:', error)
     return false
@@ -73,7 +73,7 @@ export async function deleteUserGoal(id: number): Promise<boolean> {
       url: `/api/goals/${id}`,
       method: 'DELETE'
     })
-    return response.success
+    return !!(response.data as any)?.success
   } catch (error) {
     console.error('删除用户目标失败:', error)
     return false

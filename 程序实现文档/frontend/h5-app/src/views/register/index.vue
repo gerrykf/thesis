@@ -1,8 +1,8 @@
 <template>
   <div class="register">
-    <van-nav-bar title="注册" fixed left-arrow @click-left="goToLogin" />
+    <van-nav-bar title="注册" fixed left-arrow @click-left="goToLogin" placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- 顶部说明 -->
       <div class="header-section">
         <h2>创建账号</h2>

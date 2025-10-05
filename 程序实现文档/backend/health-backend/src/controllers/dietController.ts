@@ -169,7 +169,7 @@ export const createDietRecord = async (req: AuthRequest, res: Response): Promise
       `INSERT INTO diet_records
        (user_id, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes]
+      [userId, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes ?? null]
     );
 
     res.status(201).json({

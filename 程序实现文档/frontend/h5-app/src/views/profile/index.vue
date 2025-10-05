@@ -1,8 +1,8 @@
 <template>
   <div class="profile">
-    <van-nav-bar title="个人中心" fixed />
+    <van-nav-bar title="个人中心" fixed placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <!-- 用户信息 -->
       <div class="user-info">
         <van-image

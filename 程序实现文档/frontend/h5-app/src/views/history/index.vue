@@ -1,8 +1,8 @@
 <template>
   <div class="history">
-    <van-nav-bar title="历史记录" fixed />
+    <van-nav-bar title="历史记录" fixed placeholder />
 
-    <div class="content" style="padding-top: 46px;">
+    <div class="content">
       <van-tabs v-model:active="activeTab">
         <van-tab title="健康打卡">
           <van-list>

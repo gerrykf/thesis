@@ -1,6 +1,10 @@
 <template>
   <div class="app">
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
     <van-tabbar v-model="active" route>
       <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item to="/health" icon="add-o">打卡</van-tabbar-item>
@@ -32,9 +36,8 @@ const active = ref(0)
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
-    margin-top: 20px;
     margin-bottom: 20px;
-    min-height: calc(100vh - 40px);
+    min-height: calc(100vh - 20px);
   }
 
   body {
