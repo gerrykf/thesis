@@ -340,8 +340,8 @@ export const getFoods = async (req: AuthRequest, res: Response): Promise<void> =
     query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
-    const [foods] = await db.execute(query, params);
-    const [countResult] = await db.execute(countQuery, countParams);
+    const [foods] = await db.query(query, params);
+    const [countResult] = await db.query(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
     res.json({

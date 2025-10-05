@@ -68,6 +68,11 @@ declare namespace API {
     id: number;
   };
 
+  type deleteGoalsIdParams = {
+    /** 目标ID */
+    id: number;
+  };
+
   type deleteHealthRecordsIdParams = {
     /** 记录ID */
     id: number;
@@ -100,6 +105,10 @@ declare namespace API {
     created_at?: string;
     /** 更新时间 */
     updated_at?: string;
+    /** 食物名称 (JOIN查询返回) */
+    food_name?: string;
+    /** 食物分类 (JOIN查询返回) */
+    food_category?: string;
   };
 
   type Food = {
@@ -306,6 +315,11 @@ declare namespace API {
     id: number;
   };
 
+  type putGoalsIdParams = {
+    /** 目标ID */
+    id: number;
+  };
+
   type RegisterRequest = {
     /** 用户名(3-50字符,只能包含字母、数字和下划线) */
     username: string;
@@ -361,5 +375,34 @@ declare namespace API {
     created_at?: string;
     /** 最后登录时间 */
     last_login_at?: string;
+  };
+
+  type UserGoal = {
+    /** 目标ID */
+    id?: number;
+    /** 用户ID */
+    user_id?: number;
+    /** 目标类型 */
+    goal_type?: "weight" | "exercise" | "calories" | "custom";
+    /** 目标名称 */
+    goal_name?: string;
+    /** 目标值 */
+    target_value?: number;
+    /** 当前值 */
+    current_value?: number;
+    /** 单位 */
+    unit?: string;
+    /** 开始日期 */
+    start_date?: string;
+    /** 目标日期 */
+    target_date?: string;
+    /** 状态 */
+    status?: "active" | "completed" | "paused" | "cancelled";
+    /** 目标描述 */
+    description?: string;
+    /** 创建时间 */
+    created_at?: string;
+    /** 更新时间 */
+    updated_at?: string;
   };
 }

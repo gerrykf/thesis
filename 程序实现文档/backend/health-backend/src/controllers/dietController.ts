@@ -281,7 +281,10 @@ export const getDietRecords = async (req: AuthRequest, res: Response): Promise<v
     const mealType = req.query.meal_type as string;
 
     let query = `
-      SELECT dr.*, f.name as food_name, f.category as food_category
+      SELECT dr.id, dr.user_id, dr.food_id, dr.meal_type, dr.quantity,
+             dr.calories, dr.protein, dr.fat, dr.carbs, dr.record_date, dr.notes,
+             dr.created_at, dr.updated_at,
+             f.name as food_name, f.category as food_category
       FROM diet_records dr
       LEFT JOIN foods f ON dr.food_id = f.id
       WHERE dr.user_id = ?
@@ -321,8 +324,8 @@ export const getDietRecords = async (req: AuthRequest, res: Response): Promise<v
     query += ' ORDER BY dr.record_date DESC, dr.meal_type LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
-    const [records] = await db.execute(query, params);
-    const [countResult] = await db.execute(countQuery, countParams);
+    const [records] = await db.query(query, params);
+    const [countResult] = await db.query(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
     res.json({
