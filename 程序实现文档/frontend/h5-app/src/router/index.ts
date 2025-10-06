@@ -68,6 +68,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Analysis',
     component: () => import('@/views/analysis/index.vue'),
     meta: { title: '数据分析', anonymous: false }
+  },
+  {
+    path: '/profile/edit',
+    name: 'ProfileEdit',
+    component: () => import('@/views/profile/edit.vue'),
+    meta: { title: '个人资料', anonymous: false }
   }
 ]
 

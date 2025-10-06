@@ -17,9 +17,9 @@
 
       <!-- 功能列表 -->
       <van-cell-group inset>
-        <van-cell title="个人资料" is-link @click="showToast('功能开发中')" icon="manager-o" />
-        <van-cell title="健康目标" is-link @click="showToast('功能开发中')" icon="flag-o" />
-        <van-cell title="数据统计" is-link @click="showToast('功能开发中')" icon="chart-trending-o" />
+        <van-cell title="个人资料" is-link @click="goToEdit" icon="manager-o" />
+        <van-cell title="健康目标" is-link @click="goToGoals" icon="flag-o" />
+        <van-cell title="数据统计" is-link @click="goToAnalysis" icon="chart-trending-o" />
       </van-cell-group>
 
       <van-cell-group inset>
@@ -48,6 +48,18 @@ const userStore = useUserStore()
 
 // 从 store 获取用户信息
 const userName = computed(() => userStore.nickname)
+
+function goToEdit() {
+  router.push('/profile/edit')
+}
+
+function goToGoals() {
+  router.push('/goals')
+}
+
+function goToAnalysis() {
+  router.push('/analysis')
+}
 
 function onLogout() {
   showConfirmDialog({
