@@ -49,6 +49,57 @@
         </div>
       </div>
 
+      <!-- 今日摄入量 -->
+      <div class="nutrition-card">
+        <div class="card-header">
+          <h3>🍽️ 今日摄入</h3>
+          <span class="view-more" @click="goToDiet">查看详情 ›</span>
+        </div>
+
+        <div v-if="hasNutritionData" class="nutrition-data">
+          <!-- 热量进度条 -->
+          <div class="nutrition-item calories">
+            <div class="item-header">
+              <span class="label">热量</span>
+              <span class="value">{{ todayCalories }} <span class="unit">kcal</span></span>
+            </div>
+            <van-progress
+              :percentage="caloriesProgress"
+              :pivot-text="caloriesProgress + '%'"
+              color="linear-gradient(to right, #ff6034, #ee0a24)"
+              track-color="#f5f5f5"
+            />
+          </div>
+
+          <!-- 三大营养素 -->
+          <div class="macros-grid">
+            <div class="macro-item protein">
+              <div class="macro-icon">💪</div>
+              <div class="macro-label">蛋白质</div>
+              <div class="macro-value">{{ todayProtein }}g</div>
+            </div>
+            <div class="macro-item carbs">
+              <div class="macro-icon">🍚</div>
+              <div class="macro-label">碳水</div>
+              <div class="macro-value">{{ todayCarbs }}g</div>
+            </div>
+            <div class="macro-item fat">
+              <div class="macro-icon">🥑</div>
+              <div class="macro-label">脂肪</div>
+              <div class="macro-value">{{ todayFat }}g</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="no-nutrition-data">
+          <div class="empty-icon">🍴</div>
+          <p class="empty-text">今天还没有饮食记录</p>
+          <van-button type="primary" size="small" round @click="goToDiet">
+            添加记录
+          </van-button>
+        </div>
+      </div>
+
       <!-- 快捷操作 -->
       <div class="quick-actions">
         <h3>🎯 快捷操作</h3>
@@ -77,10 +128,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { useUserStore } from '@/stores/user'
+import { getDietSummary } from '@/api/diet'
 import {
   formatChineseDate,
   getWeekday,
@@ -100,9 +152,76 @@ const weekday = computed(() => getWeekday())
 const userName = computed(() => userStore.nickname)
 
 // 使用今日数据 Hook
-const { todayData } = useTodayData()
+const { todayData, refreshData } = useTodayData()
 
 const healthTips = computed(() => generateHealthTips(todayData.value))
+
+// 今日营养摄入数据
+const nutritionData = ref<{
+  total_calories?: number
+  total_protein?: number
+  total_fat?: number
+  total_carbs?: number
+}>({})
+
+// 加载今日营养数据
+async function loadNutritionData() {
+  try {
+    const today = new Date()
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    const response = await getDietSummary({ date: dateStr })
+    nutritionData.value = (response as any).data || {}
+  } catch (error) {
+    console.error('加载营养数据失败:', error)
+  }
+}
+
+// 刷新所有数据
+function refreshAllData() {
+  refreshData()
+  loadNutritionData()
+}
+
+onMounted(() => {
+  loadNutritionData()
+})
+
+// 页面激活时刷新数据
+onActivated(() => {
+  refreshAllData()
+})
+
+// 是否有营养数据
+const hasNutritionData = computed(() => {
+  return (nutritionData.value.total_calories || 0) > 0
+})
+
+// 今日热量
+const todayCalories = computed(() => {
+  return Math.round(nutritionData.value.total_calories || 0)
+})
+
+// 今日蛋白质
+const todayProtein = computed(() => {
+  return Math.round(nutritionData.value.total_protein || 0)
+})
+
+// 今日碳水
+const todayCarbs = computed(() => {
+  return Math.round(nutritionData.value.total_carbs || 0)
+})
+
+// 今日脂肪
+const todayFat = computed(() => {
+  return Math.round(nutritionData.value.total_fat || 0)
+})
+
+// 热量进度百分比（假设目标是2000kcal）
+const caloriesProgress = computed(() => {
+  const target = 2000
+  const current = nutritionData.value.total_calories || 0
+  return Math.min(Math.round((current / target) * 100), 100)
+})
 
 // 是否已打卡
 const hasCheckedIn = computed(() => {
@@ -292,6 +411,110 @@ function goToGoals() {
 
   :deep(.van-cell-group--inset) {
     margin: 0;
+  }
+}
+
+.nutrition-card {
+  background: $white;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  margin-bottom: $space-lg;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  .card-header {
+    @include flex-between;
+    align-items: center;
+    margin-bottom: $space-md;
+
+    h3 {
+      font-size: $font-size-lg;
+      color: $text-color;
+    }
+
+    .view-more {
+      font-size: $font-size-sm;
+      color: $primary-color;
+      cursor: pointer;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .nutrition-data {
+    .nutrition-item {
+      margin-bottom: $space-lg;
+
+      .item-header {
+        @include flex-between;
+        margin-bottom: $space-sm;
+
+        .label {
+          font-size: $font-size-base;
+          color: $text-color-2;
+        }
+
+        .value {
+          font-size: $font-size-xl;
+          color: $text-color;
+          font-weight: 600;
+
+          .unit {
+            font-size: $font-size-sm;
+            font-weight: 400;
+            color: $text-color-2;
+            margin-left: 2px;
+          }
+        }
+      }
+    }
+
+    .macros-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $space-md;
+
+      .macro-item {
+        text-align: center;
+        padding: $space-md;
+        background: $background-color;
+        border-radius: $radius-md;
+
+        .macro-icon {
+          font-size: 32px;
+          margin-bottom: $space-xs;
+        }
+
+        .macro-label {
+          font-size: $font-size-sm;
+          color: $text-color-2;
+          margin-bottom: $space-xs;
+        }
+
+        .macro-value {
+          font-size: $font-size-lg;
+          color: $text-color;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .no-nutrition-data {
+    text-align: center;
+    padding: $space-xl 0;
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: $space-md;
+    }
+
+    .empty-text {
+      font-size: $font-size-base;
+      color: $text-color-2;
+      margin-bottom: $space-lg;
+    }
   }
 }
 </style>

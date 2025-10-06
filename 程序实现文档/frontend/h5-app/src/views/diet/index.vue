@@ -175,7 +175,7 @@
       :style="{ height: '80%', left: '0', width: '100%' }"
       @opened="onDialogOpened"
     >
-      <div class="add-food-dialog">
+      <div class="add-food-dialog" v-if="showAddFoodDialog">
         <div class="dialog-header">
           <van-button plain @click="showAddFoodDialog = false">取消</van-button>
           <span class="title">添加食物</span>
@@ -196,6 +196,7 @@
             :finished="foodFinished"
             finished-text="没有更多了"
             @load="onLoadFood"
+            :immediate-check="false"
           >
             <van-cell
               v-for="food in foodList"
@@ -249,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccessToast, showLoadingToast, closeToast, showToast, showConfirmDialog } from 'vant'
 import { getDietRecords, postDietRecords, deleteDietRecordsId, getDietSummary } from '@/api/diet'
@@ -282,6 +283,7 @@ const summary = ref<{
 
 // 添加食物相关
 const showAddFoodDialog = ref(false)
+const foodDialogKey = ref(0) // 用于强制重新渲染van-list
 const currentMealType = ref<MealType>('breakfast')
 const searchKeyword = ref('')
 const foodList = ref<API.Food[]>([])
@@ -369,26 +371,35 @@ async function loadSummary() {
 
 // 加载食物列表
 async function onLoadFood() {
-  if (foodLoading.value) return
+  console.log('onLoadFood 被调用', { loading: foodLoading.value, page: foodPage.value })
+  if (foodLoading.value) {
+    console.log('已在加载中，跳过')
+    return
+  }
 
   foodLoading.value = true
   try {
+    console.log('开始请求食物列表:', { page: foodPage.value, search: searchKeyword.value })
     const response = await getFoods({
       page: foodPage.value,
       limit: 20,
       search: searchKeyword.value
     })
 
+    console.log('食物列表响应:', response)
     const foods = (response as any).data?.foods || []
+    console.log('解析到的食物数量:', foods.length)
 
     // 如果返回的食物数量少于请求的数量，说明没有更多了
     if (foods.length < 20) {
       foodFinished.value = true
+      console.log('设置 finished = true')
     }
 
     if (foods.length > 0) {
       foodList.value.push(...foods)
       foodPage.value++
+      console.log('食物列表更新完成:', { total: foodList.value.length, nextPage: foodPage.value })
     }
   } catch (error) {
     console.error('加载食物列表失败:', error)
@@ -413,23 +424,44 @@ function onSelectFood(food: API.Food) {
 
 // 显示添加食物对话框
 function showAddFood(mealType: MealType) {
+  console.log('showAddFood 被调用', mealType)
   currentMealType.value = mealType
   selectedFood.value = null
   quantity.value = ''
   searchKeyword.value = ''
-  // 重置状态，让van-list重新触发加载
+
+  // 重置状态
   foodList.value = []
   foodPage.value = 1
   foodFinished.value = false
   foodLoading.value = false
+  console.log('重置状态完成:', {
+    listLength: foodList.value.length,
+    page: foodPage.value,
+    finished: foodFinished.value,
+    loading: foodLoading.value
+  })
+
   showAddFoodDialog.value = true
 }
 
 // 弹窗完全打开后触发加载
 function onDialogOpened() {
-  // 如果列表为空且未完成，触发加载
-  if (foodList.value.length === 0 && !foodFinished.value && !foodLoading.value) {
+  console.log('弹窗已打开，手动触发加载')
+  console.log('当前状态:', {
+    listLength: foodList.value.length,
+    finished: foodFinished.value,
+    loading: foodLoading.value
+  })
+  // 由于设置了immediate-check=false，需要手动触发第一次加载
+  if (foodList.value.length === 0 && !foodFinished.value) {
+    console.log('条件满足，调用onLoadFood')
     onLoadFood()
+  } else {
+    console.log('条件不满足，不加载', {
+      listEmpty: foodList.value.length === 0,
+      notFinished: !foodFinished.value
+    })
   }
 }
 
