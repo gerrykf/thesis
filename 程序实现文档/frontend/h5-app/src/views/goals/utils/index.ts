@@ -50,7 +50,7 @@ export function formatDate(dateStr: string): string {
 
   // 如果是 ISO 8601 格式（包含 T 或 Z），只取日期部分
   if (dateStr.includes('T')) {
-    normalizedDateStr = dateStr.split('T')[0]
+    normalizedDateStr = dateStr.split("T")[0] || "";
   }
 
   // 解析 YYYY-MM-DD 格式

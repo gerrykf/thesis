@@ -139,7 +139,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
 import { useUserStore } from '@/stores/user'
 import { getDietSummary } from '@/api/diet'
 import {

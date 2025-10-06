@@ -309,7 +309,7 @@ function handleShowEditDatePicker() {
     let dateStr = editForm.value.target_date
     // 如果是 ISO 8601 格式（包含 T），只取日期部分
     if (dateStr.includes('T')) {
-      dateStr = dateStr.split('T')[0]
+      dateStr = dateStr.split('T')[0]||''
     }
     const dateParts = dateStr.split('-')
     editTargetDatePickerValue.value = dateParts

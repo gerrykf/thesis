@@ -61,8 +61,8 @@ const chartOption = computed(() => {
       formatter: (params: any) => {
         const data = props.data[params[0].dataIndex]
         let result = `${params[0].axisValue}<br/>`
-        result += `${params[0].marker}睡眠时长: ${data.sleep_hours} 小时<br/>`
-        if (data.sleep_quality) {
+        result += `${params[0].marker}睡眠时长: ${data?.sleep_hours} 小时<br/>`
+        if (data?.sleep_quality) {
           result += `睡眠质量: ${getSleepQualityText(data.sleep_quality)}`
         }
         return result
