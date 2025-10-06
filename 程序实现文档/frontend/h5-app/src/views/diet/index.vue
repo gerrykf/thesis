@@ -173,6 +173,7 @@
       v-model:show="showAddFoodDialog"
       position="bottom"
       :style="{ height: '80%', left: '0', width: '100%' }"
+      @opened="onDialogOpened"
     >
       <div class="add-food-dialog">
         <div class="dialog-header">
@@ -319,7 +320,8 @@ const hasSummary = computed(() => {
 // 获取某餐次的热量
 function getMealCalories(mealType: MealType) {
   const records = dietRecords.value.filter(r => r.meal_type === mealType)
-  return records.reduce((sum, r) => sum + (r.calories || 0), 0).toFixed(0)
+  const total = records.reduce((sum, r) => sum + (Number(r.calories) || 0), 0)
+  return total.toFixed(0)
 }
 
 // 预览营养成分
@@ -345,7 +347,7 @@ async function loadDietRecords() {
       limit: 100
     })
 
-    const records = response.data?.data?.records || []
+    const records = (response as any).data?.records || []
     dietRecords.value = records
   } catch (error) {
     console.error('加载饮食记录失败:', error)
@@ -359,7 +361,7 @@ async function loadSummary() {
       date: selectedDate.value
     })
 
-    summary.value = response.data?.data || {}
+    summary.value = (response as any).data || {}
   } catch (error) {
     console.error('加载营养摘要失败:', error)
   }
@@ -379,9 +381,12 @@ async function onLoadFood() {
 
     const foods = (response as any).data?.foods || []
 
-    if (foods.length === 0) {
+    // 如果返回的食物数量少于请求的数量，说明没有更多了
+    if (foods.length < 20) {
       foodFinished.value = true
-    } else {
+    }
+
+    if (foods.length > 0) {
       foodList.value.push(...foods)
       foodPage.value++
     }
@@ -412,12 +417,20 @@ function showAddFood(mealType: MealType) {
   selectedFood.value = null
   quantity.value = ''
   searchKeyword.value = ''
+  // 重置状态，让van-list重新触发加载
   foodList.value = []
   foodPage.value = 1
   foodFinished.value = false
+  foodLoading.value = false
   showAddFoodDialog.value = true
-  // 立即加载食物列表
-  onLoadFood()
+}
+
+// 弹窗完全打开后触发加载
+function onDialogOpened() {
+  // 如果列表为空且未完成，触发加载
+  if (foodList.value.length === 0 && !foodFinished.value && !foodLoading.value) {
+    onLoadFood()
+  }
 }
 
 // 确认添加
