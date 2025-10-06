@@ -5,6 +5,7 @@
 import { ref, computed } from 'vue'
 import type { HealthFormData } from './types'
 import { validateFormData, formatDate, createEmptyFormData } from './index'
+import { getHealthRecords } from '@/api/health'
 
 /**
  * 使用健康表单Hook
@@ -83,5 +84,94 @@ export function useDatePicker() {
     openPicker,
     closePicker,
     confirmDate
+  }
+}
+
+/**
+ * 使用历史记录列表Hook
+ */
+export function useHistoryList() {
+  const records = ref<API.HealthRecord[]>([])
+  const loading = ref(false)
+  const finished = ref(false)
+  const refreshing = ref(false)
+  const page = ref(1)
+  const pageSize = 15
+  const total = ref(0)
+
+  /**
+   * 加载历史记录
+   */
+  async function loadRecords() {
+    if (finished.value && !refreshing.value) return
+
+    loading.value = true
+    try {
+      const response = await getHealthRecords({
+        page: page.value,
+        limit: pageSize
+      })
+
+      const data = (response as any).data
+      if (data && data.records) {
+        const newRecords = data.records as API.HealthRecord[]
+
+        if (refreshing.value) {
+          records.value = newRecords
+          refreshing.value = false
+        } else {
+          records.value.push(...newRecords)
+        }
+
+        total.value = data.total || 0
+
+        // 判断是否还有更多数据
+        if (records.value.length >= total.value) {
+          finished.value = true
+        } else {
+          page.value++
+        }
+      } else {
+        finished.value = true
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error)
+      finished.value = true
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 下拉刷新
+   */
+  async function onRefresh() {
+    page.value = 1
+    finished.value = false
+    refreshing.value = true
+    records.value = []
+    await loadRecords()
+  }
+
+  /**
+   * 删除记录
+   */
+  function removeRecord(id: number) {
+    const index = records.value.findIndex(r => r.id === id)
+    if (index > -1) {
+      records.value.splice(index, 1)
+      total.value--
+    }
+  }
+
+  return {
+    records,
+    loading,
+    finished,
+    refreshing,
+    total,
+    loadRecords,
+    onRefresh,
+    removeRecord
   }
 }

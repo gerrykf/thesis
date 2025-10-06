@@ -113,15 +113,24 @@
 
       <!-- 健康建议 -->
       <div class="tips-section">
-        <h3>💡 健康建议</h3>
-        <van-cell-group inset>
-          <van-cell
+        <div class="section-header">
+          <h3>💡 健康建议</h3>
+          <span class="tip-count">{{ healthTips.length }}条</span>
+        </div>
+        <div class="tips-list">
+          <div
             v-for="(tip, index) in healthTips"
             :key="index"
-            :title="tip"
-            icon="info-o"
-          />
-        </van-cell-group>
+            class="tip-card"
+          >
+            <div class="tip-icon">
+              <van-icon name="bulb-o" />
+            </div>
+            <div class="tip-content">
+              <p class="tip-text">{{ tip }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -403,14 +412,75 @@ function goToGoals() {
 .tips-section {
   margin-bottom: $space-lg;
 
-  h3 {
-    font-size: $font-size-lg;
-    margin-bottom: $space-sm;
-    color: $text-color;
+  .section-header {
+    @include flex-between;
+    align-items: center;
+    margin-bottom: $space-md;
+
+    h3 {
+      font-size: $font-size-lg;
+      color: $text-color;
+      margin: 0;
+    }
+
+    .tip-count {
+      font-size: $font-size-sm;
+      color: $text-color-3;
+      padding: 4px $space-sm;
+      background: $background-color;
+      border-radius: $radius-md;
+    }
   }
 
-  :deep(.van-cell-group--inset) {
-    margin: 0;
+  .tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+
+    .tip-card {
+      display: flex;
+      align-items: flex-start;
+      gap: $space-md;
+      padding: $space-md;
+      background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+      border-radius: $radius-lg;
+      border-left: 3px solid $primary-color;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .tip-icon {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $primary-color;
+        border-radius: 50%;
+        color: $white;
+
+        :deep(.van-icon) {
+          font-size: 16px;
+        }
+      }
+
+      .tip-content {
+        flex: 1;
+        min-width: 0;
+
+        .tip-text {
+          margin: 0;
+          font-size: $font-size-base;
+          color: $text-color;
+          line-height: 1.6;
+          word-break: break-all;
+        }
+      }
+    }
   }
 }
 
