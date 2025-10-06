@@ -62,6 +62,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Goals',
     component: () => import('@/views/goals/index.vue'),
     meta: { title: '目标设置', anonymous: false }
+  },
+  {
+    path: '/analysis',
+    name: 'Analysis',
+    component: () => import('@/views/analysis/index.vue'),
+    meta: { title: '数据分析', anonymous: false }
   }
 ]
 

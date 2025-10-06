@@ -106,7 +106,7 @@
         <van-grid :column-num="2" :border="false">
           <van-grid-item icon="add-o" text="健康打卡" @click="goToHealth" />
           <van-grid-item icon="goods-collect-o" text="饮食记录" @click="goToDiet" />
-          <van-grid-item icon="chart-trending-o" text="数据分析" @click="showToast('功能开发中')" />
+          <van-grid-item icon="chart-trending-o" text="数据分析" @click="goToAnalysis" />
           <van-grid-item icon="setting-o" text="目标设置" @click="goToGoals" />
         </van-grid>
       </div>
@@ -306,6 +306,10 @@ function goToDiet() {
 
 function goToGoals() {
   router.push('/goals')
+}
+
+function goToAnalysis() {
+  router.push('/analysis')
 }
 </script>
 
