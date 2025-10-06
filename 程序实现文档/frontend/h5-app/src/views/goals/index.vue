@@ -103,7 +103,7 @@
             :rules="[{ required: true, message: '请输入单位' }]"
           />
           <van-field
-            v-model="addForm.start_date"
+            :model-value="formattedAddStartDate"
             is-link
             readonly
             name="start_date"
@@ -112,7 +112,7 @@
             @click="() => showStartDatePicker = true"
           />
           <van-field
-            v-model="addForm.target_date"
+            :model-value="formattedAddTargetDate"
             is-link
             readonly
             name="target_date"
@@ -164,7 +164,7 @@
             placeholder="请输入目标值"
           />
           <van-field
-            v-model="editForm.target_date"
+            :model-value="formattedEditTargetDate"
             is-link
             readonly
             name="target_date"
@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   useGoalList,
@@ -263,6 +263,21 @@ const {
   handleDeleteGoal
 } = useEditGoalForm()
 
+// 格式化编辑表单中的目标日期显示
+const formattedEditTargetDate = computed(() => {
+  return formatDate(editForm.value.target_date)
+})
+
+// 格式化添加表单中的开始日期显示
+const formattedAddStartDate = computed(() => {
+  return formatDate(addForm.value.start_date)
+})
+
+// 格式化添加表单中的目标日期显示
+const formattedAddTargetDate = computed(() => {
+  return formatDate(addForm.value.target_date)
+})
+
 onMounted(() => {
   loadGoals()
   resetAddForm()
@@ -290,15 +305,25 @@ function onEditTargetDateConfirm(value: { selectedValues: string[] }) {
 function handleShowEditDatePicker() {
   // 初始化日期选择器的值
   if (editForm.value.target_date) {
-    const dateParts = editForm.value.target_date.split('-')
+    // 处理接口返回的日期，可能是 YYYY-MM-DD 或 ISO 8601 格式
+    let dateStr = editForm.value.target_date
+    // 如果是 ISO 8601 格式（包含 T），只取日期部分
+    if (dateStr.includes('T')) {
+      dateStr = dateStr.split('T')[0]
+    }
+    const dateParts = dateStr.split('-')
     editTargetDatePickerValue.value = dateParts
   } else {
-    // 如果没有目标日期，使用今天
-    const today = new Date()
+    // 如果没有目标日期，使用北京时间今天
+    const now = new Date()
+    // 获取UTC时间戳
+    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000
+    // 转换为北京时间 (UTC+8)
+    const beijingTime = new Date(utcTime + 8 * 3600000)
     editTargetDatePickerValue.value = [
-      String(today.getFullYear()),
-      String(today.getMonth() + 1).padStart(2, '0'),
-      String(today.getDate()).padStart(2, '0')
+      String(beijingTime.getFullYear()),
+      String(beijingTime.getMonth() + 1).padStart(2, '0'),
+      String(beijingTime.getDate()).padStart(2, '0')
     ]
   }
   showEditTargetDatePicker.value = true

@@ -104,8 +104,7 @@ export function useAddGoalForm() {
   }
 
   function resetAddForm() {
-    const today = new Date()
-    const todayStr = formatDateInternal(today.toISOString())
+    const todayStr = getBeijingDateString()
     addForm.value = {
       goal_type: 'weight',
       goal_name: '',
@@ -227,12 +226,16 @@ export function useEditGoalForm() {
 }
 
 /**
- * 格式化日期为 YYYY-MM-DD (内部辅助函数)
+ * 获取北京时间的日期字符串 (YYYY-MM-DD)
  */
-function formatDateInternal(dateStr: string): string {
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+function getBeijingDateString(): string {
+  const now = new Date()
+  // 获取UTC时间戳
+  const utcTime = now.getTime() + now.getTimezoneOffset() * 60000
+  // 转换为北京时间 (UTC+8)
+  const beijingTime = new Date(utcTime + 8 * 3600000)
+  const year = beijingTime.getFullYear()
+  const month = String(beijingTime.getMonth() + 1).padStart(2, '0')
+  const day = String(beijingTime.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }

@@ -40,14 +40,33 @@ export function calculateProgress(current: number, target: number): number {
 }
 
 /**
- * 格式化日期为 YYYY-MM-DD
+ * 格式化日期为中文格式 YYYY年MM月DD日
  */
 export function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+
+  // 处理不同格式的日期
+  let normalizedDateStr = dateStr
+
+  // 如果是 ISO 8601 格式（包含 T 或 Z），只取日期部分
+  if (dateStr.includes('T')) {
+    normalizedDateStr = dateStr.split('T')[0]
+  }
+
+  // 解析 YYYY-MM-DD 格式
+  const parts = normalizedDateStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[0]}年${parts[1]}月${parts[2]}日`
+  }
+
+  // 作为后备，使用 Date 对象解析
   const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return ''
+
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  return `${year}年${month}月${day}日`
 }
 
 /**
