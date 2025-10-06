@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { validationResult } from 'express-validator';
-import { db } from '../config/database';
-import { AuthRequest } from '../middleware/auth';
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { validationResult } from "express-validator";
+import { db } from "../config/database";
+import { AuthRequest } from "../middleware/auth";
 
 /**
  * @swagger
@@ -222,24 +222,24 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (!errors.isEmpty()) {
       res.status(400).json({
         success: false,
-        message: '参数验证失败',
-        errors: errors.array()
+        message: "参数验证失败",
+        errors: errors.array(),
       });
       return;
     }
 
-    const { username, password, nickname, email } = req.body;
+    const { username, password, nickname = null, email = null } = req.body;
 
     // 检查用户名是否已存在
     const [existingUsers] = await db.execute(
-      'SELECT id FROM users WHERE username = ? OR email = ?',
+      "SELECT id FROM users WHERE username = ? OR email = ?",
       [username, email]
     );
 
     if ((existingUsers as any[]).length > 0) {
       res.status(409).json({
         success: false,
-        message: '用户名或邮箱已存在'
+        message: "用户名或邮箱已存在",
       });
       return;
     }
@@ -250,7 +250,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // 创建用户
     const [result] = await db.execute(
-      'INSERT INTO users (username, password, nickname, email) VALUES (?, ?, ?, ?)',
+      "INSERT INTO users (username, password, nickname, email) VALUES (?, ?, ?, ?)",
       [username, hashedPassword, nickname ?? null, email ?? null]
     );
 
@@ -258,14 +258,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       success: true,
-      message: '注册成功',
-      data: { userId }
+      message: "注册成功",
+      data: { userId },
     });
   } catch (error) {
-    console.error('注册错误:', error);
+    console.error("注册错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -325,8 +325,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!errors.isEmpty()) {
       res.status(400).json({
         success: false,
-        message: '参数验证失败',
-        errors: errors.array()
+        message: "参数验证失败",
+        errors: errors.array(),
       });
       return;
     }
@@ -335,7 +335,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 查找用户
     const [rows] = await db.execute(
-      'SELECT id, username, password, nickname, email, role, is_active FROM users WHERE username = ?',
+      "SELECT id, username, password, nickname, email, role, is_active FROM users WHERE username = ?",
       [username]
     );
 
@@ -343,7 +343,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (users.length === 0) {
       res.status(400).json({
         success: false,
-        message: '用户名或密码错误'
+        message: "用户名或密码错误",
       });
       return;
     }
@@ -354,7 +354,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!user.is_active) {
       res.status(401).json({
         success: false,
-        message: '账号已被禁用，请联系管理员'
+        message: "账号已被禁用，请联系管理员",
       });
       return;
     }
@@ -364,14 +364,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!isPasswordValid) {
       res.status(400).json({
         success: false,
-        message: '用户名或密码错误'
+        message: "用户名或密码错误",
       });
       return;
     }
 
     // 更新最后登录时间
     await db.execute(
-      'UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
+      "UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?",
       [user.id]
     );
 
@@ -380,10 +380,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       {
         userId: user.id,
         username: user.username,
-        role: user.role
+        role: user.role,
       },
       process.env.JWT_SECRET as string,
-      { expiresIn: (process.env.JWT_EXPIRES_IN as any) || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN as any) || "7d" }
     );
 
     // 返回用户信息（不包含密码）
@@ -391,17 +391,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.json({
       success: true,
-      message: '登录成功',
+      message: "登录成功",
       data: {
         token,
-        user: userWithoutPassword
-      }
+        user: userWithoutPassword,
+      },
     });
   } catch (error) {
-    console.error('登录错误:', error);
+    console.error("登录错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -435,7 +435,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
  *       500:
  *         description: 服务器内部错误
  */
-export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getProfile = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const [rows] = await db.execute(
       `SELECT id, username, nickname, email, phone, gender, birth_date,
@@ -448,20 +451,20 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     if (users.length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
     res.json({
       success: true,
-      data: users[0]
+      data: users[0],
     });
   } catch (error) {
-    console.error('获取用户信息错误:', error);
+    console.error("获取用户信息错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -502,9 +505,20 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
  *       500:
  *         description: 服务器内部错误
  */
-export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateProfile = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-    const allowedFields = ['nickname', 'email', 'phone', 'gender', 'birth_date', 'height', 'target_weight'];
+    const allowedFields = [
+      "nickname",
+      "email",
+      "phone",
+      "gender",
+      "birth_date",
+      "height",
+      "target_weight",
+    ];
     const updates: string[] = [];
     const values: any[] = [];
 
@@ -519,7 +533,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     if (updates.length === 0) {
       res.status(400).json({
         success: false,
-        message: '没有需要更新的字段'
+        message: "没有需要更新的字段",
       });
       return;
     }
@@ -527,19 +541,19 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     values.push(req.user?.userId);
 
     await db.execute(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
       values
     );
 
     res.json({
       success: true,
-      message: '个人信息更新成功'
+      message: "个人信息更新成功",
     });
   } catch (error) {
-    console.error('更新用户信息错误:', error);
+    console.error("更新用户信息错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
