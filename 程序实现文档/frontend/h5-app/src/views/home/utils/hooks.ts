@@ -106,7 +106,7 @@ export function useTodayData() {
       // 导入 API
       const { getStatsOverview } = await import('@/api/stats')
       const { getHealthRecords } = await import('@/api/health')
-      const { getUserGoals } = await import('@/views/goals/utils/api')
+      const { getGoals } = await import('@/api/goals')
 
       // 获取今日日期（本地时间）
       const now = new Date()
@@ -119,7 +119,7 @@ export function useTodayData() {
       const [overviewRes, recordsRes, goalsRes] = await Promise.all([
         getStatsOverview({ days: 1 }),
         getHealthRecords({ start_date: today, end_date: today, limit: 1 }),
-        getUserGoals()
+        getGoals()
       ])
 
       const overview = overviewRes as {
@@ -140,8 +140,9 @@ export function useTodayData() {
       let weightValue = 0
 
       // 1. 先从第一条进行中的目标获取当前体重
-      if (goalsRes && goalsRes.length > 0) {
-        const activeGoal = goalsRes.find(goal => goal.status === 'active')
+      const goals = (goalsRes as any).data as API.UserGoal[] | undefined
+      if (goals && goals.length > 0) {
+        const activeGoal = goals.find(goal => goal.status === 'active')
         if (activeGoal && activeGoal.goal_type === 'weight') {
           weightValue = activeGoal.current_value || 0
         }

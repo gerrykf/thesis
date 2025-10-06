@@ -17,7 +17,7 @@
             v-for="goal in goals"
             :key="goal.id"
             class="goal-card"
-            @click="handleEditGoal(goal)"
+            @click="onEditGoal(goal)"
           >
             <div class="goal-header">
               <div class="goal-type-badge" :class="`type-${goal.goal_type}`">
@@ -58,7 +58,7 @@
       <div class="dialog-header">
         <van-button plain @click="() => showAddDialog = false">取消</van-button>
         <span class="title">添加目标</span>
-        <van-button plain type="primary" @click="handleAddGoal">保存</van-button>
+        <van-button plain type="primary" @click="onAddGoal">保存</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="addFormRef">
@@ -139,7 +139,7 @@
       <div class="dialog-header">
         <van-button plain @click="() => showEditDialog = false">取消</van-button>
         <span class="title">编辑目标</span>
-        <van-button plain type="danger" @click="handleDeleteGoal">删除</van-button>
+        <van-button plain type="danger" @click="onDeleteGoal">删除</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="editFormRef">
@@ -193,7 +193,7 @@
           />
         </van-form>
         <div class="form-actions">
-          <van-button block type="primary" @click="handleUpdateGoal">保存修改</van-button>
+          <van-button block type="primary" @click="onUpdateGoal">保存修改</van-button>
         </div>
       </div>
     </van-popup>
@@ -226,121 +226,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast, showSuccessToast, showConfirmDialog } from 'vant'
-import { getUserGoals, createUserGoal, updateUserGoal, deleteUserGoal } from './utils/api'
-import type { UserGoal, CreateGoalFormData, GoalType, GoalStatus } from './utils/types'
+import {
+  useGoalList,
+  useAddGoalForm,
+  useEditGoalForm,
+  getGoalTypeText,
+  getStatusText,
+  calculateProgress,
+  formatDate
+} from './utils'
+import type { UserGoal } from './utils'
 
 const router = useRouter()
-const goals = ref<UserGoal[]>([])
-const refreshing = ref(false)
-const showAddDialog = ref(false)
-const showEditDialog = ref(false)
-const currentEditGoal = ref<UserGoal | null>(null)
 
-// 添加表单
-const addForm = ref<CreateGoalFormData>({
-  goal_type: 'weight' as GoalType,
-  goal_name: '',
-  target_value: '',
-  current_value: '',
-  unit: 'kg',
-  start_date: '',
-  target_date: '',
-  description: ''
-})
-
-// 编辑表单
-const editForm = ref<{
-  goal_name: string
-  target_value: string
-  current_value: string
-  target_date: string
-  status: GoalStatus
-  description: string
-}>({
-  goal_name: '',
-  target_value: '',
-  current_value: '',
-  target_date: '',
-  status: 'active',
-  description: ''
-})
-
-// 日期选择器
-const showStartDatePicker = ref(false)
-const showTargetDatePicker = ref(false)
-const showEditTargetDatePicker = ref(false)
-const startDatePickerValue = ref<string[]>([])
-const targetDatePickerValue = ref<string[]>([])
-const editTargetDatePickerValue = ref<string[]>([])
-
-// 监听目标类型变化，自动更新单位
-watch(
-  () => addForm.value.goal_type,
-  (newType) => {
-    const unitMap: Record<GoalType, string> = {
-      weight: 'kg',
-      exercise: '分钟',
-      calories: 'kcal',
-      custom: ''
-    }
-    addForm.value.unit = unitMap[newType] || ''
-  }
-)
+// 使用Hooks
+const { goals, refreshing, loadGoals, onRefresh } = useGoalList()
+const {
+  showAddDialog,
+  addForm,
+  showStartDatePicker,
+  showTargetDatePicker,
+  startDatePickerValue,
+  targetDatePickerValue,
+  handleAddGoal,
+  resetAddForm
+} = useAddGoalForm()
+const {
+  showEditDialog,
+  editForm,
+  showEditTargetDatePicker,
+  editTargetDatePickerValue,
+  openEditDialog,
+  handleUpdateGoal,
+  handleDeleteGoal
+} = useEditGoalForm()
 
 onMounted(() => {
   loadGoals()
-  // 设置默认开始日期和目标日期为今天
-  const today = new Date()
-  const todayStr = formatDate(today.toISOString())
-  addForm.value.start_date = todayStr
-  addForm.value.target_date = todayStr
+  resetAddForm()
 })
 
-async function loadGoals() {
-  const data = await getUserGoals()
-  goals.value = data
-}
-
-async function onRefresh() {
-  await loadGoals()
-  refreshing.value = false
-}
-
-function getGoalTypeText(type: GoalType): string {
-  const map = {
-    weight: '体重',
-    exercise: '运动',
-    calories: '卡路里',
-    custom: '自定义'
-  }
-  return map[type] || type
-}
-
-function getStatusText(status: GoalStatus): string {
-  const map = {
-    active: '进行中',
-    completed: '已完成',
-    paused: '已暂停',
-    cancelled: '已取消'
-  }
-  return map[status] || status
-}
-
 function getProgressPercentage(goal: UserGoal): number {
-  if (goal.target_value === 0) return 0
-  const percentage = (goal.current_value / goal.target_value) * 100
-  return Math.min(Math.max(percentage, 0), 100)
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  return calculateProgress(goal.current_value, goal.target_value)
 }
 
 function onStartDateConfirm(value: { selectedValues: string[] }) {
@@ -375,100 +304,24 @@ function handleShowEditDatePicker() {
   showEditTargetDatePicker.value = true
 }
 
-async function handleAddGoal() {
-  if (!addForm.value.goal_name) {
-    showToast('请输入目标名称')
-    return
-  }
-  if (!addForm.value.current_value || !addForm.value.target_value) {
-    showToast('请输入当前值和目标值')
-    return
-  }
-  if (!addForm.value.unit) {
-    showToast('请输入单位')
-    return
-  }
-  if (!addForm.value.start_date) {
-    showToast('请选择开始日期')
-    return
-  }
-
-  const success = await createUserGoal(addForm.value)
-  if (success) {
-    showSuccessToast('目标创建成功')
-    showAddDialog.value = false
-    // 重置表单
-    const todayStr = formatDate(new Date().toISOString())
-    addForm.value = {
-      goal_type: 'weight',
-      goal_name: '',
-      target_value: '',
-      current_value: '',
-      unit: 'kg',
-      start_date: todayStr,
-      target_date: todayStr,
-      description: ''
-    }
-    loadGoals()
-  } else {
-    showToast('目标创建失败')
-  }
+// 调用hook中的添加目标函数
+async function onAddGoal() {
+  await handleAddGoal(loadGoals)
 }
 
-function handleEditGoal(goal: UserGoal) {
-  currentEditGoal.value = goal
-  editForm.value = {
-    goal_name: goal.goal_name,
-    target_value: String(goal.target_value),
-    current_value: String(goal.current_value),
-    target_date: goal.target_date ? formatDate(goal.target_date) : '',
-    status: goal.status,
-    description: goal.description || ''
-  }
-  showEditDialog.value = true
+// 调用hook中的编辑目标函数
+function onEditGoal(goal: UserGoal) {
+  openEditDialog(goal)
 }
 
-async function handleUpdateGoal() {
-  if (!currentEditGoal.value) return
-
-  const success = await updateUserGoal(currentEditGoal.value.id, {
-    goal_name: editForm.value.goal_name,
-    target_value: parseFloat(editForm.value.target_value),
-    current_value: parseFloat(editForm.value.current_value),
-    target_date: editForm.value.target_date || undefined,
-    status: editForm.value.status,
-    description: editForm.value.description || undefined
-  })
-
-  if (success) {
-    showSuccessToast('目标更新成功')
-    showEditDialog.value = false
-    loadGoals()
-  } else {
-    showToast('目标更新失败')
-  }
+// 调用hook中的更新目标函数
+async function onUpdateGoal() {
+  await handleUpdateGoal(loadGoals)
 }
 
-async function handleDeleteGoal() {
-  if (!currentEditGoal.value) return
-
-  try {
-    await showConfirmDialog({
-      title: '确认删除',
-      message: '确定要删除这个目标吗？'
-    })
-
-    const success = await deleteUserGoal(currentEditGoal.value.id)
-    if (success) {
-      showSuccessToast('目标删除成功')
-      showEditDialog.value = false
-      loadGoals()
-    } else {
-      showToast('目标删除失败')
-    }
-  } catch {
-    // 用户取消删除
-  }
+// 调用hook中的删除目标函数
+async function onDeleteGoal() {
+  await handleDeleteGoal(loadGoals)
 }
 
 function goBack() {
