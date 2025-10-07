@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccessToast, showLoadingToast, closeToast, showToast, showConfirmDialog } from 'vant'
 import { getDietRecords, postDietRecords, deleteDietRecordsId, getDietSummary } from '@/api/diet'
@@ -283,7 +283,6 @@ const summary = ref<{
 
 // 添加食物相关
 const showAddFoodDialog = ref(false)
-const foodDialogKey = ref(0) // 用于强制重新渲染van-list
 const currentMealType = ref<MealType>('breakfast')
 const searchKeyword = ref('')
 const foodList = ref<API.Food[]>([])
