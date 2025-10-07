@@ -36,9 +36,13 @@
                 color="#667eea"
               />
               <div class="progress-text">
-                <span class="current">{{ goal.current_value }}{{ goal.unit }}</span>
+                <span class="current"
+                  >{{ goal.current_value }}{{ goal.unit }}</span
+                >
                 <span class="separator">/</span>
-                <span class="target">{{ goal.target_value }}{{ goal.unit }}</span>
+                <span class="target"
+                  >{{ goal.target_value }}{{ goal.unit }}</span
+                >
               </div>
             </div>
             <div v-if="goal.target_date" class="goal-footer">
@@ -54,9 +58,15 @@
     </div>
 
     <!-- 添加目标弹窗 -->
-    <van-popup v-model:show="showAddDialog" position="bottom" :style="{ height: '80%' }">
+    <van-popup
+      v-model:show="showAddDialog"
+      position="bottom"
+      :style="{ height: '80%' }"
+    >
       <div class="dialog-header">
-        <van-button plain @click="() => showAddDialog = false">取消</van-button>
+        <van-button plain @click="() => (showAddDialog = false)"
+          >取消</van-button
+        >
         <span class="title">添加目标</span>
         <van-button plain type="primary" @click="onAddGoal">保存</van-button>
       </div>
@@ -75,10 +85,10 @@
                 <van-tag
                   v-for="type in goalTypes"
                   :key="type.value"
-                  :type="addForm.goal_type === type.value ? type.color : 'default'"
+                  :type="addForm.goal_type === type.value ? type.color as any : 'default'"
                   size="large"
                   :plain="addForm.goal_type !== type.value"
-                  @click="addForm.goal_type = type.value"
+                  @click="addForm.goal_type = type.value as GoalType"
                 >
                   {{ type.label }}
                 </van-tag>
@@ -115,7 +125,7 @@
             name="start_date"
             label="开始日期"
             placeholder="选择开始日期"
-            @click="() => showStartDatePicker = true"
+            @click="() => (showStartDatePicker = true)"
           />
           <van-field
             :model-value="formattedAddTargetDate"
@@ -124,7 +134,7 @@
             name="target_date"
             label="目标日期"
             placeholder="选择目标日期（可选）"
-            @click="() => showTargetDatePicker = true"
+            @click="() => (showTargetDatePicker = true)"
           />
           <van-field
             v-model="addForm.description"
@@ -141,9 +151,15 @@
     </van-popup>
 
     <!-- 编辑目标弹窗 -->
-    <van-popup v-model:show="showEditDialog" position="bottom" :style="{ height: '80%' }">
+    <van-popup
+      v-model:show="showEditDialog"
+      position="bottom"
+      :style="{ height: '80%' }"
+    >
       <div class="dialog-header">
-        <van-button plain @click="() => showEditDialog = false">取消</van-button>
+        <van-button plain @click="() => (showEditDialog = false)"
+          >取消</van-button
+        >
         <span class="title">编辑目标</span>
         <van-button plain type="danger" @click="onDeleteGoal">删除</van-button>
       </div>
@@ -199,7 +215,9 @@
           />
         </van-form>
         <div class="form-actions">
-          <van-button block type="primary" @click="onUpdateGoal">保存修改</van-button>
+          <van-button block type="primary" @click="onUpdateGoal"
+            >保存修改</van-button
+          >
         </div>
       </div>
     </van-popup>
@@ -232,8 +250,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import {
   useGoalList,
   useAddGoalForm,
@@ -241,22 +259,22 @@ import {
   getGoalTypeText,
   getStatusText,
   calculateProgress,
-  formatDate
-} from './utils'
-import type { UserGoal } from './utils'
+  formatDate,
+} from "./utils";
+import type { GoalType, UserGoal } from "./utils";
 
-const router = useRouter()
+const router = useRouter();
 
 // 目标类型选项
 const goalTypes = [
-  { value: 'weight', label: '体重', color: 'primary' },
-  { value: 'exercise', label: '运动', color: 'success' },
-  { value: 'calories', label: '卡路里', color: 'warning' },
-  { value: 'custom', label: '自定义', color: 'default' }
-]
+  { value: "weight", label: "体重", color: "primary" },
+  { value: "exercise", label: "运动", color: "success" },
+  { value: "calories", label: "卡路里", color: "warning" },
+  { value: "custom", label: "自定义", color: "default" },
+];
 
 // 使用Hooks
-const { goals, refreshing, loadGoals, onRefresh } = useGoalList()
+const { goals, refreshing, loadGoals, onRefresh } = useGoalList();
 const {
   showAddDialog,
   addForm,
@@ -265,8 +283,8 @@ const {
   startDatePickerValue,
   targetDatePickerValue,
   handleAddGoal,
-  resetAddForm
-} = useAddGoalForm()
+  resetAddForm,
+} = useAddGoalForm();
 const {
   showEditDialog,
   editForm,
@@ -274,102 +292,102 @@ const {
   editTargetDatePickerValue,
   openEditDialog,
   handleUpdateGoal,
-  handleDeleteGoal
-} = useEditGoalForm()
+  handleDeleteGoal,
+} = useEditGoalForm();
 
 // 格式化编辑表单中的目标日期显示
 const formattedEditTargetDate = computed(() => {
-  return formatDate(editForm.value.target_date)
-})
+  return formatDate(editForm.value.target_date);
+});
 
 // 格式化添加表单中的开始日期显示
 const formattedAddStartDate = computed(() => {
-  return formatDate(addForm.value.start_date)
-})
+  return formatDate(addForm.value.start_date);
+});
 
 // 格式化添加表单中的目标日期显示
 const formattedAddTargetDate = computed(() => {
-  return formatDate(addForm.value.target_date)
-})
+  return formatDate(addForm.value.target_date);
+});
 
 onMounted(() => {
-  loadGoals()
-  resetAddForm()
-})
+  loadGoals();
+  resetAddForm();
+});
 
 function getProgressPercentage(goal: UserGoal): number {
-  return calculateProgress(goal.current_value, goal.target_value)
+  return calculateProgress(goal.current_value, goal.target_value);
 }
 
 function onStartDateConfirm(value: { selectedValues: string[] }) {
-  addForm.value.start_date = value.selectedValues.join('-')
-  showStartDatePicker.value = false
+  addForm.value.start_date = value.selectedValues.join("-");
+  showStartDatePicker.value = false;
 }
 
 function onTargetDateConfirm(value: { selectedValues: string[] }) {
-  addForm.value.target_date = value.selectedValues.join('-')
-  showTargetDatePicker.value = false
+  addForm.value.target_date = value.selectedValues.join("-");
+  showTargetDatePicker.value = false;
 }
 
 function onEditTargetDateConfirm(value: { selectedValues: string[] }) {
-  editForm.value.target_date = value.selectedValues.join('-')
-  showEditTargetDatePicker.value = false
+  editForm.value.target_date = value.selectedValues.join("-");
+  showEditTargetDatePicker.value = false;
 }
 
 function handleShowEditDatePicker() {
   // 初始化日期选择器的值
   if (editForm.value.target_date) {
     // 处理接口返回的日期，可能是 YYYY-MM-DD 或 ISO 8601 格式
-    let dateStr = editForm.value.target_date
+    let dateStr = editForm.value.target_date;
     // 如果是 ISO 8601 格式（包含 T），只取日期部分
-    if (dateStr.includes('T')) {
-      dateStr = dateStr.split('T')[0]||''
+    if (dateStr.includes("T")) {
+      dateStr = dateStr.split("T")[0] || "";
     }
-    const dateParts = dateStr.split('-')
-    editTargetDatePickerValue.value = dateParts
+    const dateParts = dateStr.split("-");
+    editTargetDatePickerValue.value = dateParts;
   } else {
     // 如果没有目标日期，使用北京时间今天
-    const now = new Date()
+    const now = new Date();
     // 获取UTC时间戳
-    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000
+    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
     // 转换为北京时间 (UTC+8)
-    const beijingTime = new Date(utcTime + 8 * 3600000)
+    const beijingTime = new Date(utcTime + 8 * 3600000);
     editTargetDatePickerValue.value = [
       String(beijingTime.getFullYear()),
-      String(beijingTime.getMonth() + 1).padStart(2, '0'),
-      String(beijingTime.getDate()).padStart(2, '0')
-    ]
+      String(beijingTime.getMonth() + 1).padStart(2, "0"),
+      String(beijingTime.getDate()).padStart(2, "0"),
+    ];
   }
-  showEditTargetDatePicker.value = true
+  showEditTargetDatePicker.value = true;
 }
 
 // 调用hook中的添加目标函数
 async function onAddGoal() {
-  await handleAddGoal(loadGoals)
+  await handleAddGoal(loadGoals);
 }
 
 // 调用hook中的编辑目标函数
 function onEditGoal(goal: UserGoal) {
-  openEditDialog(goal)
+  openEditDialog(goal);
 }
 
 // 调用hook中的更新目标函数
 async function onUpdateGoal() {
-  await handleUpdateGoal(loadGoals)
+  await handleUpdateGoal(loadGoals);
 }
 
 // 调用hook中的删除目标函数
 async function onDeleteGoal() {
-  await handleDeleteGoal(loadGoals)
+  await handleDeleteGoal(loadGoals);
 }
 
 function goBack() {
-  router.back()
+  router.back();
 }
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@use "@/styles/variables.scss" as *;
 
 .goals {
   min-height: 100vh;

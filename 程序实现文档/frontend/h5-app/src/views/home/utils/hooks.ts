@@ -119,7 +119,7 @@ export function useTodayData() {
       const today = `${year}-${month}-${day}`
 
       // 并行请求统计概览、今日健康记录和用户目标
-      const [overviewRes, recordsRes, goalsRes] = await Promise.all([
+      const [overviewRes, recordsRes] = await Promise.all([
         getStatsOverview({ days: 1 }),
         getHealthRecords({ start_date: today, end_date: today, limit: 1 }),
         getGoals()
