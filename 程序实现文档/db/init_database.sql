@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS health_records (
     record_date DATE NOT NULL COMMENT '记录日期',
     weight DECIMAL(5,2) COMMENT '体重(kg)',
     exercise_duration INT COMMENT '运动时长(分钟)',
-    exercise_type VARCHAR(50) COMMENT '运动类型',
+    exercise_type VARCHAR(200) COMMENT '运动类型',
     sleep_hours DECIMAL(4,2) COMMENT '睡眠时长(小时)',
     sleep_quality ENUM('excellent', 'good', 'fair', 'poor') COMMENT '睡眠质量',
     mood ENUM('excellent', 'good', 'fair', 'poor') COMMENT '心情状态',

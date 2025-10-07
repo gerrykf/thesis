@@ -483,11 +483,14 @@ function goToAnalysis() {
         .card-extra {
           font-size: $font-size-xs;
           color: $text-color-3;
-          line-height: 1.2;
+          line-height: 1.3;
           margin-top: 3px;
           overflow: hidden;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          word-break: break-all;
         }
       }
     }
