@@ -512,7 +512,17 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
         updates.push(`${field} = ?`);
-        values.push(req.body[field]);
+
+        // 处理日期格式：将ISO 8601格式转换为MySQL DATE格式 (YYYY-MM-DD)
+        if (field === 'birth_date' && req.body[field]) {
+          const date = new Date(req.body[field]);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          values.push(`${year}-${month}-${day}`);
+        } else {
+          values.push(req.body[field]);
+        }
       }
     }
 

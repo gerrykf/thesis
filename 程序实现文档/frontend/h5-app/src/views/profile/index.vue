@@ -90,7 +90,7 @@ function onLogout() {
 }
 
 .content {
-  padding: $space-md;
+  padding: $space-md 0;
   padding-bottom: 70px;
 }
 
