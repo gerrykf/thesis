@@ -40,10 +40,28 @@
 
         <!-- 运动类型 -->
         <van-cell-group inset>
+          <van-field label="🎯 运动类型">
+            <template #input>
+              <div class="exercise-type-tags">
+                <van-tag
+                  v-for="type in exerciseTypes"
+                  :key="type.value"
+                  :type="isExerciseTypeSelected(type.value) ? type.color : 'default'"
+                  size="medium"
+                  :plain="!isExerciseTypeSelected(type.value)"
+                  @click="onToggleExerciseType(type.value)"
+                >
+                  {{ type.label }}
+                </van-tag>
+              </div>
+            </template>
+          </van-field>
+          <!-- 自定义运动类型输入 -->
           <van-field
-            v-model="formData.exercise_type"
-            label="🎯 运动类型"
-            placeholder="如：跑步、游泳、瑜伽等"
+            v-if="showCustomExercise"
+            v-model="customExerciseType"
+            placeholder="请输入自定义运动类型"
+            @blur="onCustomExerciseBlur"
           />
         </van-cell-group>
 
@@ -96,7 +114,7 @@
 
         <!-- 提交按钮 -->
         <div style="margin: 24px 16px;">
-          <van-button round block type="primary" native-type="submit">
+          <van-button block type="primary" native-type="submit">
             保存打卡
           </van-button>
         </div>
@@ -142,6 +160,109 @@ import { postHealthRecords, getHealthRecords } from '@/api/health'
 
 const router = useRouter()
 const route = useRoute()
+
+// 运动类型选项
+const exerciseTypes = [
+  { value: '跑步', label: '🏃 跑步', color: 'primary' },
+  { value: '游泳', label: '🏊 游泳', color: 'success' },
+  { value: '瑜伽', label: '🧘 瑜伽', color: 'warning' },
+  { value: '骑行', label: '🚴 骑行', color: 'danger' },
+  { value: '健身', label: '💪 健身', color: 'primary' },
+  { value: '篮球', label: '🏀 篮球', color: 'success' },
+  { value: '足球', label: '⚽ 足球', color: 'warning' },
+  { value: '羽毛球', label: '🏸 羽毛球', color: 'danger' },
+  { value: '乒乓球', label: '🏓 乒乓球', color: 'primary' },
+  { value: '登山', label: '⛰️ 登山', color: 'success' },
+  { value: '跳绳', label: '🪢 跳绳', color: 'warning' },
+  { value: '自定义', label: '✏️ 自定义', color: 'default' }
+]
+
+// 自定义运动类型相关
+const showCustomExercise = ref(false)
+const customExerciseType = ref('')
+const selectedExerciseTypes = ref<string[]>([])
+
+// 判断运动类型是否被选中
+function isExerciseTypeSelected(value: string): boolean {
+  return selectedExerciseTypes.value.includes(value)
+}
+
+// 切换运动类型选择（多选）
+function onToggleExerciseType(value: string) {
+  if (value === '自定义') {
+    showCustomExercise.value = !showCustomExercise.value
+    if (showCustomExercise.value) {
+      // 选中自定义，添加到已选列表
+      if (!selectedExerciseTypes.value.includes(value)) {
+        selectedExerciseTypes.value.push(value)
+      }
+    } else {
+      // 取消自定义，从已选列表移除
+      selectedExerciseTypes.value = selectedExerciseTypes.value.filter(t => t !== value)
+      customExerciseType.value = ''
+    }
+  } else {
+    // 切换其他运动类型
+    const index = selectedExerciseTypes.value.indexOf(value)
+    if (index > -1) {
+      // 已选中，取消选择
+      selectedExerciseTypes.value.splice(index, 1)
+    } else {
+      // 未选中，添加选择
+      selectedExerciseTypes.value.push(value)
+    }
+  }
+
+  // 更新表单数据：将已选运动类型用 + 连接
+  updateExerciseTypeString()
+}
+
+// 更新运动类型字符串
+function updateExerciseTypeString() {
+  const types = selectedExerciseTypes.value.filter(t => t !== '自定义')
+
+  // 如果有自定义内容，添加到数组中
+  if (showCustomExercise.value && customExerciseType.value.trim()) {
+    types.push(customExerciseType.value.trim())
+  }
+
+  // 用 + 连接所有运动类型
+  formData.value.exercise_type = types.join(' + ')
+}
+
+// 自定义运动类型失去焦点
+function onCustomExerciseBlur() {
+  updateExerciseTypeString()
+}
+
+// 从字符串解析运动类型到数组（用于编辑时回显）
+function parseExerciseTypeString(typeString: string) {
+  if (!typeString) {
+    selectedExerciseTypes.value = []
+    customExerciseType.value = ''
+    showCustomExercise.value = false
+    return
+  }
+
+  // 按 + 分割
+  const types = typeString.split('+').map(t => t.trim()).filter(t => t)
+  selectedExerciseTypes.value = []
+  customExerciseType.value = ''
+  showCustomExercise.value = false
+
+  types.forEach(type => {
+    // 检查是否是预设类型
+    const predefinedType = exerciseTypes.find(et => et.value === type)
+    if (predefinedType) {
+      selectedExerciseTypes.value.push(type)
+    } else {
+      // 不是预设类型，作为自定义类型
+      selectedExerciseTypes.value.push('自定义')
+      customExerciseType.value = type
+      showCustomExercise.value = true
+    }
+  })
+}
 
 // 表单数据接口
 interface HealthFormData {
@@ -272,6 +393,10 @@ function fillFormData(record: any, preserveDate: boolean = true) {
   formData.value.weight = record.weight ? String(record.weight) : ''
   formData.value.exercise_duration = record.exercise_duration ? String(record.exercise_duration) : ''
   formData.value.exercise_type = record.exercise_type || ''
+
+  // 解析运动类型字符串为多选状态
+  parseExerciseTypeString(record.exercise_type || '')
+
   formData.value.sleep_hours = record.sleep_hours ? String(record.sleep_hours) : ''
 
   // 转换睡眠质量和心情显示文本
@@ -353,6 +478,30 @@ async function onSubmit() {
     closeToast()
 
     if (response.data) {
+      // 打卡成功后，更新体重目标的当前值
+      try {
+        const { getGoals, putGoalsId } = await import('@/api/goals')
+        const goalsRes = await getGoals()
+        const goals = (goalsRes as any).data as API.UserGoal[] | undefined
+
+        if (goals && goals.length > 0) {
+          // 查找进行中的体重目标
+          const weightGoal = goals.find(goal => goal.goal_type === 'weight' && goal.status === 'active')
+
+          if (weightGoal) {
+            // 更新目标的当前体重值
+            await putGoalsId(
+              { id: weightGoal.id },
+              { current_value: weight }
+            )
+            console.log('已更新体重目标的当前值:', weight)
+          }
+        }
+      } catch (error) {
+        console.error('更新体重目标失败:', error)
+        // 不影响打卡成功的提示
+      }
+
       showSuccessToast('打卡成功！')
 
       setTimeout(() => {
@@ -383,6 +532,30 @@ function resetForm(keepDate: string) {
   recordId.value = null
 }
 
+// 加载上一次打卡的体重数据
+async function loadLastWeight() {
+  try {
+    // 获取最近一次健康记录
+    const response = await getHealthRecords({
+      limit: 1,
+      page: 1
+    })
+
+    const records = response.data?.data?.records || (response.data as any)?.records || []
+
+    if (records && records.length > 0) {
+      const lastRecord = records[0]
+      if (lastRecord.weight) {
+        // 设置上次体重作为初始值
+        formData.value.weight = String(lastRecord.weight)
+        console.log('已加载上次体重:', lastRecord.weight)
+      }
+    }
+  } catch (error) {
+    console.error('加载上次体重失败:', error)
+  }
+}
+
 // 初始化表单数据的函数
 async function initializeForm() {
   // 从路由参数获取日期和ID
@@ -398,6 +571,14 @@ async function initializeForm() {
 
     // 然后尝试加载该日期的记录（如果存在的话）
     await loadRecord(dateParam, idParam)
+
+    // 如果当天没有记录（体重为空），则加载上次体重
+    if (!formData.value.weight) {
+      await loadLastWeight()
+    }
+  } else {
+    // 没有传入日期参数，新建打卡时也加载上次体重
+    await loadLastWeight()
   }
 }
 
@@ -420,15 +601,46 @@ onActivated(() => {
 }
 
 .content {
-  padding: $space-md;
+  padding: $space-md 0;
   padding-bottom: 70px;
 }
 
 :deep(.van-cell-group) {
-  margin-bottom: $space-md;
+  margin-bottom: $space-sm;
 }
 
-:deep(.van-field__label) {
-  font-size: $font-size-base;
+:deep(.van-field) {
+  padding: 8px $space-sm;
+
+  .van-field__label {
+    font-size: $font-size-sm;
+    width: 80px;
+  }
+
+  .van-field__value {
+    font-size: $font-size-sm;
+  }
+
+  .van-field__control {
+    font-size: $font-size-sm;
+  }
+}
+
+.exercise-type-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+
+  .van-tag {
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: $font-size-xs;
+    padding: 2px 8px;
+    line-height: 1.4;
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 </style>

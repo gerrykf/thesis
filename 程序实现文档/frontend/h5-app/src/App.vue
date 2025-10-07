@@ -5,20 +5,25 @@
         <component :is="Component" />
       </keep-alive>
     </router-view>
-    <van-tabbar v-model="active" route>
+    <van-tabbar v-if="!hideFooter" v-model="active" route>
       <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item to="/health" icon="add-o">打卡</van-tabbar-item>
       <van-tabbar-item to="/diet" icon="goods-collect-o">饮食</van-tabbar-item>
       <van-tabbar-item to="/history" icon="clock-o">历史</van-tabbar-item>
-      <van-tabbar-item to="/profile" icon="user-o">我的</van-tabbar-item>
+      <van-tabbar-item to="/my" icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const active = ref(0)
+const route = useRoute()
+
+// 根据路由 meta 判断是否隐藏 Footer
+const hideFooter = computed(() => route.meta.hideFooter as boolean)
 </script>
 
 <style scoped>

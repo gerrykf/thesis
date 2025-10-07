@@ -1,6 +1,6 @@
 <template>
   <div class="analysis">
-    <van-nav-bar title="数据分析" fixed placeholder />
+    <van-nav-bar title="数据分析" left-arrow @click-left="onClickLeft" fixed placeholder />
 
     <div class="content">
       <!-- 时间范围选择 -->
@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { showLoadingToast, closeToast, showToast } from 'vant'
 import {
   getStatsWeightTrend,
@@ -80,7 +81,12 @@ import NutritionChart from './components/NutritionChart.vue'
 import ExerciseChart from './components/ExerciseChart.vue'
 import SleepChart from './components/SleepChart.vue'
 
+const router = useRouter()
 const activeTab = ref('30')
+
+function onClickLeft() {
+  router.back()
+}
 
 // 数据状态
 const weightData = ref<Array<{ record_date: string; weight: number }>>([])
@@ -214,6 +220,11 @@ function formatNumber(value?: number): string {
 .analysis {
   min-height: 100vh;
   background: $background-color;
+
+  // 确保导航栏在最上层
+  :deep(.van-nav-bar) {
+    z-index: 999;
+  }
 }
 
 .content {

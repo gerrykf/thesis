@@ -90,6 +90,9 @@ export function useTodayData() {
     calories: 0
   })
 
+  // 标记是否有今日打卡记录
+  const hasCheckedInToday = ref(false)
+
   const isDataComplete = computed(() => {
     return todayData.value.weight > 0 &&
            todayData.value.exercise > 0 &&
@@ -136,34 +139,32 @@ export function useTodayData() {
       }
       const records = recordsRes as { success?: boolean; data?: { records?: API.HealthRecord[] } }
 
-      // 体重数据优先级：今日健康记录 > 第一条进行中目标的当前体重 > 0
-      let weightValue = 0
-
-      // 1. 先从第一条进行中的目标获取当前体重
-      const goals = (goalsRes as any).data as API.UserGoal[] | undefined
-      if (goals && goals.length > 0) {
-        const activeGoal = goals.find(goal => goal.status === 'active')
-        if (activeGoal && activeGoal.goal_type === 'weight') {
-          weightValue = activeGoal.current_value || 0
-        }
-      }
-
-      // 2. 如果存在今日健康记录，则覆盖体重数据
+      // 检查是否有今日健康记录
       if (records.success && records.data?.records && records.data.records.length > 0) {
         const record = records.data.records[0]
         if (record) {
-          if (record.weight) {
-            weightValue = record.weight
-          }
+          // 有今日记录，标记为已打卡
+          hasCheckedInToday.value = true
+
+          todayData.value.weight = record.weight || 0
           todayData.value.exercise = record.exercise_duration || 0
           todayData.value.exercise_type = record.exercise_type || ''
           todayData.value.sleep = record.sleep_hours || 0
           todayData.value.sleep_quality = record.sleep_quality || ''
           todayData.value.mood = record.mood || ''
         }
-      }
+      } else {
+        // 没有今日记录，标记为未打卡
+        hasCheckedInToday.value = false
 
-      todayData.value.weight = weightValue
+        // 重置所有数据为0
+        todayData.value.weight = 0
+        todayData.value.exercise = 0
+        todayData.value.exercise_type = ''
+        todayData.value.sleep = 0
+        todayData.value.sleep_quality = ''
+        todayData.value.mood = ''
+      }
 
       // 从统计概览获取卡路里数据
       if (overview.success && overview.data) {
@@ -189,6 +190,7 @@ export function useTodayData() {
 
   return {
     todayData,
+    hasCheckedInToday,
     isDataComplete,
     loadTodayData,
     refreshData,

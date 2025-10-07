@@ -13,13 +13,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
-    meta: { title: '登录', anonymous: true }
+    meta: { title: '登录', anonymous: true, hideFooter: true }
   },
   {
     path: '/register',
     name: 'Register',
     component: () => import('@/views/register/index.vue'),
-    meta: { title: '注册', anonymous: true }
+    meta: { title: '注册', anonymous: true, hideFooter: true }
   },
   {
     path: '/home',
@@ -37,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/health/form',
     name: 'HealthForm',
     component: () => import('@/views/health/components/HealthForm.vue'),
-    meta: { title: '健康打卡表单', anonymous: false }
+    meta: { title: '健康打卡表单', anonymous: false, hideFooter: true }
   },
   {
     path: '/diet',
@@ -52,28 +52,28 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '历史记录', anonymous: false }
   },
   {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/profile/index.vue'),
+    path: '/my',
+    name: 'My',
+    component: () => import('@/views/my/index.vue'),
     meta: { title: '个人中心', anonymous: false }
   },
   {
     path: '/goals',
     name: 'Goals',
     component: () => import('@/views/goals/index.vue'),
-    meta: { title: '目标设置', anonymous: false }
+    meta: { title: '目标设置', anonymous: false, hideFooter: true }
   },
   {
     path: '/analysis',
     name: 'Analysis',
     component: () => import('@/views/analysis/index.vue'),
-    meta: { title: '数据分析', anonymous: false }
+    meta: { title: '数据分析', anonymous: false, hideFooter: true }
   },
   {
-    path: '/profile/edit',
-    name: 'ProfileEdit',
-    component: () => import('@/views/profile/edit.vue'),
-    meta: { title: '个人资料', anonymous: false }
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/my/profile.vue'),
+    meta: { title: '个人资料', anonymous: false, hideFooter: true }
   }
 ]
 

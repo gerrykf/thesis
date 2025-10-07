@@ -4,7 +4,7 @@
 
     <div class="content">
       <!-- 日期选择 -->
-      <van-cell-group inset>
+      <van-cell-group>
         <van-cell
           is-link
           :value="selectedDate"
@@ -38,122 +38,170 @@
 
       <!-- 早餐 -->
       <div class="meal-section">
-        <van-cell-group inset>
-          <van-cell
-            :title="`🍞 早餐`"
-            :value="`${getMealCalories('breakfast')} kcal`"
-          />
-          <van-cell
-            v-for="item in breakfastRecords"
-            :key="item.id"
-            :title="`${item.food_name} (${item.quantity}g)`"
-            :value="`${item.calories} kcal`"
-          >
-            <template #label>
-              <span class="nutrition-info">
-                蛋白质 {{item.protein}}g · 脂肪 {{item.fat}}g · 碳水 {{item.carbs}}g
-              </span>
-            </template>
-            <template #right-icon>
-              <van-icon name="cross" @click="onDeleteRecord(item.id!)" />
-            </template>
-          </van-cell>
-          <van-cell
-            title="+ 添加食物"
-            is-link
-            @click="showAddFood('breakfast')"
-          />
-        </van-cell-group>
+        <div class="meal-card">
+          <!-- 卡片标题 -->
+          <div class="meal-card-header">
+            <span class="meal-title">🍞 早餐</span>
+            <span class="meal-calories">{{ getMealCalories('breakfast') }} kcal</span>
+          </div>
+
+          <!-- 食物卡片网格 -->
+          <div class="food-cards-grid" v-if="breakfastRecords.length > 0">
+            <div
+              v-for="item in breakfastRecords"
+              :key="item.id"
+              class="food-card"
+            >
+              <van-icon
+                name="cross"
+                class="delete-icon"
+                @click="onDeleteRecord(item.id!)"
+              />
+              <div class="card-header">
+                <span class="food-name">{{ item.food_name }}</span>
+                <span class="food-quantity">{{ item.quantity }}g</span>
+              </div>
+              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-nutrition">
+                <span>蛋白 {{ item.protein }}g</span>
+                <span>脂肪 {{ item.fat }}g</span>
+                <span>碳水 {{ item.carbs }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 添加按钮 -->
+          <div class="add-food-btn" @click="showAddFood('breakfast')">
+            <van-icon name="plus" />
+            <span>添加食物</span>
+          </div>
+        </div>
       </div>
 
       <!-- 午餐 -->
       <div class="meal-section">
-        <van-cell-group inset>
-          <van-cell
-            :title="`🍱 午餐`"
-            :value="`${getMealCalories('lunch')} kcal`"
-          />
-          <van-cell
-            v-for="item in lunchRecords"
-            :key="item.id"
-            :title="`${item.food_name} (${item.quantity}g)`"
-            :value="`${item.calories} kcal`"
-          >
-            <template #label>
-              <span class="nutrition-info">
-                蛋白质 {{item.protein}}g · 脂肪 {{item.fat}}g · 碳水 {{item.carbs}}g
-              </span>
-            </template>
-            <template #right-icon>
-              <van-icon name="cross" @click="onDeleteRecord(item.id!)" />
-            </template>
-          </van-cell>
-          <van-cell
-            title="+ 添加食物"
-            is-link
-            @click="showAddFood('lunch')"
-          />
-        </van-cell-group>
+        <div class="meal-card">
+          <!-- 卡片标题 -->
+          <div class="meal-card-header">
+            <span class="meal-title">🍱 午餐</span>
+            <span class="meal-calories">{{ getMealCalories('lunch') }} kcal</span>
+          </div>
+
+          <!-- 食物卡片网格 -->
+          <div class="food-cards-grid" v-if="lunchRecords.length > 0">
+            <div
+              v-for="item in lunchRecords"
+              :key="item.id"
+              class="food-card"
+            >
+              <van-icon
+                name="cross"
+                class="delete-icon"
+                @click="onDeleteRecord(item.id!)"
+              />
+              <div class="card-header">
+                <span class="food-name">{{ item.food_name }}</span>
+                <span class="food-quantity">{{ item.quantity }}g</span>
+              </div>
+              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-nutrition">
+                <span>蛋白 {{ item.protein }}g</span>
+                <span>脂肪 {{ item.fat }}g</span>
+                <span>碳水 {{ item.carbs }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 添加按钮 -->
+          <div class="add-food-btn" @click="showAddFood('lunch')">
+            <van-icon name="plus" />
+            <span>添加食物</span>
+          </div>
+        </div>
       </div>
 
       <!-- 晚餐 -->
       <div class="meal-section">
-        <van-cell-group inset>
-          <van-cell
-            :title="`🍜 晚餐`"
-            :value="`${getMealCalories('dinner')} kcal`"
-          />
-          <van-cell
-            v-for="item in dinnerRecords"
-            :key="item.id"
-            :title="`${item.food_name} (${item.quantity}g)`"
-            :value="`${item.calories} kcal`"
-          >
-            <template #label>
-              <span class="nutrition-info">
-                蛋白质 {{item.protein}}g · 脂肪 {{item.fat}}g · 碳水 {{item.carbs}}g
-              </span>
-            </template>
-            <template #right-icon>
-              <van-icon name="cross" @click="onDeleteRecord(item.id!)" />
-            </template>
-          </van-cell>
-          <van-cell
-            title="+ 添加食物"
-            is-link
-            @click="showAddFood('dinner')"
-          />
-        </van-cell-group>
+        <div class="meal-card">
+          <!-- 卡片标题 -->
+          <div class="meal-card-header">
+            <span class="meal-title">🍜 晚餐</span>
+            <span class="meal-calories">{{ getMealCalories('dinner') }} kcal</span>
+          </div>
+
+          <!-- 食物卡片网格 -->
+          <div class="food-cards-grid" v-if="dinnerRecords.length > 0">
+            <div
+              v-for="item in dinnerRecords"
+              :key="item.id"
+              class="food-card"
+            >
+              <van-icon
+                name="cross"
+                class="delete-icon"
+                @click="onDeleteRecord(item.id!)"
+              />
+              <div class="card-header">
+                <span class="food-name">{{ item.food_name }}</span>
+                <span class="food-quantity">{{ item.quantity }}g</span>
+              </div>
+              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-nutrition">
+                <span>蛋白 {{ item.protein }}g</span>
+                <span>脂肪 {{ item.fat }}g</span>
+                <span>碳水 {{ item.carbs }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 添加按钮 -->
+          <div class="add-food-btn" @click="showAddFood('dinner')">
+            <van-icon name="plus" />
+            <span>添加食物</span>
+          </div>
+        </div>
       </div>
 
       <!-- 加餐 -->
       <div class="meal-section">
-        <van-cell-group inset>
-          <van-cell
-            :title="`🍎 加餐`"
-            :value="`${getMealCalories('snack')} kcal`"
-          />
-          <van-cell
-            v-for="item in snackRecords"
-            :key="item.id"
-            :title="`${item.food_name} (${item.quantity}g)`"
-            :value="`${item.calories} kcal`"
-          >
-            <template #label>
-              <span class="nutrition-info">
-                蛋白质 {{item.protein}}g · 脂肪 {{item.fat}}g · 碳水 {{item.carbs}}g
-              </span>
-            </template>
-            <template #right-icon>
-              <van-icon name="cross" @click="onDeleteRecord(item.id!)" />
-            </template>
-          </van-cell>
-          <van-cell
-            title="+ 添加食物"
-            is-link
-            @click="showAddFood('snack')"
-          />
-        </van-cell-group>
+        <div class="meal-card">
+          <!-- 卡片标题 -->
+          <div class="meal-card-header">
+            <span class="meal-title">🍎 加餐</span>
+            <span class="meal-calories">{{ getMealCalories('snack') }} kcal</span>
+          </div>
+
+          <!-- 食物卡片网格 -->
+          <div class="food-cards-grid" v-if="snackRecords.length > 0">
+            <div
+              v-for="item in snackRecords"
+              :key="item.id"
+              class="food-card"
+            >
+              <van-icon
+                name="cross"
+                class="delete-icon"
+                @click="onDeleteRecord(item.id!)"
+              />
+              <div class="card-header">
+                <span class="food-name">{{ item.food_name }}</span>
+                <span class="food-quantity">{{ item.quantity }}g</span>
+              </div>
+              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-nutrition">
+                <span>蛋白 {{ item.protein }}g</span>
+                <span>脂肪 {{ item.fat }}g</span>
+                <span>碳水 {{ item.carbs }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 添加按钮 -->
+          <div class="add-food-btn" @click="showAddFood('snack')">
+            <van-icon name="plus" />
+            <span>添加食物</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -172,15 +220,18 @@
     <van-popup
       v-model:show="showAddFoodDialog"
       position="bottom"
-      :style="{ height: '80%', left: '0', width: '100%' }"
+      :style="{ height: '100%', left: '0', width: '100%' }"
       @opened="onDialogOpened"
     >
       <div class="add-food-dialog" v-if="showAddFoodDialog">
         <div class="dialog-header">
           <van-button plain @click="showAddFoodDialog = false">取消</van-button>
           <span class="title">添加食物</span>
-          <van-button plain type="primary" @click="onConfirmAdd">确定</van-button>
+          <van-button plain type="primary" @click="onConfirmAdd">
+            确定<span v-if="selectedFoods.length > 0">({{ selectedFoods.length }})</span>
+          </van-button>
         </div>
+
         <div class="dialog-content">
           <!-- 搜索框 -->
           <van-search
@@ -191,56 +242,86 @@
           />
 
           <!-- 食物列表 -->
-          <van-list
-            v-model:loading="foodLoading"
-            :finished="foodFinished"
-            finished-text="没有更多了"
-            @load="onLoadFood"
-            :immediate-check="false"
-          >
-            <van-cell
-              v-for="food in foodList"
-              :key="food.id"
-              :title="food.name"
-              @click="onSelectFood(food)"
+          <div class="food-list-section">
+            <van-list
+              v-model:loading="foodLoading"
+              :finished="foodFinished"
+              finished-text="没有更多了"
+              @load="onLoadFood"
+              :immediate-check="false"
             >
-              <template #label>
-                <span class="food-info">
-                  {{food.category}} · 每100g: {{food.calories_per_100g}}kcal
-                </span>
-              </template>
-              <template #right-icon>
-                <van-icon v-if="selectedFood?.id === food.id" name="success" color="#07c160" />
-              </template>
-            </van-cell>
-          </van-list>
+              <van-checkbox-group v-model="selectedFoods" direction="vertical">
+                <van-cell
+                  v-for="food in foodList"
+                  :key="food.id"
+                  @click="onToggleFood(food)"
+                  clickable
+                >
+                  <template #title>
+                    <div class="food-title">
+                      <van-checkbox
+                        :name="food.id"
+                        :checked="isFoodSelected(food.id!)"
+                        @click.stop="onToggleFood(food)"
+                      />
+                      <span class="food-name">{{ food.name }}</span>
+                    </div>
+                  </template>
+                  <template #label>
+                    <span class="food-info">
+                      {{ food.category }} · 每100g: {{ food.calories_per_100g }}kcal
+                    </span>
+                  </template>
+                </van-cell>
+              </van-checkbox-group>
+            </van-list>
+          </div>
+        </div>
 
-          <!-- 食用量输入 -->
-          <div v-if="selectedFood" class="quantity-section">
-            <van-field
-              v-model="quantity"
-              type="number"
-              label="食用量(g)"
-              placeholder="请输入食用量"
-              :rules="[{ required: true, message: '请输入食用量' }]"
-            />
-            <div class="nutrition-preview">
-              <div class="preview-item">
-                <span class="label">热量:</span>
-                <span class="value">{{ previewNutrition.calories }} kcal</span>
+        <!-- 已选食物列表和营养汇总 -->
+        <div v-if="selectedFoods.length > 0" class="selected-section">
+          <div class="selected-header">
+            <span class="title">已选食物 ({{ selectedFoods.length }})</span>
+            <span class="total-calories">总计: {{ totalNutrition.calories }}kcal</span>
+          </div>
+
+          <div class="selected-list">
+            <div v-for="item in selectedFoods" :key="item.food.id" class="selected-item">
+              <div class="item-info">
+                <span class="name">{{ item.food.name }}</span>
+                <van-icon name="cross" @click="removeSelectedFood(item.food.id!)" class="remove-btn" />
               </div>
-              <div class="preview-item">
-                <span class="label">蛋白质:</span>
-                <span class="value">{{ previewNutrition.protein }} g</span>
+              <div class="item-quantity">
+                <van-stepper
+                  v-model="item.quantity"
+                  @change="() => updateQuantity(item.food.id!, item.quantity)"
+                  min="1"
+                  step="10"
+                  integer
+                  input-width="50px"
+                />
+                <span class="unit">g</span>
               </div>
-              <div class="preview-item">
-                <span class="label">脂肪:</span>
-                <span class="value">{{ previewNutrition.fat }} g</span>
-              </div>
-              <div class="preview-item">
-                <span class="label">碳水:</span>
-                <span class="value">{{ previewNutrition.carbs }} g</span>
-              </div>
+            </div>
+          </div>
+
+          <!-- 营养汇总 -->
+          <div class="nutrition-total">
+            <div class="total-item">
+              <span class="label">热量</span>
+              <span class="value">{{ totalNutrition.calories }}kcal</span>
+            </div>
+            <div class="total-item">
+              <span class="label">蛋白质</span>
+              <span class="value">{{ totalNutrition.protein }}g</span>
+            </div>
+            <div class="total-item">
+              <span class="label">脂肪</span>
+              <span class="value">{{ totalNutrition.fat }}g</span>
+            </div>
+            <div class="total-item">
+              <span class="label">碳水</span>
+              <span class="value">{{ totalNutrition.carbs }}g</span>
             </div>
           </div>
         </div>
@@ -289,8 +370,13 @@ const foodList = ref<API.Food[]>([])
 const foodLoading = ref(false)
 const foodFinished = ref(false)
 const foodPage = ref(1)
-const selectedFood = ref<API.Food | null>(null)
-const quantity = ref('')
+
+// 多选食物相关
+interface SelectedFoodItem {
+  food: API.Food
+  quantity: string
+}
+const selectedFoods = ref<SelectedFoodItem[]>([])
 
 // 格式化日期
 function formatDate() {
@@ -325,20 +411,36 @@ function getMealCalories(mealType: MealType) {
   return total.toFixed(0)
 }
 
-// 预览营养成分
-const previewNutrition = computed(() => {
-  if (!selectedFood.value || !quantity.value) {
-    return { calories: 0, protein: 0, fat: 0, carbs: 0 }
-  }
-  const q = parseFloat(quantity.value)
-  const factor = q / 100
+// 计算已选食物的总营养
+const totalNutrition = computed(() => {
+  let calories = 0
+  let protein = 0
+  let fat = 0
+  let carbs = 0
+
+  selectedFoods.value.forEach(item => {
+    const q = parseFloat(item.quantity) || 0
+    if (q > 0) {
+      const factor = q / 100
+      calories += (item.food.calories_per_100g || 0) * factor
+      protein += (item.food.protein_per_100g || 0) * factor
+      fat += (item.food.fat_per_100g || 0) * factor
+      carbs += (item.food.carbs_per_100g || 0) * factor
+    }
+  })
+
   return {
-    calories: ((selectedFood.value.calories_per_100g || 0) * factor).toFixed(1),
-    protein: ((selectedFood.value.protein_per_100g || 0) * factor).toFixed(1),
-    fat: ((selectedFood.value.fat_per_100g || 0) * factor).toFixed(1),
-    carbs: ((selectedFood.value.carbs_per_100g || 0) * factor).toFixed(1)
+    calories: calories.toFixed(1),
+    protein: protein.toFixed(1),
+    fat: fat.toFixed(1),
+    carbs: carbs.toFixed(1)
   }
 })
+
+// 检查食物是否已选中
+function isFoodSelected(foodId: number) {
+  return selectedFoods.value.some(item => item.food.id === foodId)
+}
 
 // 加载饮食记录
 async function loadDietRecords() {
@@ -415,18 +517,43 @@ function onSearchFood() {
   onLoadFood()
 }
 
-// 选择食物
-function onSelectFood(food: API.Food) {
-  selectedFood.value = food
-  quantity.value = '100'
+// 切换食物选择状态
+function onToggleFood(food: API.Food) {
+  const index = selectedFoods.value.findIndex(item => item.food.id === food.id)
+
+  if (index >= 0) {
+    // 已选中，移除
+    selectedFoods.value.splice(index, 1)
+  } else {
+    // 未选中，添加
+    selectedFoods.value.push({
+      food,
+      quantity: '100' // 默认100g
+    })
+  }
+}
+
+// 更新食物数量
+function updateQuantity(foodId: number, quantity: string) {
+  const item = selectedFoods.value.find(item => item.food.id === foodId)
+  if (item) {
+    item.quantity = quantity
+  }
+}
+
+// 移除已选食物
+function removeSelectedFood(foodId: number) {
+  const index = selectedFoods.value.findIndex(item => item.food.id === foodId)
+  if (index >= 0) {
+    selectedFoods.value.splice(index, 1)
+  }
 }
 
 // 显示添加食物对话框
 function showAddFood(mealType: MealType) {
   console.log('showAddFood 被调用', mealType)
   currentMealType.value = mealType
-  selectedFood.value = null
-  quantity.value = ''
+  selectedFoods.value = []
   searchKeyword.value = ''
 
   // 重置状态
@@ -466,13 +593,15 @@ function onDialogOpened() {
 
 // 确认添加
 async function onConfirmAdd() {
-  if (!selectedFood.value) {
-    showToast('请选择食物')
+  if (selectedFoods.value.length === 0) {
+    showToast('请选择至少一个食物')
     return
   }
 
-  if (!quantity.value || parseFloat(quantity.value) <= 0) {
-    showToast('请输入食用量')
+  // 验证所有食物都有数量
+  const invalidItems = selectedFoods.value.filter(item => !item.quantity || parseFloat(item.quantity) <= 0)
+  if (invalidItems.length > 0) {
+    showToast('请为所有食物输入食用量')
     return
   }
 
@@ -483,15 +612,20 @@ async function onConfirmAdd() {
   })
 
   try {
-    await postDietRecords({
-      food_id: selectedFood.value.id!,
-      record_date: selectedDate.value,
-      meal_type: currentMealType.value,
-      quantity: parseFloat(quantity.value)
-    })
+    // 批量添加所有选中的食物
+    await Promise.all(
+      selectedFoods.value.map(item =>
+        postDietRecords({
+          food_id: item.food.id!,
+          record_date: selectedDate.value,
+          meal_type: currentMealType.value,
+          quantity: parseFloat(item.quantity)
+        })
+      )
+    )
 
     closeToast()
-    showSuccessToast('添加成功')
+    showSuccessToast(`成功添加${selectedFoods.value.length}个食物`)
     showAddFoodDialog.value = false
 
     // 重新加载数据
@@ -564,18 +698,18 @@ onMounted(() => {
 }
 
 .content {
-  padding: $space-md;
+  padding: $space-sm;
   padding-bottom: 70px;
 }
 
 .summary-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: $radius-lg;
-  padding: $space-lg;
-  margin-bottom: $space-lg;
+  border-radius: $radius-md;
+  padding: $space-md;
+  margin-bottom: $space-sm;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $space-md;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-xs;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
   .summary-item {
@@ -583,14 +717,14 @@ onMounted(() => {
     color: $white;
 
     .label {
-      font-size: $font-size-sm;
+      font-size: $font-size-xs;
       opacity: 0.9;
       display: block;
-      margin-bottom: $space-xs;
+      margin-bottom: 2px;
     }
 
     .value {
-      font-size: $font-size-lg;
+      font-size: $font-size-base;
       font-weight: bold;
       display: block;
     }
@@ -598,22 +732,165 @@ onMounted(() => {
 }
 
 .meal-section {
-  margin-bottom: $space-md;
+  margin-bottom: $space-sm;
 
   .nutrition-info {
-    font-size: $font-size-sm;
+    font-size: $font-size-xs;
     color: $text-color-3;
-    margin-top: $space-xs;
+    margin-top: 2px;
+  }
+
+  // 餐次卡片容器
+  .meal-card {
+    background: $white;
+    border-radius: $radius-md;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  // 卡片标题
+  .meal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px $space-sm;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-bottom: 1px solid $border-color;
+
+    .meal-title {
+      font-size: $font-size-base;
+      font-weight: bold;
+      color: $text-color;
+    }
+
+    .meal-calories {
+      font-size: $font-size-sm;
+      font-weight: bold;
+      color: $primary-color;
+    }
+  }
+
+  // 添加食物按钮
+  .add-food-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px;
+    color: $primary-color;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    border-top: 1px dashed $border-color;
+    transition: background-color 0.3s;
+
+    &:active {
+      background-color: $background-color;
+    }
+
+    .van-icon {
+      font-size: 16px;
+    }
+  }
+
+  // 食物卡片网格布局
+  .food-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .food-card {
+    position: relative;
+    background: $white;
+    border-radius: $radius-sm;
+    padding: 6px 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid $border-color;
+
+    .delete-icon {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      color: $danger-color;
+      font-size: 14px;
+      padding: 2px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      z-index: 1;
+
+      &:active {
+        background: rgba(255, 255, 255, 1);
+      }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+      padding-right: 16px;
+
+      .food-name {
+        font-size: $font-size-sm;
+        font-weight: 500;
+        color: $text-color;
+        line-height: 1.2;
+        flex: 1;
+      }
+
+      .food-quantity {
+        font-size: $font-size-xs;
+        color: $text-color-3;
+        white-space: nowrap;
+        margin-left: 4px;
+      }
+    }
+
+    .card-calories {
+      font-size: $font-size-base;
+      font-weight: bold;
+      color: $primary-color;
+      margin-bottom: 4px;
+    }
+
+    .card-nutrition {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      color: $text-color-3;
+
+      span {
+        background: $background-color;
+        padding: 1px 4px;
+        border-radius: 2px;
+      }
+    }
   }
 }
 
 :deep(.van-cell-group) {
-  margin-bottom: $space-md;
+  margin-bottom: 0;
+}
+
+:deep(.van-cell) {
+  padding: 8px $space-sm;
+
+  .van-cell__title {
+    font-size: $font-size-sm;
+  }
+
+  .van-cell__value {
+    font-size: $font-size-sm;
+  }
 }
 
 :deep(.van-icon-cross) {
   color: $danger-color;
-  padding: $space-xs;
+  padding: 2px;
+  font-size: 16px;
 }
 
 .add-food-dialog {
@@ -627,12 +904,20 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: $space-md;
+    padding: 6px $space-sm;
     border-bottom: 1px solid $border-color;
+    background: $white;
 
     .title {
-      font-size: $font-size-lg;
+      font-size: $font-size-base;
       font-weight: bold;
+    }
+
+    // 压缩按钮大小
+    :deep(.van-button) {
+      height: 28px;
+      padding: 0 $space-sm;
+      font-size: $font-size-sm;
     }
   }
 
@@ -641,42 +926,144 @@ onMounted(() => {
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
+    background: $background-color;
 
-    .food-info {
-      font-size: $font-size-sm;
-      color: $text-color-3;
-      margin-top: $space-xs;
+    // 压缩搜索框高度
+    :deep(.van-search) {
+      padding: 4px $space-sm;
+
+      .van-search__content {
+        padding-left: $space-xs;
+      }
     }
 
-    .quantity-section {
-      position: sticky;
-      bottom: 0;
-      background: $white;
-      border-top: 1px solid $border-color;
-      padding: $space-md;
+    // 压缩食物列表项高度
+    :deep(.van-cell) {
+      padding: 6px $space-sm;
 
-      .nutrition-preview {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: $space-sm;
-        margin-top: $space-md;
-        padding: $space-md;
-        background: $background-color;
-        border-radius: $radius-md;
+      .van-cell__title {
+        margin-bottom: 2px;
+      }
+    }
 
-        .preview-item {
+    .food-list-section {
+      padding-bottom: $space-md;
+    }
+
+    .food-title {
+      display: flex;
+      align-items: center;
+      gap: $space-xs;
+
+      .food-name {
+        font-size: $font-size-sm;
+        color: $text-color;
+      }
+    }
+
+    .food-info {
+      font-size: $font-size-xs;
+      color: $text-color-3;
+      margin-top: 2px;
+      margin-left: 28px;
+    }
+  }
+
+  .selected-section {
+    background: $white;
+    border-top: 2px solid $primary-color;
+    max-height: 45%;
+    display: flex;
+    flex-direction: column;
+
+    .selected-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px $space-sm;
+      border-bottom: 1px solid $border-color;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+      .title {
+        font-size: $font-size-xs;
+        font-weight: bold;
+        color: $text-color;
+      }
+
+      .total-calories {
+        font-size: $font-size-xs;
+        color: $primary-color;
+        font-weight: bold;
+      }
+    }
+
+    .selected-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px $space-md;
+
+      .selected-item {
+        padding: 4px 0;
+        border-bottom: 1px solid $border-color;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .item-info {
           display: flex;
           justify-content: space-between;
-          font-size: $font-size-sm;
+          align-items: center;
+          margin-bottom: 4px;
 
-          .label {
-            color: $text-color-2;
-          }
-
-          .value {
+          .name {
+            font-size: $font-size-sm;
             color: $text-color;
             font-weight: 500;
           }
+
+          .remove-btn {
+            color: $danger-color;
+            font-size: 14px;
+            padding: 2px;
+          }
+        }
+
+        .item-quantity {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          .unit {
+            font-size: $font-size-sm;
+            color: $text-color-2;
+          }
+        }
+      }
+    }
+
+    .nutrition-total {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      padding: 8px $space-xs;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+      .total-item {
+        text-align: center;
+
+        .label {
+          display: block;
+          font-size: $font-size-xs;
+          color: rgba(255, 255, 255, 0.8);
+          margin-bottom: 2px;
+        }
+
+        .value {
+          display: block;
+          font-size: $font-size-sm;
+          color: $white;
+          font-weight: bold;
         }
       }
     }

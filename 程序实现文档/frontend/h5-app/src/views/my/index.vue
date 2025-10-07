@@ -50,7 +50,7 @@ const userStore = useUserStore()
 const userName = computed(() => userStore.nickname)
 
 function goToEdit() {
-  router.push('/profile/edit')
+  router.push('/profile')
 }
 
 function goToGoals() {

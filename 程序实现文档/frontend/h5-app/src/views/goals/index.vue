@@ -71,12 +71,18 @@
           />
           <van-field name="goal_type" label="目标类型">
             <template #input>
-              <van-radio-group v-model="addForm.goal_type" direction="horizontal">
-                <van-radio name="weight">体重</van-radio>
-                <van-radio name="exercise">运动</van-radio>
-                <van-radio name="calories">卡路里</van-radio>
-                <van-radio name="custom">自定义</van-radio>
-              </van-radio-group>
+              <div class="goal-type-tags">
+                <van-tag
+                  v-for="type in goalTypes"
+                  :key="type.value"
+                  :type="addForm.goal_type === type.value ? type.color : 'default'"
+                  size="large"
+                  :plain="addForm.goal_type !== type.value"
+                  @click="addForm.goal_type = type.value"
+                >
+                  {{ type.label }}
+                </van-tag>
+              </div>
             </template>
           </van-field>
           <van-field
@@ -240,6 +246,14 @@ import {
 import type { UserGoal } from './utils'
 
 const router = useRouter()
+
+// 目标类型选项
+const goalTypes = [
+  { value: 'weight', label: '体重', color: 'primary' },
+  { value: 'exercise', label: '运动', color: 'success' },
+  { value: 'calories', label: '卡路里', color: 'warning' },
+  { value: 'custom', label: '自定义', color: 'default' }
+]
 
 // 使用Hooks
 const { goals, refreshing, loadGoals, onRefresh } = useGoalList()
@@ -502,9 +516,24 @@ function goBack() {
 }
 
 .dialog-content {
-  padding: $space-md;
+  padding: $space-md 0;
   max-height: calc(80vh - 60px);
   overflow-y: auto;
+}
+
+.goal-type-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .van-tag {
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 
 .form-actions {
