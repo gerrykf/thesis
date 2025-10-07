@@ -1,7 +1,6 @@
 import {
   createRouter,
   createWebHashHistory,
-  createWebHistory,
   type RouteRecordRaw,
 } from "vue-router";
 
