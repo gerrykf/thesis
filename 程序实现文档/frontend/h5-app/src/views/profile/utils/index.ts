@@ -69,12 +69,22 @@ export function formatDateArrayToString(dateArray: string[]): string {
  * 将 API 用户数据转换为表单数据
  */
 export function transformUserToFormData(user: API.User): ProfileFormData {
+  // 格式化出生日期为 yyyy-MM-dd 格式
+  let formattedBirthDate = user.birth_date
+  if (user.birth_date) {
+    const date = new Date(user.birth_date)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    formattedBirthDate = `${year}-${month}-${day}`
+  }
+
   return {
     nickname: user.nickname,
     email: user.email,
     phone: user.phone,
     gender: user.gender,
-    birth_date: user.birth_date,
+    birth_date: formattedBirthDate,
     height: user.height,
     target_weight: user.target_weight
   }
