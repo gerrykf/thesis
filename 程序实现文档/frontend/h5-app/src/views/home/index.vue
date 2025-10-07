@@ -351,7 +351,7 @@ function goToAnalysis() {
   margin-bottom: $space-sm;
 
   .tips-swipe {
-    height: 28px;
+    height: 40px;
 
     :deep(.van-swipe__track) {
       height: 100%;
@@ -365,8 +365,8 @@ function goToAnalysis() {
   .mini-tip-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px $space-sm;
+    gap: 9px;
+    padding: 9px $space-sm;
     background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
     border-radius: $radius-sm;
     font-size: $font-size-xs;
@@ -375,7 +375,7 @@ function goToAnalysis() {
     height: 100%;
 
     .tip-icon {
-      font-size: 14px;
+      font-size: 20px;
       color: #f39c12;
       flex-shrink: 0;
     }
@@ -440,25 +440,25 @@ function goToAnalysis() {
     .data-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 3px 4px;
+      gap: 4px 6px;
     }
 
     .data-card {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px;
+      gap: 9px;
+      padding: 9px;
       background: $background-color;
       border-radius: $radius-sm;
       transition: all 0.3s;
-      margin: 3px 0;
+      margin: 4px 0;
 
       &:active {
         transform: scale(0.98);
       }
 
       .card-icon {
-        font-size: 24px;
+        font-size: 35px;
         flex-shrink: 0;
       }
 
@@ -484,7 +484,7 @@ function goToAnalysis() {
           font-size: $font-size-xs;
           color: $text-color-3;
           line-height: 1.2;
-          margin-top: 2px;
+          margin-top: 3px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -498,7 +498,7 @@ function goToAnalysis() {
     padding: $space-md 0;
 
     .tip-icon {
-      font-size: 32px;
+      font-size: 46px;
       margin-bottom: $space-xs;
     }
 
@@ -515,7 +515,7 @@ function goToAnalysis() {
 
   :deep(.van-grid) {
     .van-grid-item__content {
-      padding: $space-sm 4px;
+      padding: $space-sm 6px;
       background: $white;
       border-radius: $radius-md;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -528,12 +528,12 @@ function goToAnalysis() {
     }
 
     .van-grid-item__icon {
-      font-size: 24px;
+      font-size: 35px;
       color: $primary-color;
     }
 
     .van-grid-item__text {
-      margin-top: 4px;
+      margin-top: 6px;
       font-size: $font-size-xs;
       color: $text-color;
       font-weight: 500;

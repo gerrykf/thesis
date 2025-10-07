@@ -1,7 +1,7 @@
 // 移动端rem适配方案
 export function setRem(): void {
   const baseSize = 16 // 设计稿基准字体大小
-  const designWidth = 375 // 设计稿宽度
+  const designWidth = 540 // 设计稿宽度
   const deviceWidth = document.documentElement.clientWidth || window.innerWidth
 
   // 计算缩放比例，最大不超过设计稿尺寸

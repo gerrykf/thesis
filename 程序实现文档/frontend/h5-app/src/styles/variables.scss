@@ -13,38 +13,38 @@ $white: var(--white, #ffffff);
 $border-color: var(--border-color, #ebedf0);
 $card-bg: var(--card-bg, #ffffff);
 
-// 字体系统 (基础16px起步)
-$font-size-xs: 10px;
-$font-size-sm: 12px;
-$font-size-md: 14px;
-$font-size-base: 16px;        // 基础字号
-$font-size-lg: 18px;
-$font-size-xl: 20px;
-$font-size-xxl: 24px;
+// 字体系统 (基础16px起步) - 540px设计稿
+$font-size-xs: 14px;
+$font-size-sm: 17px;
+$font-size-md: 20px;
+$font-size-base: 23px;        // 基础字号
+$font-size-lg: 26px;
+$font-size-xl: 29px;
+$font-size-xxl: 34px;
 
 $font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-// 间距系统 (8px基础单位)
-$space-base: 8px;
-$space-xs: $space-base;       // 8px
-$space-sm: $space-base * 1.5; // 12px
-$space-md: $space-base * 2;   // 16px
-$space-lg: $space-base * 3;   // 24px
-$space-xl: $space-base * 4;   // 32px
-$space-xxl: $space-base * 5;  // 40px
+// 间距系统 (11px基础单位) - 540px设计稿
+$space-base: 11px;
+$space-xs: $space-base;       // 11px
+$space-sm: $space-base * 1.5; // 17px
+$space-md: $space-base * 2;   // 22px
+$space-lg: $space-base * 3;   // 33px
+$space-xl: $space-base * 4;   // 44px
+$space-xxl: $space-base * 5;  // 55px
 
-// 圆角系统 (4px基础单位)
-$radius-base: 4px;
-$radius-xs: $radius-base;      // 4px
-$radius-sm: $radius-base * 2;  // 8px
-$radius-md: $radius-base * 3;  // 12px
-$radius-lg: $radius-base * 4;  // 16px
-$radius-xl: $radius-base * 5;  // 20px
+// 圆角系统 (6px基础单位) - 540px设计稿
+$radius-base: 6px;
+$radius-xs: $radius-base;      // 6px
+$radius-sm: $radius-base * 2;  // 12px
+$radius-md: $radius-base * 3;  // 18px
+$radius-lg: $radius-base * 4;  // 24px
+$radius-xl: $radius-base * 5;  // 30px
 $radius-round: 999px;          // 圆形
 
-// 按钮规范
-$button-height: 44px;          // 按钮高度
-$button-radius: $radius-sm;    // 按钮圆角 8px
+// 按钮规范 - 540px设计稿
+$button-height: 63px;          // 按钮高度
+$button-radius: $radius-sm;    // 按钮圆角 12px
 $button-font-size: $font-size-base; // 按钮字号
 
 // 阴影
@@ -63,7 +63,7 @@ $z-index-popover: 1050;
 $z-index-tooltip: 1060;
 
 // 容器宽度
-$container-width: 375px;       // 设计稿宽度
+$container-width: 540px;       // 设计稿宽度
 
 // 动画时长
 $duration-fast: 0.15s;

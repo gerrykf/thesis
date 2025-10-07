@@ -61,7 +61,7 @@ window.addEventListener('storage', (e) => {
 
 <style scoped>
 .app {
-  max-width: 375px;
+  max-width: 750px;
   margin: 0 auto;
   min-height: 100vh;
   background: var(--white);
