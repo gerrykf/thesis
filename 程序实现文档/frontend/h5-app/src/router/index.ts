@@ -79,6 +79,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/my/profile.vue"),
     meta: { title: "个人资料", anonymous: false, hideFooter: true },
   },
+  {
+    path: "/settings",
+    name: "Settings",
+    component: () => import("@/views/my/settings.vue"),
+    meta: { title: "设置", anonymous: false, hideFooter: true },
+  },
 ];
 
 const router = createRouter({

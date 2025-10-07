@@ -370,7 +370,7 @@ function goToAnalysis() {
     background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
     border-radius: $radius-sm;
     font-size: $font-size-xs;
-    color: $text-color;
+    color: #333;
     line-height: 1.4;
     height: 100%;
 
@@ -385,6 +385,7 @@ function goToAnalysis() {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #333;
     }
   }
 }

@@ -6,6 +6,8 @@
  * 个人资料表单数据
  */
 export interface ProfileFormData {
+  /** 真实姓名 */
+  real_name?: string
   /** 昵称 */
   nickname?: string
   /** 邮箱 */

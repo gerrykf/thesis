@@ -754,7 +754,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 8px $space-sm;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
     border-bottom: 1px solid $border-color;
 
     .meal-title {
@@ -982,7 +982,7 @@ onMounted(() => {
       align-items: center;
       padding: 4px $space-sm;
       border-bottom: 1px solid $border-color;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
 
       .title {
         font-size: $font-size-xs;

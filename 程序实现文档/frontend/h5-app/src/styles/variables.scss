@@ -1,16 +1,17 @@
 // ========== 设计规范变量 ==========
 
-// 颜色系统
-$primary-color: #1989fa;      // 主色调
-$success-color: #07c160;      // 辅色/成功色
-$warning-color: #ff976a;      // 警告色
-$danger-color: #ee0a24;       // 危险色
-$text-color: #323233;         // 主文本色
-$text-color-2: #646566;       // 次要文本色
-$text-color-3: #969799;       // 三级文本色
-$background-color: #f7f8fa;   // 背景色
-$white: #ffffff;              // 白色
-$border-color: #ebedf0;       // 边框色
+// 颜色系统 - 使用 CSS 变量支持主题切换
+$primary-color: var(--primary-color, #1989fa);
+$success-color: var(--success-color, #07c160);
+$warning-color: var(--warning-color, #ff976a);
+$danger-color: var(--danger-color, #ee0a24);
+$text-color: var(--text-color, #323233);
+$text-color-2: var(--text-color-2, #646566);
+$text-color-3: var(--text-color-3, #969799);
+$background-color: var(--background-color, #f7f8fa);
+$white: var(--white, #ffffff);
+$border-color: var(--border-color, #ebedf0);
+$card-bg: var(--card-bg, #ffffff);
 
 // 字体系统 (基础16px起步)
 $font-size-xs: 10px;

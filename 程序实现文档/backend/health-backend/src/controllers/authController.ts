@@ -567,3 +567,132 @@ export const updateProfile = async (
     });
   }
 };
+
+/**
+ * @swagger
+ * /api/auth/password:
+ *   put:
+ *     summary: 修改密码
+ *     tags: [Auth]
+ *     description: 修改当前登录用户的密码
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 description: 当前密码
+ *                 example: "123456"
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *                 description: 新密码(至少6位)
+ *                 example: "newpass123"
+ *     responses:
+ *       200:
+ *         description: 密码修改成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 密码修改成功
+ *       400:
+ *         description: 当前密码错误或参数错误
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 当前密码错误
+ *       401:
+ *         description: 未授权或令牌无效
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const updatePassword = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        success: false,
+        message: "参数验证失败",
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    // 查询用户当前密码
+    const [rows] = await db.execute(
+      "SELECT password FROM users WHERE id = ?",
+      [req.user?.userId]
+    );
+
+    const users = rows as any[];
+    if (users.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    const user = users[0];
+
+    // 验证当前密码
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      res.status(400).json({
+        success: false,
+        message: "当前密码错误",
+      });
+      return;
+    }
+
+    // 加密新密码
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // 更新密码
+    await db.execute(
+      "UPDATE users SET password = ? WHERE id = ?",
+      [hashedPassword, req.user?.userId]
+    );
+
+    res.json({
+      success: true,
+      message: "密码修改成功",
+    });
+  } catch (error) {
+    console.error("修改密码错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};

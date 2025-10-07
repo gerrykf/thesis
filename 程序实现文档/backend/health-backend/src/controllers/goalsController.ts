@@ -5,6 +5,18 @@ import { AuthRequest } from '../middleware/auth';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 /**
+ * 格式化日期：将 ISO 8601 格式转换为 MySQL DATE 格式 (YYYY-MM-DD)
+ */
+function formatDate(dateStr: string | null | undefined): string | null {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * @swagger
  * components:
  *   schemas:
@@ -231,8 +243,8 @@ export const createUserGoal = async (req: AuthRequest, res: Response): Promise<v
         target_value,
         current_value,
         unit,
-        start_date,
-        target_date || null,
+        formatDate(start_date),
+        target_date ? formatDate(target_date) : null,
         description || null
       ]
     );
@@ -356,7 +368,7 @@ export const updateUserGoal = async (req: AuthRequest, res: Response): Promise<v
     }
     if (target_date !== undefined) {
       updates.push('target_date = ?');
-      values.push(target_date);
+      values.push(formatDate(target_date));
     }
     if (status !== undefined) {
       updates.push('status = ?');

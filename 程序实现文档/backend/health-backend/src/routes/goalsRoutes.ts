@@ -33,11 +33,11 @@ const createGoalValidation = [
     .isLength({ max: 20 })
     .withMessage('单位长度不能超过20字符'),
   body('start_date')
-    .isDate()
+    .isISO8601()
     .withMessage('开始日期格式不正确'),
   body('target_date')
     .optional()
-    .isDate()
+    .isISO8601()
     .withMessage('目标日期格式不正确')
 ];
 
@@ -61,7 +61,7 @@ const updateGoalValidation = [
     .withMessage('单位长度不能超过20字符'),
   body('target_date')
     .optional()
-    .isDate()
+    .isISO8601()
     .withMessage('目标日期格式不正确'),
   body('status')
     .optional()

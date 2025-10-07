@@ -23,9 +23,9 @@
       </van-cell-group>
 
       <van-cell-group inset>
-        <van-cell title="设置" is-link @click="showToast('功能开发中')" icon="setting-o" />
-        <van-cell title="帮助与反馈" is-link @click="showToast('功能开发中')" icon="question-o" />
-        <van-cell title="关于我们" is-link @click="showToast('功能开发中')" icon="info-o" />
+        <van-cell title="设置" is-link @click="goToSettings" icon="setting-o" />
+        <!-- <van-cell title="帮助与反馈" is-link @click="showToast('功能开发中')" icon="question-o" />
+        <van-cell title="关于我们" is-link @click="showToast('功能开发中')" icon="info-o" /> -->
       </van-cell-group>
 
       <div style="margin: 24px 16px;">
@@ -59,6 +59,10 @@ function goToGoals() {
 
 function goToAnalysis() {
   router.push('/analysis')
+}
+
+function goToSettings() {
+  router.push('/settings')
 }
 
 function onLogout() {

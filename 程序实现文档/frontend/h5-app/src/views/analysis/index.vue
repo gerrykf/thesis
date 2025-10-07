@@ -283,7 +283,7 @@ function formatNumber(value?: number): string {
       align-items: center;
       gap: $space-md;
       padding: $space-md;
-      background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
+      background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
       border-radius: $radius-md;
 
       .stat-icon {

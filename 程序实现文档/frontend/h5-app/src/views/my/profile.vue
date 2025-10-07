@@ -11,6 +11,7 @@
             name="nickname"
             label="昵称"
             placeholder="请输入昵称"
+            :disabled="!!formData.nickname"
             :rules="[{ required: true, message: '请输入昵称' }]"
           />
         </van-cell-group>
@@ -213,5 +214,11 @@ function onBack() {
   margin-left: $space-xs;
   font-size: $font-size-sm;
   color: $text-color-3;
+}
+
+.locked-tip {
+  font-size: $font-size-xs;
+  color: $text-color-3;
+  margin-left: $space-xs;
 }
 </style>

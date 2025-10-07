@@ -1,5 +1,232 @@
-@use './variables.scss' as *;
-@use './mixins.scss' as *;
+@use "./variables.scss" as *;
+@use "./mixins.scss" as *;
+
+// ========== CSS 变量定义 ==========
+
+:root {
+  // 浅色主题（默认）
+  --primary-color: #1989fa;
+  --success-color: #07c160;
+  --warning-color: #ff976a;
+  --danger-color: #ee0a24;
+  --text-color: #323233;
+  --text-color-2: #646566;
+  --text-color-3: #969799;
+  --background-color: #f7f8fa;
+  --background-color2: #333;
+  --white: #ffffff;
+  --border-color: #ebedf0;
+  --card-bg: #ffffff;
+  --gradient-header-start: #f5f7fa;
+  --gradient-header-end: #c3cfe2;
+
+  // Vant 组件变量
+  --van-primary-color: #1989fa;
+  --van-success-color: #07c160;
+  --van-warning-color: #ff976a;
+  --van-danger-color: #ee0a24;
+  --van-text-color: #323233;
+  --van-text-color-2: #646566;
+  --van-text-color-3: #969799;
+  --van-background: #f7f8fa;
+  --van-background-2: #ffffff;
+  --van-border-color: #ebedf0;
+  --van-active-color: #f2f3f5;
+
+  // 导航栏
+  --van-nav-bar-background: #ffffff;
+  --van-nav-bar-background-color: #ffffff;
+  --van-nav-bar-title-text-color: #323233;
+  --van-nav-bar-icon-color: #323233;
+  --van-nav-bar-text-color: #323233;
+
+  // 底部标签栏
+  --van-tabbar-background: #ffffff;
+  --van-tabbar-item-text-color: #646566;
+  --van-tabbar-item-active-color: #1989fa;
+  --van-tabbar-item-active-background: #ffffff;
+
+  // 单元格
+  --van-cell-background: #ffffff;
+  --van-cell-background-color: #ffffff;
+  --van-cell-text-color: #323233;
+  --van-cell-value-color: #969799;
+  --van-cell-label-color: #969799;
+  --van-cell-border-color: #ebedf0;
+  --van-cell-group-background: #ffffff;
+  --van-cell-group-background-color: #ffffff;
+  --van-cell-group-title-color: #969799;
+
+  // 表单
+  --van-field-input-text-color: #323233;
+  --van-field-label-color: #646566;
+  --van-field-placeholder-text-color: #c8c9cc;
+  --van-field-disabled-text-color: #c8c9cc;
+  --van-field-input-disabled-text-color: #c8c9cc;
+
+  // 弹出层
+  --van-popup-background: #ffffff;
+  --van-popup-close-icon-color: #c8c9cc;
+
+  // 对话框
+  --van-dialog-background: #ffffff;
+  --van-dialog-header-font-weight: 500;
+  --van-dialog-header-text-color: #323233;
+  --van-dialog-message-text-color: #646566;
+  --van-dialog-confirm-button-text-color: #ee0a24;
+
+  // Toast
+  --van-toast-background: rgba(0, 0, 0, 0.7);
+  --van-toast-text-color: #ffffff;
+
+  // Overlay
+  --van-overlay-background: rgba(0, 0, 0, 0.7);
+
+  // Button
+  --van-button-default-background: #ffffff;
+  --van-button-default-color: #323233;
+  --van-button-default-border-color: #ebedf0;
+
+  // Tag
+  --van-tag-default-color: #969799;
+  --van-tag-primary-color: #1989fa;
+
+  // Picker
+  --van-picker-background: #ffffff;
+  --van-picker-toolbar-height: 44px;
+  --van-picker-title-font-size: 16px;
+  --van-picker-title-text-color: #323233;
+  --van-picker-action-text-color: #1989fa;
+  --van-picker-option-text-color: #323233;
+  --van-picker-option-disabled-opacity: 0.3;
+
+  // Action Sheet
+  --van-action-sheet-background: #ffffff;
+  --van-action-sheet-item-text-color: #323233;
+  --van-action-sheet-item-disabled-text-color: #c8c9cc;
+  --van-action-sheet-subname-color: #969799;
+  --van-action-sheet-cancel-text-color: #646566;
+
+  // Empty
+  --van-empty-description-color: #969799;
+
+  // Progress
+  --van-progress-pivot-text-color: #ffffff;
+  --van-progress-pivot-background: #1989fa;
+}
+
+// 深色主题
+[data-theme="dark"] {
+  --primary-color: #3a9bff;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --text-color: #e8e8e8;
+  --text-color-2: #b8b8b8;
+  --text-color-3: #8a8a8a;
+  --background-color: #1a1a1a;
+  --background-color2: #fff;
+  --white: #2d2d2d;
+  --border-color: #3a3a3a;
+  --card-bg: #2d2d2d;
+  --gradient-header-start: #3a3a3a;
+  --gradient-header-end: #2a2a2a;
+
+  // Vant 组件变量 - 深色主题
+  --van-primary-color: #3a9bff;
+  --van-success-color: #2ecc71;
+  --van-warning-color: #f39c12;
+  --van-danger-color: #e74c3c;
+  --van-text-color: #e8e8e8;
+  --van-text-color-2: #b8b8b8;
+  --van-text-color-3: #8a8a8a;
+  --van-background: #1a1a1a;
+  --van-background-2: #2d2d2d;
+  --van-border-color: #3a3a3a;
+  --van-active-color: #3a3a3a;
+
+  // 导航栏
+  --van-nav-bar-background: #1f1f1f;
+  --van-nav-bar-background-color: #1f1f1f;
+  --van-nav-bar-title-text-color: #e8e8e8;
+  --van-nav-bar-icon-color: #e8e8e8;
+  --van-nav-bar-text-color: #e8e8e8;
+
+  // 底部标签栏
+  --van-tabbar-background: #1f1f1f;
+  --van-tabbar-item-text-color: #b8b8b8;
+  --van-tabbar-item-active-color: #3a9bff;
+  --van-tabbar-item-active-background: #1f1f1f;
+
+  // 单元格
+  --van-cell-background: #363636;
+  --van-cell-background-color: #363636;
+  --van-cell-text-color: #e8e8e8;
+  --van-cell-value-color: #8a8a8a;
+  --van-cell-label-color: #8a8a8a;
+  --van-cell-border-color: #3a3a3a;
+  --van-cell-group-background: #1a1a1a;
+  --van-cell-group-background-color: #1a1a1a;
+  --van-cell-group-title-color: #8a8a8a;
+
+  // 表单
+  --van-field-input-text-color: #e8e8e8;
+  --van-field-label-color: #b8b8b8;
+  --van-field-placeholder-text-color: #5a5a5a;
+  --van-field-disabled-text-color: #5a5a5a;
+  --van-field-input-disabled-text-color: #5a5a5a;
+
+  // 弹出层
+  --van-popup-background: #2d2d2d;
+  --van-popup-close-icon-color: #8a8a8a;
+
+  // 对话框
+  --van-dialog-background: #2d2d2d;
+  --van-dialog-header-font-weight: 500;
+  --van-dialog-header-text-color: #e8e8e8;
+  --van-dialog-message-text-color: #b8b8b8;
+  --van-dialog-confirm-button-text-color: #e74c3c;
+
+  // Toast (深色主题下使用浅色背景以便区分)
+  --van-toast-background: rgba(70, 70, 70, 0.95);
+  --van-toast-background-color: rgba(70, 70, 70, 0.95);
+  --van-toast-text-color: #ffffff;
+
+  // Overlay (深色主题下稍浅一些)
+  --van-overlay-background: rgba(0, 0, 0, 0.8);
+
+  // Button
+  --van-button-default-background: #3a3a3a;
+  --van-button-default-color: #e8e8e8;
+  --van-button-default-border-color: #999999;
+
+  // Tag
+  --van-tag-default-color: #8a8a8a;
+  --van-tag-primary-color: #3a9bff;
+
+  // Picker
+  --van-picker-background: #2d2d2d;
+  --van-picker-toolbar-height: 44px;
+  --van-picker-title-font-size: 16px;
+  --van-picker-title-text-color: #e8e8e8;
+  --van-picker-action-text-color: #3a9bff;
+  --van-picker-option-text-color: #e8e8e8;
+  --van-picker-option-disabled-opacity: 0.3;
+
+  // Action Sheet
+  --van-action-sheet-background: #2d2d2d;
+  --van-action-sheet-item-text-color: #e8e8e8;
+  --van-action-sheet-item-disabled-text-color: #5a5a5a;
+  --van-action-sheet-subname-color: #8a8a8a;
+  --van-action-sheet-cancel-text-color: #b8b8b8;
+
+  // Empty
+  --van-empty-description-color: #8a8a8a;
+
+  // Progress
+  --van-progress-pivot-text-color: #ffffff;
+  --van-progress-pivot-background: #3a9bff;
+}
 
 // ========== 全局样式重置 ==========
 
@@ -17,6 +244,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: $background-color;
   color: $text-color;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #app {
@@ -47,6 +275,10 @@ body {
   transform: translateX(-50%);
 }
 
+.van-popup--center{
+  max-width: calc(100vw - var(--van-padding-md) * 2);
+}
+
 // 遮罩层居中
 .van-overlay {
   max-width: 375px;
@@ -67,7 +299,7 @@ body {
 .van-toast {
   left: 50% !important;
   transform: translateX(-50%) translateY(-50%) !important;
-  background-color: rgba(0, 0, 0, 0.7) !important;
+  background-color: var(--background-color2) !important;
   color: $white !important;
 
   .van-toast__text {
@@ -87,7 +319,7 @@ body {
 
 // Loading 外层容器添加半透明背景
 .van-toast--loading {
-  background-color: rgba(0, 0, 0, 0.7) !important;
+  background-color: var(--background-color2) !important;
   padding: 20px !important;
   border-radius: 8px !important;
 
@@ -128,6 +360,10 @@ body {
   left: 50% !important;
   right: auto !important;
   transform: translateX(-50%);
+}
+
+.van-button--default {
+  border-color: var(--border-color) !important;
 }
 
 // ========== 通用工具类 ==========
@@ -198,81 +434,203 @@ body {
 }
 
 // ========== 间距工具类 ==========
-.m-xs { margin: $space-xs; }
-.m-sm { margin: $space-sm; }
-.m-md { margin: $space-md; }
-.m-lg { margin: $space-lg; }
-.m-xl { margin: $space-xl; }
+.m-xs {
+  margin: $space-xs;
+}
+.m-sm {
+  margin: $space-sm;
+}
+.m-md {
+  margin: $space-md;
+}
+.m-lg {
+  margin: $space-lg;
+}
+.m-xl {
+  margin: $space-xl;
+}
 
-.mt-xs { margin-top: $space-xs; }
-.mt-sm { margin-top: $space-sm; }
-.mt-md { margin-top: $space-md; }
-.mt-lg { margin-top: $space-lg; }
-.mt-xl { margin-top: $space-xl; }
+.mt-xs {
+  margin-top: $space-xs;
+}
+.mt-sm {
+  margin-top: $space-sm;
+}
+.mt-md {
+  margin-top: $space-md;
+}
+.mt-lg {
+  margin-top: $space-lg;
+}
+.mt-xl {
+  margin-top: $space-xl;
+}
 
-.mb-xs { margin-bottom: $space-xs; }
-.mb-sm { margin-bottom: $space-sm; }
-.mb-md { margin-bottom: $space-md; }
-.mb-lg { margin-bottom: $space-lg; }
-.mb-xl { margin-bottom: $space-xl; }
+.mb-xs {
+  margin-bottom: $space-xs;
+}
+.mb-sm {
+  margin-bottom: $space-sm;
+}
+.mb-md {
+  margin-bottom: $space-md;
+}
+.mb-lg {
+  margin-bottom: $space-lg;
+}
+.mb-xl {
+  margin-bottom: $space-xl;
+}
 
-.p-xs { padding: $space-xs; }
-.p-sm { padding: $space-sm; }
-.p-md { padding: $space-md; }
-.p-lg { padding: $space-lg; }
-.p-xl { padding: $space-xl; }
+.p-xs {
+  padding: $space-xs;
+}
+.p-sm {
+  padding: $space-sm;
+}
+.p-md {
+  padding: $space-md;
+}
+.p-lg {
+  padding: $space-lg;
+}
+.p-xl {
+  padding: $space-xl;
+}
 
-.pt-xs { padding-top: $space-xs; }
-.pt-sm { padding-top: $space-sm; }
-.pt-md { padding-top: $space-md; }
-.pt-lg { padding-top: $space-lg; }
-.pt-xl { padding-top: $space-xl; }
+.pt-xs {
+  padding-top: $space-xs;
+}
+.pt-sm {
+  padding-top: $space-sm;
+}
+.pt-md {
+  padding-top: $space-md;
+}
+.pt-lg {
+  padding-top: $space-lg;
+}
+.pt-xl {
+  padding-top: $space-xl;
+}
 
-.pb-xs { padding-bottom: $space-xs; }
-.pb-sm { padding-bottom: $space-sm; }
-.pb-md { padding-bottom: $space-md; }
-.pb-lg { padding-bottom: $space-lg; }
-.pb-xl { padding-bottom: $space-xl; }
+.pb-xs {
+  padding-bottom: $space-xs;
+}
+.pb-sm {
+  padding-bottom: $space-sm;
+}
+.pb-md {
+  padding-bottom: $space-md;
+}
+.pb-lg {
+  padding-bottom: $space-lg;
+}
+.pb-xl {
+  padding-bottom: $space-xl;
+}
 
 // ========== 文本对齐 ==========
-.text-left { text-align: left; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
 
 // ========== 字体大小 ==========
-.text-xs { font-size: $font-size-xs; }
-.text-sm { font-size: $font-size-sm; }
-.text-md { font-size: $font-size-md; }
-.text-base { font-size: $font-size-base; }
-.text-lg { font-size: $font-size-lg; }
-.text-xl { font-size: $font-size-xl; }
-.text-xxl { font-size: $font-size-xxl; }
+.text-xs {
+  font-size: $font-size-xs;
+}
+.text-sm {
+  font-size: $font-size-sm;
+}
+.text-md {
+  font-size: $font-size-md;
+}
+.text-base {
+  font-size: $font-size-base;
+}
+.text-lg {
+  font-size: $font-size-lg;
+}
+.text-xl {
+  font-size: $font-size-xl;
+}
+.text-xxl {
+  font-size: $font-size-xxl;
+}
 
 // ========== 文本颜色 ==========
-.text-primary { color: $primary-color; }
-.text-success { color: $success-color; }
-.text-warning { color: $warning-color; }
-.text-danger { color: $danger-color; }
-.text-secondary { color: $text-color-2; }
-.text-gray { color: $text-color-3; }
+.text-primary {
+  color: $primary-color;
+}
+.text-success {
+  color: $success-color;
+}
+.text-warning {
+  color: $warning-color;
+}
+.text-danger {
+  color: $danger-color;
+}
+.text-secondary {
+  color: $text-color-2;
+}
+.text-gray {
+  color: $text-color-3;
+}
 
 // ========== 背景颜色 ==========
-.bg-primary { background-color: $primary-color; }
-.bg-success { background-color: $success-color; }
-.bg-warning { background-color: $warning-color; }
-.bg-danger { background-color: $danger-color; }
-.bg-white { background-color: $white; }
-.bg-gray { background-color: $background-color; }
+.bg-primary {
+  background-color: $primary-color;
+}
+.bg-success {
+  background-color: $success-color;
+}
+.bg-warning {
+  background-color: $warning-color;
+}
+.bg-danger {
+  background-color: $danger-color;
+}
+.bg-white {
+  background-color: $white;
+}
+.bg-gray {
+  background-color: $background-color;
+}
 
 // ========== 圆角 ==========
-.radius-xs { border-radius: $radius-xs; }
-.radius-sm { border-radius: $radius-sm; }
-.radius-md { border-radius: $radius-md; }
-.radius-lg { border-radius: $radius-lg; }
-.radius-round { border-radius: $radius-round; }
+.radius-xs {
+  border-radius: $radius-xs;
+}
+.radius-sm {
+  border-radius: $radius-sm;
+}
+.radius-md {
+  border-radius: $radius-md;
+}
+.radius-lg {
+  border-radius: $radius-lg;
+}
+.radius-round {
+  border-radius: $radius-round;
+}
 
 // ========== 阴影 ==========
-.shadow-sm { box-shadow: $shadow-sm; }
-.shadow-md { box-shadow: $shadow-md; }
-.shadow-lg { box-shadow: $shadow-lg; }
-.shadow-xl { box-shadow: $shadow-xl; }
+.shadow-sm {
+  box-shadow: $shadow-sm;
+}
+.shadow-md {
+  box-shadow: $shadow-md;
+}
+.shadow-lg {
+  box-shadow: $shadow-lg;
+}
+.shadow-xl {
+  box-shadow: $shadow-xl;
+}

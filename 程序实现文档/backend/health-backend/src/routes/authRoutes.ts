@@ -1,6 +1,6 @@
 import { Router, type Router as RouterType } from 'express';
 import { body } from 'express-validator';
-import { register, login, getProfile, updateProfile } from '../controllers/authController';
+import { register, login, getProfile, updateProfile, updatePassword } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 
 const router: RouterType = Router();
@@ -30,10 +30,19 @@ const loginValidation = [
   body('password').notEmpty().withMessage('密码不能为空')
 ];
 
+// 修改密码验证规则
+const updatePasswordValidation = [
+  body('oldPassword').notEmpty().withMessage('当前密码不能为空'),
+  body('newPassword')
+    .isLength({ min: 6, max: 50 })
+    .withMessage('新密码长度必须在6-50字符之间')
+];
+
 // 路由定义
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
+router.put('/password', authenticateToken, updatePasswordValidation, updatePassword);
 
 export default router;

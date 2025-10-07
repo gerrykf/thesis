@@ -58,3 +58,18 @@ export async function postAuthRegister(
     ...(options || {}),
   });
 }
+
+/** 修改密码 修改当前登录用户的密码 PUT /api/auth/password */
+export async function putAuthPassword(
+  body: { oldPassword: string; newPassword: string },
+  options?: { [key: string]: any }
+) {
+  return request<{ success?: boolean; message?: string }>("/api/auth/password", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

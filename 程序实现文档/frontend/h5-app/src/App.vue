@@ -1,29 +1,62 @@
 <template>
-  <div class="app">
-    <router-view v-slot="{ Component }">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
-    <van-tabbar v-if="!hideFooter" v-model="active" route>
-      <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
-      <van-tabbar-item to="/health" icon="add-o">打卡</van-tabbar-item>
-      <van-tabbar-item to="/diet" icon="goods-collect-o">饮食</van-tabbar-item>
-      <van-tabbar-item to="/history" icon="clock-o">历史</van-tabbar-item>
-      <van-tabbar-item to="/my" icon="user-o">我的</van-tabbar-item>
-    </van-tabbar>
-  </div>
+  <van-config-provider :theme="theme">
+    <div class="app">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+      <van-tabbar v-if="!hideFooter" v-model="active" route>
+        <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
+        <van-tabbar-item to="/health" icon="add-o">打卡</van-tabbar-item>
+        <van-tabbar-item to="/diet" icon="goods-collect-o">饮食</van-tabbar-item>
+        <van-tabbar-item to="/history" icon="clock-o">历史</van-tabbar-item>
+        <van-tabbar-item to="/my" icon="user-o">我的</van-tabbar-item>
+      </van-tabbar>
+    </div>
+  </van-config-provider>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const active = ref(0)
 const route = useRoute()
+const theme = ref<'light' | 'dark'>('light')
 
 // 根据路由 meta 判断是否隐藏 Footer
 const hideFooter = computed(() => route.meta.hideFooter as boolean)
+
+// 初始化主题
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    theme.value = 'dark'
+    document.documentElement.setAttribute('data-theme', 'dark')
+  }
+})
+
+// 监听主题变化
+watch(theme, (newTheme) => {
+  if (newTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark')
+  } else {
+    document.documentElement.removeAttribute('data-theme')
+  }
+})
+
+// 监听 localStorage 变化（跨标签页同步）
+window.addEventListener('storage', (e) => {
+  if (e.key === 'theme') {
+    theme.value = e.newValue === 'dark' ? 'dark' : 'light'
+  }
+})
+
+// 提供给全局使用的主题切换方法
+;(window as any).__updateTheme__ = (newTheme: 'light' | 'dark') => {
+  theme.value = newTheme
+}
 </script>
 
 <style scoped>
