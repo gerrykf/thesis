@@ -74,41 +74,35 @@ import { AuthRequest } from '../middleware/auth';
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseInt(req.query.pageSize as string) || parseInt(req.query.limit as string) || 20;
     const offset = (page - 1) * limit;
     const search = req.query.search as string;
     const role = req.query.role as string;
 
-    let query = `
-      SELECT id, username, nickname, email, phone, gender, role, is_active,
-             created_at, last_login_at
-      FROM users
-      WHERE 1=1
-    `;
-    let countQuery = 'SELECT COUNT(*) as total FROM users WHERE 1=1';
-    const params: any[] = [];
-    const countParams: any[] = [];
-
+    // 构建WHERE条件
+    let whereConditions = '';
+    const conditions: string[] = [];
+    
     if (search) {
-      query += ' AND (username LIKE ? OR nickname LIKE ? OR email LIKE ?)';
-      countQuery += ' AND (username LIKE ? OR nickname LIKE ? OR email LIKE ?)';
-      const searchPattern = `%${search}%`;
-      params.push(searchPattern, searchPattern, searchPattern);
-      countParams.push(searchPattern, searchPattern, searchPattern);
+      conditions.push(`(username LIKE '%${search}%' OR nickname LIKE '%${search}%' OR email LIKE '%${search}%')`);
     }
-
+    
     if (role) {
-      query += ' AND role = ?';
-      countQuery += ' AND role = ?';
-      params.push(role);
-      countParams.push(role);
+      conditions.push(`role = '${role}'`);
+    }
+    
+    if (conditions.length > 0) {
+      whereConditions = ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-    params.push(limit, offset);
-
-    const [users] = await db.execute(query, params);
-    const [countResult] = await db.execute(countQuery, countParams);
+    const [users] = await db.execute(
+      `SELECT id, username, nickname, email, phone, gender, role, is_active, created_at 
+       FROM users${whereConditions}
+       ORDER BY created_at DESC 
+       LIMIT ${limit} OFFSET ${offset}`
+    );
+    
+    const [countResult] = await db.execute(`SELECT COUNT(*) as total FROM users${whereConditions}`);
     const total = (countResult as any[])[0].total;
 
     res.json({
@@ -127,7 +121,8 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
     console.error('获取用户列表错误:', error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: '服务器内部错误',
+      error: process.env.NODE_ENV === 'development' ? (error as Error)?.message : undefined
     });
   }
 };
@@ -507,6 +502,226 @@ export const getSystemLogs = async (req: AuthRequest, res: Response): Promise<vo
     });
   } catch (error) {
     console.error('获取系统日志错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+};
+
+/**
+ * 更新用户状态 - PUT /api/admin/users/:id
+ */
+export const updateUserStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const { is_active } = req.body;
+
+    if (typeof is_active !== 'boolean') {
+      res.status(400).json({
+        success: false,
+        message: '请提供有效的用户状态'
+      });
+      return;
+    }
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+      return;
+    }
+
+    await db.execute(
+      'UPDATE users SET is_active = ? WHERE id = ?',
+      [is_active, userId]
+    );
+
+    res.json({
+      success: true,
+      message: '用户状态更新成功'
+    });
+  } catch (error) {
+    console.error('更新用户状态错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+};
+
+/**
+ * 获取用户统计 - GET /api/admin/stats/users
+ */
+export const getUserStats = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    // 总用户数和活跃用户数
+    const [userStats] = await db.execute(
+      'SELECT COUNT(*) as total, SUM(is_active) as active FROM users'
+    );
+
+    // 管理员用户数
+    const [adminStats] = await db.execute(
+      'SELECT COUNT(*) as count FROM users WHERE role = "admin"'
+    );
+
+    // 今日新增用户数
+    const [newUsersStats] = await db.execute(
+      `SELECT COUNT(*) as count FROM users 
+       WHERE DATE(created_at) = CURDATE()`
+    );
+
+    const userData = (userStats as any[])[0];
+    const adminData = (adminStats as any[])[0];
+    const newUsersData = (newUsersStats as any[])[0];
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers: userData.total || 0,
+        activeUsers: userData.active || 0,
+        adminUsers: adminData.count || 0,
+        newUsersToday: newUsersData.count || 0
+      }
+    });
+  } catch (error) {
+    console.error('获取用户统计错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+};
+
+/**
+ * 获取用户健康统计 - GET /api/admin/users/:id/health-stats
+ */
+export const getUserHealthStats = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+      return;
+    }
+
+    // 健康记录总数
+    const [healthRecords] = await db.execute(
+      'SELECT COUNT(*) as count FROM health_records WHERE user_id = ?',
+      [userId]
+    );
+
+    // 饮食记录总数
+    const [dietRecords] = await db.execute(
+      'SELECT COUNT(*) as count FROM diet_records WHERE user_id = ?',
+      [userId]
+    );
+
+    // 活跃目标数
+    const [activeGoals] = await db.execute(
+      'SELECT COUNT(*) as count FROM user_goals WHERE user_id = ? AND status = "active"',
+      [userId]
+    );
+
+    // 活跃天数(30天内有记录的天数)
+    const [activeDays] = await db.execute(
+      `SELECT COUNT(DISTINCT DATE(record_date)) as count 
+       FROM health_records 
+       WHERE user_id = ? AND record_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)`,
+      [userId]
+    );
+
+    const healthData = (healthRecords as any[])[0];
+    const dietData = (dietRecords as any[])[0];
+    const goalsData = (activeGoals as any[])[0];
+    const daysData = (activeDays as any[])[0];
+
+    res.json({
+      success: true,
+      data: {
+        totalRecords: healthData.count || 0,
+        dietRecords: dietData.count || 0,
+        activeGoals: goalsData.count || 0,
+        activeDays: daysData.count || 0
+      }
+    });
+  } catch (error) {
+    console.error('获取用户健康统计错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+};
+
+/**
+ * 获取用户健康记录 - GET /api/admin/users/:id/health-records
+ */
+export const getUserHealthRecords = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const offset = (page - 1) * pageSize;
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+      return;
+    }
+
+    let query = 'SELECT * FROM health_records WHERE user_id = ?';
+    let countQuery = 'SELECT COUNT(*) as total FROM health_records WHERE user_id = ?';
+    const params: any[] = [userId];
+    const countParams: any[] = [userId];
+
+    // 日期筛选
+    if (startDate) {
+      query += ' AND record_date >= ?';
+      countQuery += ' AND record_date >= ?';
+      params.push(startDate);
+      countParams.push(startDate);
+    }
+
+    if (endDate) {
+      query += ' AND record_date <= ?';
+      countQuery += ' AND record_date <= ?';
+      params.push(endDate);
+      countParams.push(endDate);
+    }
+
+    query += ' ORDER BY record_date DESC LIMIT ? OFFSET ?';
+    params.push(pageSize, offset);
+
+    const [records] = await db.execute(query, params);
+    const [countResult] = await db.execute(countQuery, countParams);
+    const total = (countResult as any[])[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        records,
+        total,
+        page,
+        pageSize
+      }
+    });
+  } catch (error) {
+    console.error('获取用户健康记录错误:', error);
     res.status(500).json({
       success: false,
       message: '服务器内部错误'

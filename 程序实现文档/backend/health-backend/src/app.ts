@@ -155,6 +155,12 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// 添加请求日志中间件
+app.use('/api', (req, res, next) => {
+  console.log(`API请求: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // API路由
 app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);

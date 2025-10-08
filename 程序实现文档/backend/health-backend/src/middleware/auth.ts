@@ -85,3 +85,18 @@ export const requireAdmin = (
   }
   next();
 };
+
+export const requireRole = (role: string) => (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user?.role !== role) {
+    res.status(403).json({
+      success: false,
+      message: `需要${role}权限`
+    });
+    return;
+  }
+  next();
+};
