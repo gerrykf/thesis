@@ -7,6 +7,11 @@
     "dev": "nodemon --exec ts-node src/app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
+    "pm2:start": "pnpm build && pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop health-backend",
+    "pm2:kill": "pm2 delete health-backend",
+    "pm2:restart": "pm2 restart health-backend",
+    "pm2:logs": "pm2 logs health-backend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

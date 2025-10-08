@@ -12,10 +12,14 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VanButton: typeof import('vant/es')['Button']
+    VanCell: typeof import('vant/es')['Cell']
+    VanCellGroup: typeof import('vant/es')['CellGroup']
     VanConfigProvider: typeof import('vant/es')['ConfigProvider']
     VanGrid: typeof import('vant/es')['Grid']
     VanGridItem: typeof import('vant/es')['GridItem']
     VanIcon: typeof import('vant/es')['Icon']
+    VanImage: typeof import('vant/es')['Image']
+    VanLoading: typeof import('vant/es')['Loading']
     VanNavBar: typeof import('vant/es')['NavBar']
     VanProgress: typeof import('vant/es')['Progress']
     VanSwipe: typeof import('vant/es')['Swipe']
@@ -23,5 +27,6 @@ declare module 'vue' {
     VanTabbar: typeof import('vant/es')['Tabbar']
     VanTabbarItem: typeof import('vant/es')['TabbarItem']
     VanTag: typeof import('vant/es')['Tag']
+    VanUploader: typeof import('vant/es')['Uploader']
   }
 }
