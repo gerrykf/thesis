@@ -1,7 +1,27 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git clone:*)"
+      "Bash(git clone:*)",
+      "Bash(npm install:*)",
+      "Bash(pm2 list:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(pnpm pm2:restart:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(npm run build:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(npx:*)",
+      "Bash(grep:*)",
+      "Bash(mysql:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(curl:*)",
+      "Bash(npm start)",
+      "Bash(npm run lint:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

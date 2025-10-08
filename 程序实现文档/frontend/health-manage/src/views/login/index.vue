@@ -38,7 +38,7 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "admin123"
+  password: "qweqwe123"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -53,19 +53,29 @@ const onLogin = async (formEl: FormInstance | undefined) => {
         })
         .then(res => {
           if (res.success) {
-            // 获取后端路由
+            message("登录成功", { type: "success" });
+            // 初始化路由后跳转到首页
             return initRouter().then(() => {
               disabled.value = true;
+              // 直接跳转到首页/welcome，如果不存在则跳转到根路径
+              const targetPath = "/welcome";
               router
-                .push(getTopMenu(true).path)
-                .then(() => {
-                  message("登录成功", { type: "success" });
+                .push(targetPath)
+                .catch(() => {
+                  // 如果welcome路由不存在，跳转到根路径
+                  router.push("/");
                 })
                 .finally(() => (disabled.value = false));
             });
           } else {
-            message("登录失败", { type: "error" });
+            message(res.message || "登录失败", { type: "error" });
           }
+        })
+        .catch(error => {
+          console.error("登录错误:", error);
+          message(error.message || "登录失败，请检查用户名和密码", {
+            type: "error"
+          });
         })
         .finally(() => (loading.value = false));
     }
