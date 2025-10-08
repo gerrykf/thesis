@@ -3,8 +3,10 @@ import { createPinia } from 'pinia'
 import router from './router'
 import { initFlexible } from './utils/flexible'
 import { useUserStore } from './stores/user'
+import VueTour from 'vue3-tour'
 import '@vant/touch-emulator'
 import 'vant/lib/index.css'
+import 'vue3-tour/dist/vue3-tour.css'
 import './styles/global.scss'
 import App from './App.vue'
 
@@ -16,6 +18,7 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+app.use(VueTour)
 
 // 初始化用户信息
 const userStore = useUserStore()

@@ -17,7 +17,8 @@
     "vant": "^4.9.21",
     "vue": "^3.5.22",
     "vue-echarts": "^8.0.0",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-tour": "^1.0.3"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

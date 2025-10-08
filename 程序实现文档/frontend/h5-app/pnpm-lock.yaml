@@ -32,6 +32,9 @@ importers:
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.22(typescript@5.9.3))
+      vue3-tour:
+        specifier: ^1.0.3
+        version: 1.0.3(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: ^24.6.0
@@ -365,6 +368,9 @@ packages:
   '@parcel/watcher@2.5.1':
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@rolldown/pluginutils@1.0.0-beta.29':
     resolution: {integrity: sha512-NIJgOsMjbxAXvoGq/X0gD7VPMQ8j9g0BiDaNjVNVjvl+iKXxL3Jre0v31RmBYeLEmkbj2s02v8vFTbUXi5XS2Q==}
@@ -977,6 +983,9 @@ packages:
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
 
+  jump.js@1.0.2:
+    resolution: {integrity: sha512-oUkJJ/Y4ATU5qjkXBntCZSKctbSyS3ewe2jrLaUu/cc9jsQiAn0fnTUxQnZz3mJdDdem1Q279zrD6h3n+Cgxtg==}
+
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
@@ -1408,6 +1417,9 @@ packages:
     peerDependencies:
       typescript: '>=5.0.0'
 
+  vue3-tour@1.0.3:
+    resolution: {integrity: sha512-npDpg+GHqu5lAtHW7GbrPgoUa4RWQPP90wtLSWf0Tb+FJBLXjRI9t4M+bNNjaRpn4FjKfQZEvutI09wJJRnlMg==}
+
   vue@3.5.22:
     resolution: {integrity: sha512-toaZjQ3a/G/mYaLSbV+QsQhIdMo9x5rrqIpYRObsJ6T/J+RyCSFwN2LHNVH9v8uIcljDNa3QzPVdv3Y6b9hAJQ==}
     peerDependencies:
@@ -1644,6 +1656,8 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
     optional: true
+
+  '@popperjs/core@2.11.8': {}
 
   '@rolldown/pluginutils@1.0.0-beta.29': {}
 
@@ -2249,6 +2263,8 @@ snapshots:
 
   json-parse-even-better-errors@2.3.1: {}
 
+  jump.js@1.0.2: {}
+
   lines-and-columns@1.2.4: {}
 
   local-pkg@1.1.2:
@@ -2689,6 +2705,14 @@ snapshots:
       '@volar/typescript': 2.4.23
       '@vue/language-core': 3.1.0(typescript@5.9.3)
       typescript: 5.9.3
+
+  vue3-tour@1.0.3(typescript@5.9.3):
+    dependencies:
+      '@popperjs/core': 2.11.8
+      jump.js: 1.0.2
+      vue: 3.5.22(typescript@5.9.3)
+    transitivePeerDependencies:
+      - typescript
 
   vue@3.5.22(typescript@5.9.3):
     dependencies:

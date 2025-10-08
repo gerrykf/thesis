@@ -2,6 +2,14 @@
   <div class="home">
     <van-nav-bar title="今日概览" fixed placeholder />
 
+    <!-- Vue3 Tour 引导 -->
+    <v-tour
+      name="homeTour"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="tourOptions"
+    ></v-tour>
+
     <div class="content">
       <!-- 欢迎区域 -->
       <div class="welcome-section">
@@ -29,7 +37,7 @@
       </div>
 
       <!-- 今日打卡状态 -->
-      <div class="check-in-card">
+      <div class="check-in-card" data-v-step="1">
         <div class="card-header">
           <div class="title-row">
             <h3>📊 今日打卡</h3>
@@ -85,7 +93,7 @@
       </div>
 
       <!-- 今日摄入量 -->
-      <div class="nutrition-card">
+      <div class="nutrition-card" data-v-step="2">
         <div class="card-header">
           <h3>🍽️ 今日摄入</h3>
           <span class="view-more" @click="goToDiet">查看详情 ›</span>
@@ -138,7 +146,7 @@
       </div>
 
       <!-- 快捷操作 -->
-      <div class="quick-actions">
+      <div class="quick-actions" data-v-step="3">
         <van-grid :column-num="4" :border="false" :gutter="6">
           <van-grid-item icon="add-o" text="打卡" @click="goToHealth" />
           <van-grid-item icon="goods-collect-o" text="饮食" @click="goToDiet" />
@@ -155,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onActivated } from "vue";
+import { computed, ref, onMounted, onActivated, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { getDietSummary } from "@/api/diet";
@@ -169,6 +177,81 @@ import {
 
 const router = useRouter();
 const userStore = useUserStore();
+const instance = getCurrentInstance();
+
+// Vue3 Tour 引导配置
+const tourSteps = ref([
+  {
+    target: '[data-v-step="1"]',
+    header: {
+      title: "📊 今日打卡",
+    },
+    content:
+      '在这里查看今天的健康打卡数据，包括体重、运动、睡眠和心情状态。点击"立即打卡"按钮开始记录！',
+    params: {
+      placement: "bottom",
+      highlight: true,
+    },
+  },
+  {
+    target: '[data-v-step="2"]',
+    header: {
+      title: "🍽️ 今日摄入",
+    },
+    content:
+      '这里显示今天的饮食营养摄入情况，包括卡路里、蛋白质、碳水和脂肪。点击"添加记录"开始记录饮食！',
+    params: {
+      placement: "bottom",
+      highlight: true,
+    },
+  },
+  {
+    target: '[data-v-step="3"]',
+    header: {
+      title: "⚡ 快捷操作",
+    },
+    content:
+      "通过快捷按钮快速访问各个功能：打卡记录健康数据、饮食管理营养摄入、分析查看数据趋势、目标设置健康计划。",
+    params: {
+      placement: "top",
+      highlight: true,
+    },
+  },
+]);
+
+const tourOptions = ref({
+  useKeyboardNavigation: true,
+  labels: {
+    buttonSkip: "跳过",
+    buttonPrevious: "上一步",
+    buttonNext: "下一步",
+    buttonStop: "完成",
+  },
+});
+
+const tourCallbacks = ref({
+  onStop: () => {
+    // 引导结束后,标记用户已完成引导
+    localStorage.setItem("homeTourCompleted", "true");
+  },
+  onSkip: () => {
+    // 跳过引导也标记为已完成
+    localStorage.setItem("homeTourCompleted", "true");
+  },
+});
+
+// 检查是否需要显示引导
+function checkAndStartTour() {
+  const tourCompleted = localStorage.getItem("homeTourCompleted");
+  if (!tourCompleted) {
+    // 延迟一下让页面完全渲染并等待 tour 组件初始化
+    setTimeout(() => {
+      if (instance?.proxy?.$tours?.homeTour) {
+        instance.proxy.$tours.homeTour.start();
+      }
+    }, 1000);
+  }
+}
 
 const greeting = computed(() => getGreeting());
 const currentDate = computed(() => formatChineseDate());
@@ -212,6 +295,8 @@ function refreshAllData() {
 
 onMounted(() => {
   loadNutritionData();
+  // 检查并启动引导
+  checkAndStartTour();
 });
 
 // 页面激活时刷新数据
@@ -615,6 +700,93 @@ function goToAnalysis() {
           word-break: break-all;
         }
       }
+    }
+  }
+}
+
+// Vue3 Tour 自定义样式
+:deep(.v-tour__target--highlighted) {
+  box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.4) !important;
+  position: relative;
+  z-index: 9999;
+}
+
+:deep(.v-step) {
+  background: $white !important;
+  border-radius: $radius-md !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  padding: $space-md !important;
+  max-width: 375px !important;
+  z-index: 10000 !important;
+
+  .v-step__header {
+    margin-bottom: $space-sm !important;
+
+    h3 {
+      font-size: $font-size-lg !important;
+      color: $text-color !important;
+      font-weight: 600 !important;
+      margin: 0 !important;
+    }
+  }
+
+  .v-step__content {
+    font-size: $font-size-sm !important;
+    color: $text-color-2 !important;
+    line-height: 1.6 !important;
+    margin-bottom: $space-md !important;
+  }
+
+  .v-step__buttons {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: $space-sm !important;
+
+    button {
+      flex: 1 !important;
+      padding: 9px $space-md !important;
+      border-radius: $radius-sm !important;
+      font-size: $font-size-sm !important;
+      line-height: 6px;
+      border: none !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+
+      &.v-step__button-skip {
+        background: $background-color !important;
+        color: $text-color-2 !important;
+
+        &:active {
+          opacity: 0.7 !important;
+        }
+      }
+
+      &.v-step__button-previous {
+        background: $background-color !important;
+        color: $text-color !important;
+
+        &:active {
+          opacity: 0.7 !important;
+        }
+      }
+
+      &.v-step__button-next,
+      &.v-step__button-stop {
+        background: $primary-color !important;
+        color: $white !important;
+
+        &:active {
+          opacity: 0.8 !important;
+        }
+      }
+    }
+  }
+
+  .v-step__arrow {
+    border-color: $white !important;
+
+    &--dark {
+      border-color: $white !important;
     }
   }
 }
