@@ -128,6 +128,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // 自定义请求日志
 app.use(requestLogger);
 
+// 静态文件服务 - 提供上传的文件访问
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // API文档路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   explorer: true,

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getAuthProfile } from '@/api/auth'
 
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref<API.User | null>(null)
@@ -48,6 +49,39 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
+   * 刷新用户信息（从服务器获取最新信息）
+   */
+  async function refreshUserInfo() {
+    try {
+      const res = await getAuthProfile()
+      // res 已经被 axios 拦截器解包，直接访问
+      const data = res as any
+      if (data.success && data.data) {
+        setUserInfo(data.data)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('刷新用户信息失败:', error)
+      return false
+    }
+  }
+
+  /**
+   * 更新用户头像（仅更新头像字段）
+   */
+  function updateAvatar(avatarUrl: string) {
+    if (userInfo.value) {
+      userInfo.value = {
+        ...userInfo.value,
+        avatar: avatarUrl
+      }
+      // 同步到 localStorage
+      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+    }
+  }
+
+  /**
    * 退出登录
    */
   function logout() {
@@ -67,6 +101,8 @@ export const useUserStore = defineStore('user', () => {
     setUserInfo,
     setToken,
     initUserInfo,
+    refreshUserInfo,
+    updateAvatar,
     logout
   }
 })

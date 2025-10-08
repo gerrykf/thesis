@@ -1,7 +1,8 @@
 import { Router, type Router as RouterType } from 'express';
 import { body } from 'express-validator';
-import { register, login, getProfile, updateProfile, updatePassword } from '../controllers/authController';
+import { register, login, getProfile, updateProfile, updatePassword, uploadAvatar } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
+import { uploadAvatar as uploadMiddleware } from '../middleware/upload';
 
 const router: RouterType = Router();
 
@@ -44,5 +45,6 @@ router.post('/login', loginValidation, login);
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
 router.put('/password', authenticateToken, updatePasswordValidation, updatePassword);
+router.post('/avatar', authenticateToken, uploadMiddleware.single('avatar'), uploadAvatar);
 
 export default router;

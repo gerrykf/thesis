@@ -73,3 +73,25 @@ export async function putAuthPassword(
     ...(options || {}),
   });
 }
+
+/** 上传用户头像 POST /api/auth/avatar */
+export async function postAuthAvatar(
+  file: File,
+  options?: { [key: string]: any }
+) {
+  const formData = new FormData();
+  formData.append('avatar', file);
+
+  return request<{
+    success?: boolean;
+    message?: string;
+    data?: { avatarUrl?: string };
+  }>("/api/auth/avatar", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    data: formData,
+    ...(options || {}),
+  });
+}

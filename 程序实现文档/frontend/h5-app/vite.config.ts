@@ -27,6 +27,11 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         // 不重写路径，保留 /api 前缀
+      },
+      '/uploads': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // 不重写路径，保留 /uploads 前缀
       }
     }
   },

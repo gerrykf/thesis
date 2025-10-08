@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { db } from "../config/database";
 import { AuthRequest } from "../middleware/auth";
+import path from "path";
+import fs from "fs";
 
 /**
  * @swagger
@@ -335,7 +337,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 查找用户
     const [rows] = await db.execute(
-      "SELECT id, username, password, nickname, email, role, is_active FROM users WHERE username = ?",
+      "SELECT id, username, password, nickname, email, phone, gender, birth_date, height, target_weight, avatar, role, is_active FROM users WHERE username = ?",
       [username]
     );
 
@@ -690,6 +692,117 @@ export const updatePassword = async (
     });
   } catch (error) {
     console.error("修改密码错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/avatar:
+ *   post:
+ *     summary: 上传用户头像
+ *     tags: [Auth]
+ *     description: 上传并更新用户头像
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: 头像图片文件(支持jpg,jpeg,png,gif,webp,最大5MB)
+ *     responses:
+ *       200:
+ *         description: 上传成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 头像上传成功
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     avatarUrl:
+ *                       type: string
+ *                       example: /uploads/avatars/1_1234567890.jpg
+ *       400:
+ *         description: 请求参数错误或文件类型不支持
+ *       401:
+ *         description: 未授权或令牌无效
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const uploadAvatar = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        success: false,
+        message: "请上传头像文件",
+      });
+      return;
+    }
+
+    // 生成头像URL路径
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // 查询用户旧头像
+    const [rows] = await db.execute(
+      "SELECT avatar FROM users WHERE id = ?",
+      [req.user?.userId]
+    );
+
+    const users = rows as any[];
+    const oldAvatar = users[0]?.avatar;
+
+    // 更新数据库中的头像路径
+    await db.execute(
+      "UPDATE users SET avatar = ? WHERE id = ?",
+      [avatarUrl, req.user?.userId]
+    );
+
+    // 删除旧头像文件（如果存在且不是默认头像）
+    if (oldAvatar && oldAvatar.startsWith('/uploads/avatars/')) {
+      const oldAvatarPath = path.join(__dirname, '../../', oldAvatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        fs.unlinkSync(oldAvatarPath);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "头像上传成功",
+      data: {
+        avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error("上传头像错误:", error);
+
+    // 如果发生错误，删除已上传的文件
+    if (req.file) {
+      const uploadedFilePath = req.file.path;
+      if (fs.existsSync(uploadedFilePath)) {
+        fs.unlinkSync(uploadedFilePath);
+      }
+    }
+
     res.status(500).json({
       success: false,
       message: "服务器内部错误",
