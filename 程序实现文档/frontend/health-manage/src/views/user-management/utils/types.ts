@@ -7,6 +7,10 @@ export interface UserListParams {
   nickname?: string;
   role?: string;
   is_active?: boolean;
+  createdStartDate?: string;
+  createdEndDate?: string;
+  loginStartDate?: string;
+  loginEndDate?: string;
 }
 
 export interface UserStats {
@@ -32,6 +36,8 @@ export interface SearchForm {
   nickname: string;
   role: string;
   is_active: boolean | null;
+  createdDateRange: [string, string] | null;
+  loginDateRange: [string, string] | null;
 }
 
 export interface Pagination {

@@ -26,7 +26,9 @@ export function useUserList() {
     username: "",
     nickname: "",
     role: "",
-    is_active: null
+    is_active: null,
+    createdDateRange: null,
+    loginDateRange: null
   });
 
   const pagination = reactive<Pagination>({
@@ -45,7 +47,14 @@ export function useUserList() {
         username: searchForm.username || undefined,
         nickname: searchForm.nickname || undefined,
         role: searchForm.role || undefined,
-        is_active: searchForm.is_active
+        is_active: searchForm.is_active,
+        createdStartDate:
+          searchForm.createdDateRange?.[0] || undefined,
+        createdEndDate:
+          searchForm.createdDateRange?.[1] || undefined,
+        loginStartDate:
+          searchForm.loginDateRange?.[0] || undefined,
+        loginEndDate: searchForm.loginDateRange?.[1] || undefined
       };
 
       const response = await getUserList(params) as any;
@@ -73,7 +82,9 @@ export function useUserList() {
       username: "",
       nickname: "",
       role: "",
-      is_active: null
+      is_active: null,
+      createdDateRange: null,
+      loginDateRange: null
     });
     pagination.page = 1;
     loadUserList();

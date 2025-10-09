@@ -35,6 +35,30 @@ import { AuthRequest } from '../middleware/auth';
  *           type: string
  *           enum: [user, admin]
  *         description: 用户角色筛选
+ *       - in: query
+ *         name: createdStartDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 创建时间开始日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: createdEndDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 创建时间结束日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: loginStartDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 最后登录开始日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: loginEndDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 最后登录结束日期(YYYY-MM-DD)
  *     responses:
  *       200:
  *         description: 获取成功
@@ -78,27 +102,49 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
     const offset = (page - 1) * limit;
     const search = req.query.search as string;
     const role = req.query.role as string;
+    const createdStartDate = req.query.createdStartDate as string;
+    const createdEndDate = req.query.createdEndDate as string;
+    const loginStartDate = req.query.loginStartDate as string;
+    const loginEndDate = req.query.loginEndDate as string;
 
     // 构建WHERE条件
     let whereConditions = '';
     const conditions: string[] = [];
-    
+
     if (search) {
       conditions.push(`(username LIKE '%${search}%' OR nickname LIKE '%${search}%' OR email LIKE '%${search}%')`);
     }
-    
+
     if (role) {
       conditions.push(`role = '${role}'`);
     }
-    
+
+    // 创建时间筛选
+    if (createdStartDate) {
+      conditions.push(`DATE(created_at) >= '${createdStartDate}'`);
+    }
+
+    if (createdEndDate) {
+      conditions.push(`DATE(created_at) <= '${createdEndDate}'`);
+    }
+
+    // 最后登录时间筛选
+    if (loginStartDate) {
+      conditions.push(`DATE(last_login_at) >= '${loginStartDate}'`);
+    }
+
+    if (loginEndDate) {
+      conditions.push(`DATE(last_login_at) <= '${loginEndDate}'`);
+    }
+
     if (conditions.length > 0) {
       whereConditions = ' WHERE ' + conditions.join(' AND ');
     }
 
     const [users] = await db.execute(
-      `SELECT id, username, nickname, email, phone, gender, role, is_active, created_at 
+      `SELECT id, username, nickname, email, phone, gender, role, is_active, created_at, last_login_at
        FROM users${whereConditions}
-       ORDER BY created_at DESC 
+       ORDER BY last_login_at DESC, created_at DESC
        LIMIT ${limit} OFFSET ${offset}`
     );
     
