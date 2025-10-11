@@ -18,6 +18,10 @@ export function useHealthRecords() {
   const pageSize = 15
   const total = ref(0)
 
+  // 日期筛选参数
+  const startDate = ref<string>('')
+  const endDate = ref<string>('')
+
   /**
    * 加载健康记录
    */
@@ -25,14 +29,24 @@ export function useHealthRecords() {
     // 如果已经加载完成或正在刷新，不再加载
     if (finished.value) return
 
-    console.log('健康记录 - 开始加载，页码:', page.value)
+    console.log('健康记录 - 开始加载，页码:', page.value, '日期范围:', startDate.value, '-', endDate.value)
     loading.value = true
 
     try {
-      const response = await getHealthRecords({
+      const params: API.getHealthRecordsParams = {
         page: page.value,
         limit: pageSize
-      })
+      }
+
+      // 添加日期筛选参数
+      if (startDate.value) {
+        params.start_date = startDate.value
+      }
+      if (endDate.value) {
+        params.end_date = endDate.value
+      }
+
+      const response = await getHealthRecords(params)
 
       const data = (response as any).data
       console.log('健康记录 - API响应:', data)
@@ -82,14 +96,42 @@ export function useHealthRecords() {
     await loadRecords()
   }
 
+  /**
+   * 设置日期筛选并重新加载
+   */
+  function setDateRange(start: string, end: string) {
+    startDate.value = start
+    endDate.value = end
+    page.value = 1
+    finished.value = false
+    records.value = []
+    loadRecords()
+  }
+
+  /**
+   * 清除日期筛选
+   */
+  function clearDateRange() {
+    startDate.value = ''
+    endDate.value = ''
+    page.value = 1
+    finished.value = false
+    records.value = []
+    loadRecords()
+  }
+
   return {
     records,
     loading,
     finished,
     refreshing,
     total,
+    startDate,
+    endDate,
     loadRecords,
-    onRefresh
+    onRefresh,
+    setDateRange,
+    clearDateRange
   }
 }
 
@@ -105,6 +147,10 @@ export function useDietRecords() {
   const pageSize = 15
   const total = ref(0)
 
+  // 日期筛选参数
+  const startDate = ref<string>('')
+  const endDate = ref<string>('')
+
   /**
    * 加载饮食记录
    */
@@ -112,14 +158,24 @@ export function useDietRecords() {
     // 如果已经加载完成，不再加载
     if (finished.value) return
 
-    console.log('饮食记录 - 开始加载，页码:', page.value)
+    console.log('饮食记录 - 开始加载，页码:', page.value, '日期范围:', startDate.value, '-', endDate.value)
     loading.value = true
 
     try {
-      const response = await getDietRecords({
+      const params: API.getDietRecordsParams = {
         page: page.value,
         limit: pageSize
-      })
+      }
+
+      // 添加日期筛选参数
+      if (startDate.value) {
+        params.start_date = startDate.value
+      }
+      if (endDate.value) {
+        params.end_date = endDate.value
+      }
+
+      const response = await getDietRecords(params)
 
       const data = (response as any).data
       console.log('饮食记录 - API响应:', data)
@@ -169,13 +225,41 @@ export function useDietRecords() {
     await loadRecords()
   }
 
+  /**
+   * 设置日期筛选并重新加载
+   */
+  function setDateRange(start: string, end: string) {
+    startDate.value = start
+    endDate.value = end
+    page.value = 1
+    finished.value = false
+    records.value = []
+    loadRecords()
+  }
+
+  /**
+   * 清除日期筛选
+   */
+  function clearDateRange() {
+    startDate.value = ''
+    endDate.value = ''
+    page.value = 1
+    finished.value = false
+    records.value = []
+    loadRecords()
+  }
+
   return {
     records,
     loading,
     finished,
     refreshing,
     total,
+    startDate,
+    endDate,
     loadRecords,
-    onRefresh
+    onRefresh,
+    setDateRange,
+    clearDateRange
   }
 }

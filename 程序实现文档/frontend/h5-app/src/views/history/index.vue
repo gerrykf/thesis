@@ -3,6 +3,15 @@
     <van-nav-bar title="历史记录" fixed placeholder />
 
     <div class="content">
+      <!-- 日期筛选区域 -->
+      <div class="filter-bar">
+        <DateFilter
+          v-model="healthDateRange"
+          @change="onHealthDateChange"
+          @clear="onHealthDateClear"
+        />
+      </div>
+
       <van-tabs v-model:active="activeTab" @change="onTabChange">
         <!-- 健康打卡 Tab -->
         <van-tab title="健康打卡">
@@ -63,6 +72,15 @@
 
         <!-- 饮食记录 Tab -->
         <van-tab title="饮食记录">
+          <!-- 日期筛选区域 -->
+          <div class="filter-bar tab-filter">
+            <DateFilter
+              v-model="dietDateRange"
+              @change="onDietDateChange"
+              @clear="onDietDateClear"
+            />
+          </div>
+
           <van-pull-refresh v-model="dietRefreshing" @refresh="onDietRefresh">
             <van-list
               v-model:loading="dietLoading"
@@ -125,8 +143,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useHealthRecords, useDietRecords } from './utils'
+import DateFilter from './components/DateFilter.vue'
 
 const activeTab = ref(0)
+
+// 日期范围
+const healthDateRange = ref<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' })
+const dietDateRange = ref<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' })
 
 // 健康记录 Hook
 const {
@@ -135,7 +158,9 @@ const {
   finished: healthFinished,
   refreshing: healthRefreshing,
   loadRecords: loadHealthRecords,
-  onRefresh: onHealthRefresh
+  onRefresh: onHealthRefresh,
+  setDateRange: setHealthDateRange,
+  clearDateRange: clearHealthDateRange
 } = useHealthRecords()
 
 // 饮食记录 Hook
@@ -145,8 +170,42 @@ const {
   finished: dietFinished,
   refreshing: dietRefreshing,
   loadRecords: loadDietRecords,
-  onRefresh: onDietRefresh
+  onRefresh: onDietRefresh,
+  setDateRange: setDietDateRange,
+  clearDateRange: clearDietDateRange
 } = useDietRecords()
+
+/**
+ * 健康记录日期筛选变化
+ */
+function onHealthDateChange(range: { startDate: string; endDate: string }) {
+  console.log('健康记录日期筛选:', range)
+  setHealthDateRange(range.startDate, range.endDate)
+}
+
+/**
+ * 清除健康记录日期筛选
+ */
+function onHealthDateClear() {
+  console.log('清除健康记录日期筛选')
+  clearHealthDateRange()
+}
+
+/**
+ * 饮食记录日期筛选变化
+ */
+function onDietDateChange(range: { startDate: string; endDate: string }) {
+  console.log('饮食记录日期筛选:', range)
+  setDietDateRange(range.startDate, range.endDate)
+}
+
+/**
+ * 清除饮食记录日期筛选
+ */
+function onDietDateClear() {
+  console.log('清除饮食记录日期筛选')
+  clearDietDateRange()
+}
 
 /**
  * 按日期分组的饮食记录
@@ -371,6 +430,37 @@ function getMealTypeText(type: string): string {
     position: sticky;
     top: 46px;
     z-index: 99;
+  }
+
+  // 筛选栏样式
+  .filter-bar {
+    padding: $space-md;
+    background: $white;
+    border-bottom: 1px solid $border-color;
+    display: flex;
+    justify-content: flex-start;
+
+    &.tab-filter {
+      position: sticky;
+      top: 90px; // 导航栏46px + tabs栏44px
+      z-index: 98;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  // 确保下拉刷新容器占满剩余空间
+  :deep(.van-pull-refresh) {
+    min-height: calc(100vh - 46px - 44px - 60px); // 减去导航栏、tabs栏和筛选栏
+  }
+
+  // 空状态样式调整
+  :deep(.van-empty) {
+    padding: $space-xl 0;
+    min-height: calc(100vh - 46px - 44px - 60px - $space-xl * 2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 }
 
