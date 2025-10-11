@@ -166,17 +166,9 @@ jobs:
         with:
           node-version: 20.18.1
 
-      - name: Install & Build Server (Auto Detect Path)
+      - name: Install & Build Server
         run: |
-          echo "🔍 Searching for backend path..."
-          BACKEND_PATH=$(find $GITHUB_WORKSPACE -type d -path "*/backend" -exec test -f "{}/package.json" \; -print | head -n 1)
-          if [ -z "$BACKEND_PATH" ]; then
-            echo "❌ Cannot find backend/package.json. Directory structure:"
-            find $GITHUB_WORKSPACE -maxdepth 3 -type d
-            exit 1
-          fi
-          echo "✅ Found backend path: $BACKEND_PATH"
-          cd "$BACKEND_PATH"
+          cd "$GITHUB_WORKSPACE/程序实现文档/backend/health-backend"
           echo "📁 Now in $(pwd)"
           npm install --no-audit --no-fund
           npm run build
