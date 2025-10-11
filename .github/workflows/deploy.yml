@@ -9,10 +9,10 @@ on:
             - "程序实现文档/frontend/health-manage/**"
             - "程序实现文档/backend/**"
             - ".github/workflows/deploy.yml"
-    workflow_dispatch: # 支持手动触发
+    workflow_dispatch: # 手动触发部署
 
 jobs:
-    # 检测哪些目录有变动
+    # 检测变更目录
     detect-changes:
         name: 🔍 Detect Changed Projects
         runs-on: ubuntu-latest
@@ -45,24 +45,27 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            # ① 安装 Node.js（含 pnpm 缓存）
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
                   cache: "pnpm"
 
+            # ② 安装 pnpm（官方稳定版）
             - name: Setup pnpm
-              run: |
-                  corepack enable
-                  corepack prepare pnpm@10.18.1 --activate
-                  pnpm -v
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
 
+            # ③ 构建前端
             - name: Install & Build H5
               working-directory: 程序实现文档/frontend/h5-app
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
+            # ④ 清理旧文件
             - name: Clean old H5 files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -72,6 +75,7 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/frontend/index/*
 
+            # ⑤ 上传新构建文件
             - name: Upload new H5 build
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -81,6 +85,7 @@ jobs:
                   source: "程序实现文档/frontend/h5-app/dist/*"
                   target: "/opt/1panel/www/sites/frontend/index"
 
+            # ⑥ 可选：重新加载 nginx
             - name: Reload Nginx (optional)
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -107,10 +112,9 @@ jobs:
                   cache: "pnpm"
 
             - name: Setup pnpm
-              run: |
-                  corepack enable
-                  corepack prepare pnpm@10.18.1 --activate
-                  pnpm -v
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
 
             - name: Install & Build Admin
               working-directory: 程序实现文档/frontend/health-manage
@@ -155,24 +159,27 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            # 安装 Node.js + 缓存
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
                   cache: "pnpm"
 
+            # 安装 pnpm（官方 action）
             - name: Setup pnpm
-              run: |
-                  corepack enable
-                  corepack prepare pnpm@10.18.1 --activate
-                  pnpm -v
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
 
+            # 构建服务端
             - name: Install & Build Server
               working-directory: 程序实现文档/backend
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
+            # 清空旧目录
             - name: Clean old Server files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -182,6 +189,7 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/healthbackend/index/*
 
+            # 上传构建产物
             - name: Upload new Server build
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -191,6 +199,7 @@ jobs:
                   source: "程序实现文档/backend/dist/*"
                   target: "/opt/1panel/www/sites/healthbackend/index"
 
+            # 重启 PM2
             - name: Restart Server (PM2)
               uses: appleboy/ssh-action@v0.1.10
               with:
