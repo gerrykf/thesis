@@ -275,23 +275,28 @@ initDatePickerValue()
   .filter-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 6px 12px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: $white;
-    border-radius: 20px;
-    font-size: $font-size-sm;
+    border-radius: 16px;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.25);
 
     &:active {
-      transform: scale(0.95);
-      box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3);
+      transform: scale(0.96);
+      box-shadow: 0 1px 3px rgba(102, 126, 234, 0.25);
+    }
+
+    .van-icon {
+      font-size: 14px;
     }
 
     .trigger-text {
       font-weight: 500;
+      font-size: 13px;
     }
   }
 }
@@ -327,25 +332,25 @@ initDatePickerValue()
 
   .popup-content {
     flex: 1;
-    padding: $space-lg;
+    padding: $space-md;
     overflow-y: auto;
 
     .quick-options {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: $space-md;
-      margin-bottom: $space-lg;
+      gap: $space-sm;
+      margin-bottom: $space-md;
 
       .quick-option {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: $space-sm;
-        padding: $space-lg;
+        gap: 6px;
+        padding: $space-md;
         background: $background-color;
         border: 2px solid transparent;
-        border-radius: $radius-lg;
+        border-radius: $radius-md;
         cursor: pointer;
         transition: all 0.3s;
 
@@ -364,11 +369,11 @@ initDatePickerValue()
         }
 
         .option-icon {
-          font-size: 32px;
+          font-size: 28px;
         }
 
         .option-label {
-          font-size: $font-size-base;
+          font-size: $font-size-sm;
           color: $text-color;
           transition: all 0.3s;
         }
@@ -377,30 +382,30 @@ initDatePickerValue()
 
     .custom-date-section {
       background: $background-color;
-      border-radius: $radius-lg;
-      padding: $space-lg;
-      margin-bottom: $space-lg;
+      border-radius: $radius-md;
+      padding: $space-md;
+      margin-bottom: $space-md;
 
       .date-row {
         @include flex-between;
         align-items: center;
-        padding: $space-md 0;
+        padding: $space-sm 0;
 
         &:not(:last-child) {
           border-bottom: 1px solid $border-color;
         }
 
         .date-label {
-          font-size: $font-size-base;
+          font-size: $font-size-sm;
           color: $text-color-2;
         }
 
         .date-input {
-          font-size: $font-size-base;
+          font-size: $font-size-sm;
           color: $primary-color;
           font-weight: 500;
           cursor: pointer;
-          padding: $space-xs $space-sm;
+          padding: 6px $space-sm;
           background: $white;
           border-radius: $radius-sm;
 
@@ -414,11 +419,11 @@ initDatePickerValue()
     .action-buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: $space-md;
+      gap: $space-sm;
 
       .van-button {
-        height: 44px;
-        font-size: $font-size-base;
+        height: 40px;
+        font-size: $font-size-sm;
         font-weight: 500;
       }
     }

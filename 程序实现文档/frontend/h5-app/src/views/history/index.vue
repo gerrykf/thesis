@@ -3,18 +3,18 @@
     <van-nav-bar title="历史记录" fixed placeholder />
 
     <div class="content">
-      <!-- 日期筛选区域 -->
-      <div class="filter-bar">
-        <DateFilter
-          v-model="healthDateRange"
-          @change="onHealthDateChange"
-          @clear="onHealthDateClear"
-        />
-      </div>
-
       <van-tabs v-model:active="activeTab" @change="onTabChange">
         <!-- 健康打卡 Tab -->
         <van-tab title="健康打卡">
+          <!-- 日期筛选区域 -->
+          <div class="filter-bar">
+            <DateFilter
+              v-model="healthDateRange"
+              @change="onHealthDateChange"
+              @clear="onHealthDateClear"
+            />
+          </div>
+
           <van-pull-refresh v-model="healthRefreshing" @refresh="onHealthRefresh">
             <van-list
               v-model:loading="healthLoading"
@@ -73,7 +73,7 @@
         <!-- 饮食记录 Tab -->
         <van-tab title="饮食记录">
           <!-- 日期筛选区域 -->
-          <div class="filter-bar tab-filter">
+          <div class="filter-bar">
             <DateFilter
               v-model="dietDateRange"
               @change="onDietDateChange"
@@ -432,31 +432,24 @@ function getMealTypeText(type: string): string {
     z-index: 99;
   }
 
-  // 筛选栏样式
+  // 筛选栏样式 - 紧凑设计
   .filter-bar {
-    padding: $space-md;
+    padding: 10px $space-md;
     background: $white;
     border-bottom: 1px solid $border-color;
     display: flex;
     justify-content: flex-start;
-
-    &.tab-filter {
-      position: sticky;
-      top: 90px; // 导航栏46px + tabs栏44px
-      z-index: 98;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
   }
 
   // 确保下拉刷新容器占满剩余空间
   :deep(.van-pull-refresh) {
-    min-height: calc(100vh - 46px - 44px - 60px); // 减去导航栏、tabs栏和筛选栏
+    min-height: calc(100vh - 46px - 44px - 45px); // 减去导航栏、tabs栏和筛选栏
   }
 
   // 空状态样式调整
   :deep(.van-empty) {
-    padding: $space-xl 0;
-    min-height: calc(100vh - 46px - 44px - 60px - $space-xl * 2);
+    padding: $space-lg 0;
+    min-height: calc(100vh - 46px - 44px - 45px - $space-lg * 2);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -467,8 +460,8 @@ function getMealTypeText(type: string): string {
 .record-card {
   background: $white;
   border-radius: $radius-lg;
-  padding: $space-lg;
-  margin: $space-md;
+  padding: $space-md;
+  margin: $space-sm $space-md;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
   .record-header {
@@ -575,7 +568,7 @@ function getMealTypeText(type: string): string {
 
 // 饮食记录按日期分组样式
 .day-group {
-  margin: $space-md;
+  margin: $space-sm $space-md;
   background: $white;
   border-radius: $radius-lg;
   overflow: hidden;
@@ -584,7 +577,7 @@ function getMealTypeText(type: string): string {
   .day-header {
     @include flex-between;
     align-items: center;
-    padding: $space-md $space-lg;
+    padding: $space-sm $space-md;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: $white;
 
