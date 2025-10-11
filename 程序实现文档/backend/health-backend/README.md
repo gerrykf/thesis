@@ -199,8 +199,13 @@ pnpm install
 
 ### 2. 配置环境变量
 
-复制 `.env.example` 为 `.env` 并修改配置：
+项目支持多环境配置，包含以下环境文件：
 
+- `.env` - 通用环境变量（已配置）
+- `.env.development` - 开发环境配置（已配置）
+- `.env.production` - 生产环境配置（已配置）
+
+#### 开发环境 (.env.development)
 ```env
 NODE_ENV=development
 PORT=3000
@@ -209,16 +214,41 @@ PORT=3000
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=your_dev_password
 DB_NAME=health_management
 
 # JWT配置
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_dev_jwt_secret
 JWT_EXPIRES_IN=7d
 
 # CORS配置
-CORS_ORIGIN=http://localhost:5173,http://localhost:8080
+CORS_ORIGIN=http://localhost:5173,http://localhost:8848
 ```
+
+#### 生产环境 (.env.production)
+```env
+NODE_ENV=production
+PORT=3000
+
+# 数据库配置
+DB_HOST=your_production_host
+DB_PORT=3306
+DB_USER=your_production_user
+DB_PASSWORD=your_production_password
+DB_NAME=health_management
+
+# JWT配置
+JWT_SECRET=your_production_jwt_secret
+JWT_EXPIRES_IN=7d
+
+# CORS配置
+CORS_ORIGIN=https://healthmanage.xin
+```
+
+**注意**:
+- 生产环境配置已设置，CORS_ORIGIN 为 `https://healthmanage.xin`
+- 请根据实际部署情况修改数据库配置
+- JWT_SECRET 在生产环境应使用强随机字符串
 
 ### 3. 初始化数据库
 
@@ -551,6 +581,49 @@ pnpm run pm2:restart
 - Node.js >= 18.0.0
 - MySQL >= 8.0
 - pnpm >= 8.0.0
+
+## 更新日志
+
+### 近期更新 (2025-10)
+
+#### 构建优化
+- ✅ 优化构建流程，支持dist目录独立部署
+- ✅ 新增 `scripts/copy-uploads.js` 自动复制uploads到dist
+- ✅ 修改静态文件路径配置，支持从dist提供服务
+- ✅ 更新 `.gitignore`，允许跟踪 `dist/uploads/`
+
+#### 环境配置
+- ✅ 添加多环境支持（development/production）
+- ✅ 配置生产环境域名：`https://healthmanage.xin`
+- ✅ CORS支持前端H5(5173)和管理端(8848)
+
+#### 文件上传
+- ✅ 实现用户头像上传功能
+- ✅ 使用Multer中间件处理文件上传
+- ✅ 支持图片格式：jpg, jpeg, png, gif, webp
+- ✅ 文件大小限制：5MB
+
+#### API接口
+- ✅ 完善用户认证模块（注册、登录、个人信息）
+- ✅ 实现健康记录CRUD操作
+- ✅ 添加健康目标管理
+- ✅ 实现饮食记录和营养统计
+- ✅ 添加数据统计分析功能
+- ✅ 实现管理员用户管理
+
+#### 文档完善
+- ✅ 更新README，添加详细的依赖说明
+- ✅ 完善部署流程文档
+- ✅ 添加文件上传功能说明
+- ✅ 补充环境配置详细说明
+
+### 待实现功能
+
+- [ ] Redis 缓存支持
+- [ ] 数据导出功能
+- [ ] 消息通知系统
+- [ ] 第三方登录集成
+- [ ] 数据备份功能
 
 ## License
 
