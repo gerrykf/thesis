@@ -1,4 +1,4 @@
-name: 🚀 Deploy Multi-Project via pnpm to Aliyun
+name: 🚀 Deploy Multi-Project via npm to Aliyun
 
 on:
     push:
@@ -11,7 +11,6 @@ on:
             - ".github/workflows/deploy.yml"
     workflow_dispatch: # 手动触发部署
 
-# 统一让脚本用 bash，避免 shell 差异
 defaults:
     run:
         shell: bash
@@ -48,37 +47,18 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            # ① Node（带 pnpm 缓存）
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "pnpm"
+                  cache: "npm"
 
-            # ② 安装 pnpm（官方 action，最稳）
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-
-            # ③ 兜底：若仍找不到 pnpm，则全局安装一次，并打印版本和 PATH
-            - name: Ensure pnpm available
-              run: |
-                  if ! command -v pnpm >/dev/null 2>&1; then
-                    echo "pnpm not found, installing globally as fallback..."
-                    npm i -g pnpm@10.18.1
-                  fi
-                  echo "PATH=$PATH"
-                  pnpm -v
-
-            # ④ 构建
             - name: Install & Build H5
               working-directory: 程序实现文档/frontend/h5-app
               run: |
-                  pnpm install --frozen-lockfile
-                  pnpm run build
+                  npm install --no-audit --no-fund
+                  npm run build
 
-            # ⑤ 清理 & 上传 & reload
             - name: Clean old H5 files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -119,27 +99,13 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "pnpm"
-
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-
-            - name: Ensure pnpm available
-              run: |
-                  if ! command -v pnpm >/dev/null 2>&1; then
-                    echo "pnpm not found, installing globally as fallback..."
-                    npm i -g pnpm@10.18.1
-                  fi
-                  echo "PATH=$PATH"
-                  pnpm -v
+                  cache: "npm"
 
             - name: Install & Build Admin
               working-directory: 程序实现文档/frontend/health-manage
               run: |
-                  pnpm install --frozen-lockfile
-                  pnpm run build
+                  npm install --no-audit --no-fund
+                  npm run build
 
             - name: Clean old Admin files
               uses: appleboy/ssh-action@v0.1.10
@@ -181,20 +147,24 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "pnpm"
-
-            - name: Install pnpm
-              run: |
-                  npm install -g pnpm@10.18.1
-                  pnpm -v
+                  cache: "npm"
 
             - name: Install & Build Server
               working-directory: 程序实现文档/backend
               run: |
-                  pnpm install --frozen-lockfile
-                  pnpm run build
+                  npm install --no-audit --no-fund
+                  npm run build
 
-            - name: Upload to server
+            - name: Clean old Server files
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      rm -rf /opt/1panel/www/sites/healthbackend/index/*
+
+            - name: Upload new Server build
               uses: appleboy/scp-action@v0.1.7
               with:
                   host: ${{ secrets.SSH_HOST }}
@@ -202,3 +172,13 @@ jobs:
                   key: ${{ secrets.SSH_KEY }}
                   source: "程序实现文档/backend/dist/*"
                   target: "/opt/1panel/www/sites/healthbackend/index"
+
+            - name: Restart Server (PM2)
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      cd /opt/1panel/www/sites/healthbackend/index
+                      pm2 reload all || pm2 restart all || true
