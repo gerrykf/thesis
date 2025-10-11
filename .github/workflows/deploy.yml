@@ -1,0 +1,161 @@
+name: 🚀 Deploy Multi-Project via pnpm to Aliyun
+
+on:
+    push:
+        branches:
+            - main # 推送到 main 分支触发
+
+jobs:
+    # ============ H5 前端 ============
+    deploy-h5:
+        name: 🌐 Deploy H5 Frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20.18.1
+                  cache: pnpm
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
+
+            - name: Install & Build H5
+              working-directory: h5
+              run: |
+                  pnpm install --frozen-lockfile
+                  pnpm run build
+
+            - name: Clean old H5 files
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      rm -rf /opt/1panel/www/sites/frontend/index/*
+
+            - name: Upload new H5 build
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  source: "h5/dist/*"
+                  target: "/opt/1panel/www/sites/frontend/index"
+
+            - name: Reload Nginx (optional)
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      systemctl reload nginx || true
+
+    # ============ 后台管理 ============
+    deploy-admin:
+        name: 🧭 Deploy Admin Panel
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20.18.1
+                  cache: pnpm
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
+
+            - name: Install & Build Admin
+              working-directory: admin
+              run: |
+                  pnpm install --frozen-lockfile
+                  pnpm run build
+
+            - name: Clean old Admin files
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      rm -rf /opt/1panel/www/sites/frontend-admin/index/*
+
+            - name: Upload new Admin build
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  source: "admin/dist/*"
+                  target: "/opt/1panel/www/sites/frontend-admin/index"
+
+            - name: Reload Nginx (optional)
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      systemctl reload nginx || true
+
+    # ============ 服务端 ============
+    deploy-server:
+        name: ⚙️ Deploy Server
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20.18.1
+                  cache: pnpm
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.18.1
+
+            - name: Install & Build Server
+              working-directory: server
+              run: |
+                  pnpm install --frozen-lockfile
+                  pnpm run build
+
+            - name: Clean old Server files
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      rm -rf /opt/1panel/www/sites/healthbackend/index/*
+
+            - name: Upload new Server build
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  source: "server/dist/*"
+                  target: "/opt/1panel/www/sites/healthbackend/index"
+
+            - name: Restart Server (PM2)
+              uses: appleboy/ssh-action@v0.1.10
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USER }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      cd /opt/1panel/www/sites/healthbackend/index
+                      pm2 reload all || pm2 restart all || true
