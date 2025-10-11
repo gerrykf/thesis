@@ -3,42 +3,41 @@ name: 🚀 Deploy Multi-Project via pnpm to Aliyun
 on:
     push:
         branches:
-            - main # 推送到 main 分支触发
+            - main
+        paths:
+            - "程序实现文档/frontend/h5-app/**"
+            - "程序实现文档/frontend/health-manage/**"
+            - "程序实现文档/backend/**"
+            - ".github/workflows/deploy.yml"
+    workflow_dispatch: # 手动触发
 
 jobs:
     # ============ H5 前端 ============
     deploy-h5:
         name: 🌐 Deploy H5 Frontend
         runs-on: ubuntu-latest
+        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/frontend/h5-app/')
         steps:
             - uses: actions/checkout@v4
 
-            # 安装 Node.js 环境
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            # 安装 pnpm（确保 pnpm 可执行）
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-                  run_install: false
+            - name: Install pnpm
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@10.18.1 --activate
+                  pnpm -v
 
-            # 验证 pnpm 是否可用（可选）
-            - name: Verify pnpm
-              run: pnpm -v
-
-            # 安装依赖并构建项目
             - name: Install & Build H5
-              working-directory: h5
+              working-directory: 程序实现文档/frontend/h5-app
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
-            # 清空服务器旧文件
             - name: Clean old H5 files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -48,17 +47,15 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/frontend/index/*
 
-            # 上传新构建文件
             - name: Upload new H5 build
               uses: appleboy/scp-action@v0.1.7
               with:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   key: ${{ secrets.SSH_KEY }}
-                  source: "h5/dist/*"
+                  source: "程序实现文档/frontend/h5-app/dist/*"
                   target: "/opt/1panel/www/sites/frontend/index"
 
-            # 可选：重载 Nginx
             - name: Reload Nginx (optional)
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -72,6 +69,7 @@ jobs:
     deploy-admin:
         name: 🧭 Deploy Admin Panel
         runs-on: ubuntu-latest
+        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/frontend/health-manage/')
         steps:
             - uses: actions/checkout@v4
 
@@ -81,17 +79,14 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-                  run_install: false
-
-            - name: Verify pnpm
-              run: pnpm -v
+            - name: Install pnpm
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@10.18.1 --activate
+                  pnpm -v
 
             - name: Install & Build Admin
-              working-directory: admin
+              working-directory: 程序实现文档/frontend/health-manage
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
@@ -111,7 +106,7 @@ jobs:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   key: ${{ secrets.SSH_KEY }}
-                  source: "admin/dist/*"
+                  source: "程序实现文档/frontend/health-manage/dist/*"
                   target: "/opt/1panel/www/sites/frontend-admin/index"
 
             - name: Reload Nginx (optional)
@@ -127,6 +122,7 @@ jobs:
     deploy-server:
         name: ⚙️ Deploy Server
         runs-on: ubuntu-latest
+        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/backend/')
         steps:
             - uses: actions/checkout@v4
 
@@ -136,17 +132,14 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-                  run_install: false
-
-            - name: Verify pnpm
-              run: pnpm -v
+            - name: Install pnpm
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@10.18.1 --activate
+                  pnpm -v
 
             - name: Install & Build Server
-              working-directory: server
+              working-directory: 程序实现文档/backend
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
@@ -166,7 +159,7 @@ jobs:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   key: ${{ secrets.SSH_KEY }}
-                  source: "server/dist/*"
+                  source: "程序实现文档/backend/dist/*"
                   target: "/opt/1panel/www/sites/healthbackend/index"
 
             - name: Restart Server (PM2)
