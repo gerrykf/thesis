@@ -183,18 +183,9 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.18.1
-
-            - name: Ensure pnpm available
+            - name: Install pnpm
               run: |
-                  if ! command -v pnpm >/dev/null 2>&1; then
-                    echo "pnpm not found, installing globally as fallback..."
-                    npm i -g pnpm@10.18.1
-                  fi
-                  echo "PATH=$PATH"
+                  npm install -g pnpm@10.18.1
                   pnpm -v
 
             - name: Install & Build Server
@@ -203,16 +194,7 @@ jobs:
                   pnpm install --frozen-lockfile
                   pnpm run build
 
-            - name: Clean old Server files
-              uses: appleboy/ssh-action@v0.1.10
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USER }}
-                  key: ${{ secrets.SSH_KEY }}
-                  script: |
-                      rm -rf /opt/1panel/www/sites/healthbackend/index/*
-
-            - name: Upload new Server build
+            - name: Upload to server
               uses: appleboy/scp-action@v0.1.7
               with:
                   host: ${{ secrets.SSH_HOST }}
@@ -220,13 +202,3 @@ jobs:
                   key: ${{ secrets.SSH_KEY }}
                   source: "程序实现文档/backend/dist/*"
                   target: "/opt/1panel/www/sites/healthbackend/index"
-
-            - name: Restart Server (PM2)
-              uses: appleboy/ssh-action@v0.1.10
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USER }}
-                  key: ${{ secrets.SSH_KEY }}
-                  script: |
-                      cd /opt/1panel/www/sites/healthbackend/index
-                      pm2 reload all || pm2 restart all || true
