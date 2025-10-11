@@ -8,7 +8,11 @@
     </div>
 
     <!-- 筛选弹窗 -->
-    <van-popup v-model:show="showPopup" position="bottom" :style="{ height: '65%' }">
+    <van-popup
+      v-model:show="showPopup"
+      position="bottom"
+      :style="{ height: '65%' }"
+    >
       <div class="filter-popup">
         <div class="popup-header">
           <span class="header-title">选择日期范围</span>
@@ -31,17 +35,20 @@
           </div>
 
           <!-- 自定义日期选择 -->
-          <div v-if="selectedQuickOption === 'custom'" class="custom-date-section">
+          <div
+            v-if="selectedQuickOption === 'custom'"
+            class="custom-date-section"
+          >
             <div class="date-row">
               <span class="date-label">开始日期</span>
               <div class="date-input" @click="showStartDatePicker = true">
-                {{ formattedStartDate || '请选择' }}
+                {{ formattedStartDate || "请选择" }}
               </div>
             </div>
             <div class="date-row">
               <span class="date-label">结束日期</span>
               <div class="date-input" @click="showEndDatePicker = true">
-                {{ formattedEndDate || '请选择' }}
+                {{ formattedEndDate || "请选择" }}
               </div>
             </div>
           </div>
@@ -49,7 +56,9 @@
           <!-- 操作按钮 -->
           <div class="action-buttons">
             <van-button block plain @click="handleReset">清除筛选</van-button>
-            <van-button block type="primary" @click="handleConfirm">确定</van-button>
+            <van-button block type="primary" @click="handleConfirm"
+              >确定</van-button
+            >
           </div>
         </div>
       </div>
@@ -82,169 +91,169 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
 
 interface QuickOption {
-  value: string
-  label: string
-  icon: string
-  days?: number
+  value: string;
+  label: string;
+  icon: string;
+  days?: number;
 }
 
 const props = defineProps<{
-  modelValue?: { startDate: string; endDate: string }
-}>()
+  modelValue?: { startDate: string; endDate: string };
+}>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: { startDate: string; endDate: string }): void
-  (e: 'change', value: { startDate: string; endDate: string }): void
-  (e: 'clear'): void
-}>()
+  (e: "update:modelValue", value: { startDate: string; endDate: string }): void;
+  (e: "change", value: { startDate: string; endDate: string }): void;
+  (e: "clear"): void;
+}>();
 
 // 弹窗状态
-const showPopup = ref(false)
-const showStartDatePicker = ref(false)
-const showEndDatePicker = ref(false)
+const showPopup = ref(false);
+const showStartDatePicker = ref(false);
+const showEndDatePicker = ref(false);
 
 // 选中的快捷选项
-const selectedQuickOption = ref<string>('')
+const selectedQuickOption = ref<string>("");
 
 // 日期值
-const tempStartDate = ref<string>('')
-const tempEndDate = ref<string>('')
+const tempStartDate = ref<string>("");
+const tempEndDate = ref<string>("");
 
 // 日期选择器值
-const startDatePickerValue = ref<string[]>([])
-const endDatePickerValue = ref<string[]>([])
+const startDatePickerValue = ref<string[]>([]);
+const endDatePickerValue = ref<string[]>([]);
 
 // 日期范围限制
-const minDate = new Date(2020, 0, 1)
-const maxDate = new Date()
+const minDate = new Date(2020, 0, 1);
+const maxDate = new Date();
 
 // 快捷选项配置
 const quickOptions: QuickOption[] = [
-  { value: 'today', label: '今天', icon: '📅', days: 0 },
-  { value: 'currentWeek', label: '本周', icon: '📆' },
-  { value: 'week', label: '最近7天', icon: '📊', days: 7 },
-  { value: 'month', label: '最近30天', icon: '📈', days: 30 },
-  { value: 'custom', label: '自定义', icon: '⚙️' }
-]
+  { value: "today", label: "今天", icon: "📅", days: 0 },
+  { value: "currentWeek", label: "本周", icon: "📆" },
+  { value: "week", label: "最近7天", icon: "📊", days: 7 },
+  { value: "month", label: "最近30天", icon: "📈", days: 30 },
+  { value: "custom", label: "自定义", icon: "⚙️" },
+];
 
 // 当前筛选文本
 const currentFilterText = computed(() => {
   if (!props.modelValue?.startDate || !props.modelValue?.endDate) {
-    return '筛选日期'
+    return "筛选日期";
   }
 
-  const start = props.modelValue.startDate
-  const end = props.modelValue.endDate
+  const start = props.modelValue.startDate;
+  const end = props.modelValue.endDate;
 
   // 如果是同一天
   if (start === end) {
-    const today = formatDate(new Date())
+    const today = formatDate(new Date());
     if (start === today) {
-      return '今天'
+      return "今天";
     }
-    return formatDisplayDate(start)
+    return formatDisplayDate(start);
   }
 
   // 检查是否是本周
-  const today = new Date()
-  const dayOfWeek = today.getDay()
-  const monday = new Date(today)
-  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  monday.setDate(today.getDate() - daysFromMonday)
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  monday.setDate(today.getDate() - daysFromMonday);
 
-  const weekStart = formatDate(monday)
-  const weekEnd = formatDate(today)
+  const weekStart = formatDate(monday);
+  const weekEnd = formatDate(today);
 
   if (start === weekStart && end === weekEnd) {
-    return '本周'
+    return "本周";
   }
 
   // 检查是否是最近7天
-  const sevenDaysAgo = new Date(today)
-  sevenDaysAgo.setDate(today.getDate() - 6)
-  const sevenDaysStart = formatDate(sevenDaysAgo)
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+  const sevenDaysStart = formatDate(sevenDaysAgo);
 
   if (start === sevenDaysStart && end === weekEnd) {
-    return '最近7天'
+    return "最近7天";
   }
 
   // 检查是否是最近30天
-  const thirtyDaysAgo = new Date(today)
-  thirtyDaysAgo.setDate(today.getDate() - 29)
-  const thirtyDaysStart = formatDate(thirtyDaysAgo)
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 29);
+  const thirtyDaysStart = formatDate(thirtyDaysAgo);
 
   if (start === thirtyDaysStart && end === weekEnd) {
-    return '最近30天'
+    return "最近30天";
   }
 
   // 自定义范围
-  return `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`
-})
+  return `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`;
+});
 
 // 格式化显示日期
 const formattedStartDate = computed(() => {
-  return tempStartDate.value ? formatDisplayDate(tempStartDate.value) : ''
-})
+  return tempStartDate.value ? formatDisplayDate(tempStartDate.value) : "";
+});
 
 const formattedEndDate = computed(() => {
-  return tempEndDate.value ? formatDisplayDate(tempEndDate.value) : ''
-})
+  return tempEndDate.value ? formatDisplayDate(tempEndDate.value) : "";
+});
 
 /**
  * 格式化日期为 YYYY-MM-DD
  */
 function formatDate(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 /**
  * 格式化显示日期（MM月DD日）
  */
 function formatDisplayDate(dateStr: string): string {
-  if (!dateStr) return ''
-  const parts = dateStr.split('-')
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
   if (parts.length === 3) {
-    return `${parseInt(parts[1])}月${parseInt(parts[2])}日`
+    return `${parseInt(parts[1] || "")}月${parseInt(parts[2] || "")}日`;
   }
-  return dateStr
+  return dateStr;
 }
 
 /**
  * 处理快捷选项点击
  */
 function handleQuickSelect(option: QuickOption) {
-  selectedQuickOption.value = option.value
+  selectedQuickOption.value = option.value;
 
-  if (option.value !== 'custom') {
-    const today = new Date()
-    const endDate = formatDate(today)
+  if (option.value !== "custom") {
+    const today = new Date();
+    const endDate = formatDate(today);
 
-    let startDate: string
-    if (option.value === 'today') {
+    let startDate: string;
+    if (option.value === "today") {
       // 今天
-      startDate = endDate
-    } else if (option.value === 'currentWeek') {
+      startDate = endDate;
+    } else if (option.value === "currentWeek") {
       // 本周（周一到今天）
-      const dayOfWeek = today.getDay()
-      const monday = new Date(today)
-      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-      monday.setDate(today.getDate() - daysFromMonday)
-      startDate = formatDate(monday)
+      const dayOfWeek = today.getDay();
+      const monday = new Date(today);
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      monday.setDate(today.getDate() - daysFromMonday);
+      startDate = formatDate(monday);
     } else {
       // 最近N天
-      const start = new Date(today)
-      start.setDate(start.getDate() - (option.days! - 1))
-      startDate = formatDate(start)
+      const start = new Date(today);
+      start.setDate(start.getDate() - (option.days! - 1));
+      startDate = formatDate(start);
     }
 
-    tempStartDate.value = startDate
-    tempEndDate.value = endDate
+    tempStartDate.value = startDate;
+    tempEndDate.value = endDate;
   }
 }
 
@@ -252,16 +261,16 @@ function handleQuickSelect(option: QuickOption) {
  * 开始日期确认
  */
 function onStartDateConfirm(value: { selectedValues: string[] }) {
-  tempStartDate.value = value.selectedValues.join('-')
-  showStartDatePicker.value = false
+  tempStartDate.value = value.selectedValues.join("-");
+  showStartDatePicker.value = false;
 }
 
 /**
  * 结束日期确认
  */
 function onEndDateConfirm(value: { selectedValues: string[] }) {
-  tempEndDate.value = value.selectedValues.join('-')
-  showEndDatePicker.value = false
+  tempEndDate.value = value.selectedValues.join("-");
+  showEndDatePicker.value = false;
 }
 
 /**
@@ -269,61 +278,61 @@ function onEndDateConfirm(value: { selectedValues: string[] }) {
  */
 function handleConfirm() {
   if (!tempStartDate.value || !tempEndDate.value) {
-    return
+    return;
   }
 
   const result = {
     startDate: tempStartDate.value,
-    endDate: tempEndDate.value
-  }
+    endDate: tempEndDate.value,
+  };
 
-  emit('update:modelValue', result)
-  emit('change', result)
-  showPopup.value = false
+  emit("update:modelValue", result);
+  emit("change", result);
+  showPopup.value = false;
 }
 
 /**
  * 清除筛选
  */
 function handleReset() {
-  tempStartDate.value = ''
-  tempEndDate.value = ''
-  selectedQuickOption.value = ''
+  tempStartDate.value = "";
+  tempEndDate.value = "";
+  selectedQuickOption.value = "";
 
-  emit('update:modelValue', { startDate: '', endDate: '' })
-  emit('clear')
-  showPopup.value = false
+  emit("update:modelValue", { startDate: "", endDate: "" });
+  emit("clear");
+  showPopup.value = false;
 }
 
 /**
  * 初始化日期选择器值
  */
 function initDatePickerValue() {
-  const today = new Date()
+  const today = new Date();
   startDatePickerValue.value = [
     String(today.getFullYear()),
-    String(today.getMonth() + 1).padStart(2, '0'),
-    String(today.getDate()).padStart(2, '0')
-  ]
-  endDatePickerValue.value = [...startDatePickerValue.value]
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0"),
+  ];
+  endDatePickerValue.value = [...startDatePickerValue.value];
 }
 
 // 初始化
-initDatePickerValue()
+initDatePickerValue();
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
-@use '@/styles/mixins.scss' as *;
+@use "@/styles/variables.scss" as *;
+@use "@/styles/mixins.scss" as *;
 
 .date-filter {
   .filter-trigger {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
+    gap: 12px;
+    padding: 8px 24px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: $white;
+    color: #fff;
     border-radius: 16px;
     font-size: 13px;
     cursor: pointer;
@@ -395,8 +404,8 @@ initDatePickerValue()
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 4px;
-        padding: 10px;
+        gap: 10px;
+        padding: 12px;
         background: $background-color;
         border: 2px solid transparent;
         border-radius: $radius-md;
@@ -408,7 +417,11 @@ initDatePickerValue()
         }
 
         &.active {
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+          background: linear-gradient(
+            135deg,
+            rgba(102, 126, 234, 0.1) 0%,
+            rgba(118, 75, 162, 0.1) 100%
+          );
           border-color: $primary-color;
 
           .option-label {
@@ -418,11 +431,11 @@ initDatePickerValue()
         }
 
         .option-icon {
-          font-size: 20px;
+          font-size: 32px;
         }
 
         .option-label {
-          font-size: 13px;
+          font-size: 16px;
           color: $text-color;
           transition: all 0.3s;
         }
