@@ -872,7 +872,7 @@ onMounted(() => {
 }
 
 :deep(.van-cell-group) {
-  margin-bottom: 0;
+  margin-bottom: $space-sm;
 }
 
 :deep(.van-cell) {
