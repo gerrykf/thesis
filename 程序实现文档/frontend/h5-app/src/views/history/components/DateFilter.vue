@@ -8,7 +8,7 @@
     </div>
 
     <!-- 筛选弹窗 -->
-    <van-popup v-model:show="showPopup" position="bottom" :style="{ height: '50%' }">
+    <van-popup v-model:show="showPopup" position="bottom" :style="{ height: '65%' }">
       <div class="filter-popup">
         <div class="popup-header">
           <span class="header-title">选择日期范围</span>
@@ -355,17 +355,17 @@ initDatePickerValue()
   .popup-header {
     @include flex-between;
     align-items: center;
-    padding: $space-lg;
+    padding: $space-md $space-lg;
     border-bottom: 1px solid $border-color;
 
     .header-title {
-      font-size: $font-size-lg;
+      font-size: $font-size-base;
       font-weight: 600;
       color: $text-color;
     }
 
     .van-icon {
-      font-size: 20px;
+      font-size: 18px;
       color: $text-color-2;
       cursor: pointer;
 
