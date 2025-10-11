@@ -9,14 +9,39 @@ on:
             - "程序实现文档/frontend/health-manage/**"
             - "程序实现文档/backend/**"
             - ".github/workflows/deploy.yml"
-    workflow_dispatch: # 手动触发
+    workflow_dispatch: # 支持手动触发
 
 jobs:
+    # 检测哪些目录有变动
+    detect-changes:
+        name: 🔍 Detect Changed Projects
+        runs-on: ubuntu-latest
+        outputs:
+            h5: ${{ steps.filter.outputs.h5 }}
+            admin: ${{ steps.filter.outputs.admin }}
+            server: ${{ steps.filter.outputs.server }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Detect path changes
+              id: filter
+              uses: dorny/paths-filter@v3
+              with:
+                  filters: |
+                      h5:
+                        - '程序实现文档/frontend/h5-app/**'
+                      admin:
+                        - '程序实现文档/frontend/health-manage/**'
+                      server:
+                        - '程序实现文档/backend/**'
+
     # ============ H5 前端 ============
     deploy-h5:
         name: 🌐 Deploy H5 Frontend
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.h5 == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/frontend/h5-app/')
+
         steps:
             - uses: actions/checkout@v4
 
@@ -26,7 +51,7 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Install pnpm
+            - name: Setup pnpm
               run: |
                   corepack enable
                   corepack prepare pnpm@10.18.1 --activate
@@ -68,8 +93,10 @@ jobs:
     # ============ 后台管理 ============
     deploy-admin:
         name: 🧭 Deploy Admin Panel
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/frontend/health-manage/')
+
         steps:
             - uses: actions/checkout@v4
 
@@ -79,7 +106,7 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Install pnpm
+            - name: Setup pnpm
               run: |
                   corepack enable
                   corepack prepare pnpm@10.18.1 --activate
@@ -121,8 +148,10 @@ jobs:
     # ============ 服务端 ============
     deploy-server:
         name: ⚙️ Deploy Server
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.server == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-        if: contains(github.event.head_commit.message, '[all]') || contains(join(github.event.commits.*.modified, ','), '程序实现文档/backend/')
+
         steps:
             - uses: actions/checkout@v4
 
@@ -132,7 +161,7 @@ jobs:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            - name: Install pnpm
+            - name: Setup pnpm
               run: |
                   corepack enable
                   corepack prepare pnpm@10.18.1 --activate
