@@ -7,6 +7,32 @@ import { getHealthRecords } from '@/api/health'
 import { getDietRecords } from '@/api/diet'
 
 /**
+ * 获取当周日期范围（周一到今天）
+ */
+function getCurrentWeekRange(): { start: string; end: string } {
+  const today = new Date()
+  const dayOfWeek = today.getDay() // 0=周日, 1=周一, ..., 6=周六
+
+  // 计算本周一的日期
+  const monday = new Date(today)
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // 如果是周日，则往回数6天
+  monday.setDate(today.getDate() - daysFromMonday)
+
+  // 格式化日期为 YYYY-MM-DD
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  return {
+    start: formatDate(monday),
+    end: formatDate(today)
+  }
+}
+
+/**
  * 使用健康记录列表Hook
  */
 export function useHealthRecords() {
@@ -18,9 +44,10 @@ export function useHealthRecords() {
   const pageSize = 15
   const total = ref(0)
 
-  // 日期筛选参数
-  const startDate = ref<string>('')
-  const endDate = ref<string>('')
+  // 日期筛选参数 - 默认为当周
+  const weekRange = getCurrentWeekRange()
+  const startDate = ref<string>(weekRange.start)
+  const endDate = ref<string>(weekRange.end)
 
   /**
    * 加载健康记录
@@ -147,9 +174,10 @@ export function useDietRecords() {
   const pageSize = 15
   const total = ref(0)
 
-  // 日期筛选参数
-  const startDate = ref<string>('')
-  const endDate = ref<string>('')
+  // 日期筛选参数 - 默认为当周
+  const weekRange = getCurrentWeekRange()
+  const startDate = ref<string>(weekRange.start)
+  const endDate = ref<string>(weekRange.end)
 
   /**
    * 加载饮食记录

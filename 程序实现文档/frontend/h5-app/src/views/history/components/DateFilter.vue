@@ -124,8 +124,9 @@ const maxDate = new Date()
 // 快捷选项配置
 const quickOptions: QuickOption[] = [
   { value: 'today', label: '今天', icon: '📅', days: 0 },
-  { value: 'week', label: '最近7天', icon: '📆', days: 7 },
-  { value: 'month', label: '最近30天', icon: '📊', days: 30 },
+  { value: 'currentWeek', label: '本周', icon: '📆' },
+  { value: 'week', label: '最近7天', icon: '📊', days: 7 },
+  { value: 'month', label: '最近30天', icon: '📈', days: 30 },
   { value: 'custom', label: '自定义', icon: '⚙️' }
 ]
 
@@ -140,9 +141,46 @@ const currentFilterText = computed(() => {
 
   // 如果是同一天
   if (start === end) {
+    const today = formatDate(new Date())
+    if (start === today) {
+      return '今天'
+    }
     return formatDisplayDate(start)
   }
 
+  // 检查是否是本周
+  const today = new Date()
+  const dayOfWeek = today.getDay()
+  const monday = new Date(today)
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+  monday.setDate(today.getDate() - daysFromMonday)
+
+  const weekStart = formatDate(monday)
+  const weekEnd = formatDate(today)
+
+  if (start === weekStart && end === weekEnd) {
+    return '本周'
+  }
+
+  // 检查是否是最近7天
+  const sevenDaysAgo = new Date(today)
+  sevenDaysAgo.setDate(today.getDate() - 6)
+  const sevenDaysStart = formatDate(sevenDaysAgo)
+
+  if (start === sevenDaysStart && end === weekEnd) {
+    return '最近7天'
+  }
+
+  // 检查是否是最近30天
+  const thirtyDaysAgo = new Date(today)
+  thirtyDaysAgo.setDate(today.getDate() - 29)
+  const thirtyDaysStart = formatDate(thirtyDaysAgo)
+
+  if (start === thirtyDaysStart && end === weekEnd) {
+    return '最近30天'
+  }
+
+  // 自定义范围
   return `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`
 })
 
@@ -188,9 +226,16 @@ function handleQuickSelect(option: QuickOption) {
     const endDate = formatDate(today)
 
     let startDate: string
-    if (option.days === 0) {
+    if (option.value === 'today') {
       // 今天
       startDate = endDate
+    } else if (option.value === 'currentWeek') {
+      // 本周（周一到今天）
+      const dayOfWeek = today.getDay()
+      const monday = new Date(today)
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+      monday.setDate(today.getDate() - daysFromMonday)
+      startDate = formatDate(monday)
     } else {
       // 最近N天
       const start = new Date(today)
@@ -337,9 +382,13 @@ initDatePickerValue()
 
     .quick-options {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: $space-sm;
       margin-bottom: $space-md;
+
+      .quick-option:last-child {
+        grid-column: 2 / 3; // 让"自定义"居中
+      }
 
       .quick-option {
         display: flex;

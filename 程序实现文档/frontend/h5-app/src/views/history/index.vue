@@ -147,16 +147,14 @@ import DateFilter from './components/DateFilter.vue'
 
 const activeTab = ref(0)
 
-// 日期范围
-const healthDateRange = ref<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' })
-const dietDateRange = ref<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' })
-
 // 健康记录 Hook
 const {
   records: healthRecords,
   loading: healthLoading,
   finished: healthFinished,
   refreshing: healthRefreshing,
+  startDate: healthStartDate,
+  endDate: healthEndDate,
   loadRecords: loadHealthRecords,
   onRefresh: onHealthRefresh,
   setDateRange: setHealthDateRange,
@@ -169,11 +167,28 @@ const {
   loading: dietLoading,
   finished: dietFinished,
   refreshing: dietRefreshing,
+  startDate: dietStartDate,
+  endDate: dietEndDate,
   loadRecords: loadDietRecords,
   onRefresh: onDietRefresh,
   setDateRange: setDietDateRange,
   clearDateRange: clearDietDateRange
 } = useDietRecords()
+
+// 日期范围（用于 DateFilter 组件的 v-model）
+const healthDateRange = computed({
+  get: () => ({ startDate: healthStartDate.value, endDate: healthEndDate.value }),
+  set: (val) => {
+    // 通过事件处理，不需要在这里设置
+  }
+})
+
+const dietDateRange = computed({
+  get: () => ({ startDate: dietStartDate.value, endDate: dietEndDate.value }),
+  set: (val) => {
+    // 通过事件处理，不需要在这里设置
+  }
+})
 
 /**
  * 健康记录日期筛选变化
