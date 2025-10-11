@@ -13,23 +13,32 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            # 安装 Node.js 环境
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: pnpm
+                  cache: "pnpm"
 
+            # 安装 pnpm（确保 pnpm 可执行）
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
+                  run_install: false
 
+            # 验证 pnpm 是否可用（可选）
+            - name: Verify pnpm
+              run: pnpm -v
+
+            # 安装依赖并构建项目
             - name: Install & Build H5
               working-directory: h5
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
+            # 清空服务器旧文件
             - name: Clean old H5 files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -39,6 +48,7 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/frontend/index/*
 
+            # 上传新构建文件
             - name: Upload new H5 build
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -48,6 +58,7 @@ jobs:
                   source: "h5/dist/*"
                   target: "/opt/1panel/www/sites/frontend/index"
 
+            # 可选：重载 Nginx
             - name: Reload Nginx (optional)
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -68,12 +79,16 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: pnpm
+                  cache: "pnpm"
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
+                  run_install: false
+
+            - name: Verify pnpm
+              run: pnpm -v
 
             - name: Install & Build Admin
               working-directory: admin
@@ -119,12 +134,16 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: pnpm
+                  cache: "pnpm"
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
+                  run_install: false
+
+            - name: Verify pnpm
+              run: pnpm -v
 
             - name: Install & Build Server
               working-directory: server
