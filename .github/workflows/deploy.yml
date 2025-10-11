@@ -51,7 +51,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "npm"
 
             - name: Install & Build H5
               working-directory: 程序实现文档/frontend/h5-app
@@ -99,7 +98,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "npm"
 
             - name: Install & Build Admin
               working-directory: 程序实现文档/frontend/health-manage
@@ -147,7 +145,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
-                  cache: "npm"
 
             - name: Install & Build Server
               working-directory: 程序实现文档/backend
