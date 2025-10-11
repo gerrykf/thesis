@@ -47,14 +47,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Move into repository root
+        run: |
+          cd $GITHUB_WORKSPACE
+          echo "Current dir: $(pwd)"
+          ls -la
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
 
       - name: Install & Build H5
-        working-directory: 程序实现文档/frontend/h5-app
         run: |
+          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app"
+          echo "Building in $(pwd)"
           npm install --no-audit --no-fund
           npm run build
 
@@ -94,14 +101,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Move into repository root
+        run: |
+          cd $GITHUB_WORKSPACE
+          echo "Current dir: $(pwd)"
+          ls -la
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
 
       - name: Install & Build Admin
-        working-directory: 程序实现文档/frontend/health-manage
         run: |
+          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/health-manage"
+          echo "Building in $(pwd)"
           npm install --no-audit --no-fund
           npm run build
 
@@ -141,16 +155,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Move into repository root
+        run: |
+          cd $GITHUB_WORKSPACE
+          echo "Current dir: $(pwd)"
+          ls -la
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
 
       - name: Install & Build Server
-        working-directory: 程序实现文档/backend
         run: |
-          cd "程序实现文档/backend"
-          pwd
+          cd "$GITHUB_WORKSPACE/程序实现文档/backend"
+          echo "Building in $(pwd)"
           npm install --no-audit --no-fund
           npm run build
 
