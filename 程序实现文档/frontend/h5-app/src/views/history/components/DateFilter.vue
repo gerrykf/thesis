@@ -418,11 +418,11 @@ initDatePickerValue()
         }
 
         .option-icon {
-          font-size: 28px;
+          font-size: 24px;
         }
 
         .option-label {
-          font-size: $font-size-sm;
+          font-size: 12px;
           color: $text-color;
           transition: all 0.3s;
         }
@@ -472,7 +472,7 @@ initDatePickerValue()
 
       .van-button {
         height: 40px;
-        font-size: $font-size-sm;
+        font-size: 13px;
         font-weight: 500;
       }
     }
