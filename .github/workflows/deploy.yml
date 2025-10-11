@@ -11,6 +11,11 @@ on:
             - ".github/workflows/deploy.yml"
     workflow_dispatch: # 手动触发部署
 
+# 统一让脚本用 bash，避免 shell 差异
+defaults:
+    run:
+        shell: bash
+
 jobs:
     # 检测变更目录
     detect-changes:
@@ -22,7 +27,6 @@ jobs:
             server: ${{ steps.filter.outputs.server }}
         steps:
             - uses: actions/checkout@v4
-
             - name: Detect path changes
               id: filter
               uses: dorny/paths-filter@v3
@@ -41,31 +45,40 @@ jobs:
         needs: detect-changes
         if: ${{ needs.detect-changes.outputs.h5 == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-
         steps:
             - uses: actions/checkout@v4
 
-            # ① 安装 Node.js（含 pnpm 缓存）
+            # ① Node（带 pnpm 缓存）
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            # ② 安装 pnpm（官方稳定版）
+            # ② 安装 pnpm（官方 action，最稳）
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
 
-            # ③ 构建前端
+            # ③ 兜底：若仍找不到 pnpm，则全局安装一次，并打印版本和 PATH
+            - name: Ensure pnpm available
+              run: |
+                  if ! command -v pnpm >/dev/null 2>&1; then
+                    echo "pnpm not found, installing globally as fallback..."
+                    npm i -g pnpm@10.18.1
+                  fi
+                  echo "PATH=$PATH"
+                  pnpm -v
+
+            # ④ 构建
             - name: Install & Build H5
               working-directory: 程序实现文档/frontend/h5-app
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
-            # ④ 清理旧文件
+            # ⑤ 清理 & 上传 & reload
             - name: Clean old H5 files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -75,7 +88,6 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/frontend/index/*
 
-            # ⑤ 上传新构建文件
             - name: Upload new H5 build
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -85,7 +97,6 @@ jobs:
                   source: "程序实现文档/frontend/h5-app/dist/*"
                   target: "/opt/1panel/www/sites/frontend/index"
 
-            # ⑥ 可选：重新加载 nginx
             - name: Reload Nginx (optional)
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -101,7 +112,6 @@ jobs:
         needs: detect-changes
         if: ${{ needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-
         steps:
             - uses: actions/checkout@v4
 
@@ -115,6 +125,15 @@ jobs:
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
+
+            - name: Ensure pnpm available
+              run: |
+                  if ! command -v pnpm >/dev/null 2>&1; then
+                    echo "pnpm not found, installing globally as fallback..."
+                    npm i -g pnpm@10.18.1
+                  fi
+                  echo "PATH=$PATH"
+                  pnpm -v
 
             - name: Install & Build Admin
               working-directory: 程序实现文档/frontend/health-manage
@@ -155,31 +174,35 @@ jobs:
         needs: detect-changes
         if: ${{ needs.detect-changes.outputs.server == 'true' || contains(github.event.head_commit.message, '[all]') }}
         runs-on: ubuntu-latest
-
         steps:
             - uses: actions/checkout@v4
 
-            # 安装 Node.js + 缓存
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 20.18.1
                   cache: "pnpm"
 
-            # 安装 pnpm（官方 action）
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10.18.1
 
-            # 构建服务端
+            - name: Ensure pnpm available
+              run: |
+                  if ! command -v pnpm >/dev/null 2>&1; then
+                    echo "pnpm not found, installing globally as fallback..."
+                    npm i -g pnpm@10.18.1
+                  fi
+                  echo "PATH=$PATH"
+                  pnpm -v
+
             - name: Install & Build Server
               working-directory: 程序实现文档/backend
               run: |
                   pnpm install --frozen-lockfile
                   pnpm run build
 
-            # 清空旧目录
             - name: Clean old Server files
               uses: appleboy/ssh-action@v0.1.10
               with:
@@ -189,7 +212,6 @@ jobs:
                   script: |
                       rm -rf /opt/1panel/www/sites/healthbackend/index/*
 
-            # 上传构建产物
             - name: Upload new Server build
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -199,7 +221,6 @@ jobs:
                   source: "程序实现文档/backend/dist/*"
                   target: "/opt/1panel/www/sites/healthbackend/index"
 
-            # 重启 PM2
             - name: Restart Server (PM2)
               uses: appleboy/ssh-action@v0.1.10
               with:
