@@ -395,8 +395,8 @@ initDatePickerValue()
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        padding: $space-md;
+        gap: 4px;
+        padding: 10px;
         background: $background-color;
         border: 2px solid transparent;
         border-radius: $radius-md;
@@ -418,11 +418,11 @@ initDatePickerValue()
         }
 
         .option-icon {
-          font-size: 24px;
+          font-size: 20px;
         }
 
         .option-label {
-          font-size: 12px;
+          font-size: 13px;
           color: $text-color;
           transition: all 0.3s;
         }
