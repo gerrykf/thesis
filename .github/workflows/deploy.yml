@@ -188,7 +188,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "程序实现文档/backend/dist/*"
+          source: "${{ github.workspace }}/程序实现文档/backend/health-backend/dist/*"
           target: "/opt/1panel/www/sites/healthbackend/index"
 
       - name: Restart Server (PM2)
