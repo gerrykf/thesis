@@ -4,6 +4,7 @@ pnpm-lock.yaml
 
 # Build output
 dist/
+!dist/uploads/
 *.tsbuildinfo
 
 # Logs
@@ -14,7 +15,6 @@ pnpm-debug.log*
 
 # Environment variables
 .env.local
-.env.production
 
 # OS files
 .DS_Store
@@ -25,9 +25,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-
-# Uploads
-uploads/
 
 # Test coverage
 coverage/

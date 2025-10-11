@@ -162,6 +162,7 @@ backend/
 │   │   └── adminController.ts # 管理员控制器
 │   ├── middleware/            # 中间件
 │   │   ├── auth.ts            # JWT 认证中间件
+│   │   ├── upload.ts          # 文件上传中间件
 │   │   ├── errorHandler.ts   # 错误处理中间件
 │   │   └── logger.ts          # 日志中间件
 │   ├── routes/                # 路由定义
@@ -174,6 +175,13 @@ backend/
 │   │   └── adminRoutes.ts     # 管理员路由
 │   ├── utils/                 # 工具函数
 │   └── validators/            # 数据验证规则
+├── dist/                      # 编译输出目录
+│   ├── *.js                   # 编译后的JS文件
+│   └── uploads/               # 上传文件（构建时复制）
+├── scripts/                   # 构建脚本
+│   └── copy-uploads.js        # 复制uploads到dist
+├── uploads/                   # 用户上传文件
+│   └── avatars/               # 用户头像
 ├── logs/                      # 日志文件
 ├── .env                       # 环境变量配置
 ├── .env.example               # 环境变量示例
@@ -236,11 +244,18 @@ pnpm run dev
 # 开发模式（自动重启）
 pnpm run dev
 
-# 编译 TypeScript
+# 编译 TypeScript 并复制 uploads 目录
 pnpm run build
 
 # 生产模式（需先 build）
 pnpm run start
+
+# PM2 管理命令
+pnpm run pm2:start    # 构建并用PM2启动
+pnpm run pm2:stop     # 停止PM2进程
+pnpm run pm2:restart  # 重启PM2进程
+pnpm run pm2:logs     # 查看PM2日志
+pnpm run pm2:kill     # 杀死PM2进程
 
 # 运行测试
 pnpm test
@@ -433,12 +448,45 @@ API 统一返回格式：
 3. **分页查询** - 避免全表查询
 4. **缓存策略** - （待实现）Redis 缓存
 
+## 文件上传说明
+
+### 支持的文件上传功能
+
+本系统支持用户头像上传功能，使用 Multer 中间件处理文件上传。
+
+### 上传文件的存储
+
+- **开发环境**: 文件存储在 `uploads/avatars/` 目录
+- **生产环境**:
+  - 构建时会将 `uploads/` 目录复制到 `dist/uploads/`
+  - 静态文件通过 Express static 中间件提供服务
+  - 访问路径: `http://your-domain/uploads/avatars/filename.jpg`
+
+### 文件上传配置
+
+**限制说明**:
+- 文件大小: 最大 5MB
+- 文件类型: jpg, jpeg, png, gif, webp
+- 文件命名: `{userId}_{timestamp}.{ext}`
+
+**上传接口**: `POST /api/auth/upload-avatar`
+
+### 部署注意事项
+
+**重要**: 部署到服务器时，确保按以下步骤操作：
+
+1. **构建项目** - `pnpm build` 会自动复制 uploads 目录到 dist
+2. **部署 dist 目录** - 整个 dist 目录（包括 uploads）都需要部署
+3. **静态文件路径** - 代码中配置的静态文件路径指向 `dist/uploads`
+
+这样即使只部署 dist 目录，头像等上传文件也能正常访问。
+
 ## 部署说明
 
 ### 生产环境部署
 
 ```bash
-# 1. 编译 TypeScript
+# 1. 编译 TypeScript（自动复制uploads目录）
 pnpm run build
 
 # 2. 设置环境变量
@@ -454,15 +502,31 @@ pnpm run start
 # 安装 PM2
 npm install -g pm2
 
-# 启动应用
-pm2 start dist/app.js --name health-backend
+# 方式1：使用npm script（推荐）
+pnpm run pm2:start
+
+# 方式2：手动启动
+pm2 start ecosystem.config.js
 
 # 查看状态
 pm2 status
 
 # 查看日志
 pm2 logs health-backend
+
+# 重启服务
+pnpm run pm2:restart
 ```
+
+### 构建流程说明
+
+执行 `pnpm build` 时会自动完成以下步骤：
+
+1. **编译 TypeScript**: 将 `src/` 下的 `.ts` 文件编译为 `.js` 文件到 `dist/`
+2. **复制 uploads**: 运行 `scripts/copy-uploads.js` 脚本，将 `uploads/` 目录复制到 `dist/uploads/`
+3. **静态文件服务**: 编译后的代码会从 `dist/uploads/` 提供静态文件服务
+
+这样确保部署时只需要 `dist/` 目录，所有必要的文件（代码+上传文件）都包含在内。
 
 ## 故障排查
 

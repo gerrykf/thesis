@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 // 确保上传目录存在
-const uploadDir = path.join(__dirname, '../../uploads/avatars');
+const uploadDir = path.join(__dirname, '../uploads/avatars');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
