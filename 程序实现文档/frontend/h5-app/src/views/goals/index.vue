@@ -382,7 +382,18 @@ async function onDeleteGoal() {
 }
 
 function goBack() {
-  router.back();
+  // 智能返回逻辑：
+  // 1. 如果URL中有 firstTime=true 参数（首次登录），跳转到首页
+  // 2. 否则使用 router.back() 返回上一页
+  const route = router.currentRoute.value;
+
+  if (route.query.firstTime === 'true') {
+    // 首次登录进入目标页，返回时跳转到首页
+    router.replace('/home');
+  } else {
+    // 其他情况（如从个人中心进入），正常返回
+    router.back();
+  }
 }
 </script>
 
