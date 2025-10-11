@@ -190,6 +190,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "${{ github.workspace }}/程序实现文档/backend/health-backend/dist/*"
           target: "/opt/1panel/www/sites/healthbackend/index"
+          strip_components: 6
 
       - name: Restart Server (PM2)
         uses: appleboy/ssh-action@v0.1.10
