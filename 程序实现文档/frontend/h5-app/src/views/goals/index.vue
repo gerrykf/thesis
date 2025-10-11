@@ -5,18 +5,27 @@
         <van-icon name="arrow-left" @click="goBack" />
       </template>
       <template #right>
-        <van-icon name="plus" @click="showAddDialog = true" />
+        <van-icon name="plus" @click="showAddDialog = true" data-v-step="3" />
       </template>
     </van-nav-bar>
 
+    <!-- Vue3 Tour 引导 -->
+    <v-tour
+      name="goalsTour"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="tourOptions"
+    ></v-tour>
+
     <div class="content">
       <!-- 目标列表 -->
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh" data-v-step="2">
         <div v-if="goals.length > 0" class="goals-list">
           <div
             v-for="goal in goals"
             :key="goal.id"
             class="goal-card"
+            :data-v-step="goal === goals[0] ? '1' : ''"
             @click="onEditGoal(goal)"
           >
             <div class="goal-header">
@@ -53,7 +62,7 @@
         </div>
 
         <!-- 空状态 -->
-        <van-empty v-else description="暂无目标，点击右上角添加" />
+        <van-empty v-else description="暂无目标，点击右上角添加" data-v-step="1" />
       </van-pull-refresh>
     </div>
 
@@ -250,7 +259,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, computed, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import {
   useGoalList,
@@ -264,6 +273,114 @@ import {
 import type { GoalType, UserGoal } from "./utils";
 
 const router = useRouter();
+const instance = getCurrentInstance();
+
+// Vue3 Tour 引导配置
+const tourSteps = ref([
+  {
+    target: '[data-v-step="1"]',
+    header: {
+      title: "👋 欢迎来到目标管理",
+    },
+    content:
+      "在这里您可以设置和管理健康目标。让我们开始创建第一个目标吧！",
+    params: {
+      placement: "bottom",
+      highlight: true,
+    },
+  },
+  {
+    target: '[data-v-step="3"]',
+    header: {
+      title: "➕ 添加目标",
+    },
+    content:
+      "点击右上角的加号按钮，可以创建新的健康目标。支持体重、运动、卡路里和自定义目标类型。",
+    params: {
+      placement: "bottom",
+      highlight: true,
+    },
+  },
+  {
+    target: '[data-v-step="2"]',
+    header: {
+      title: "🔄 下拉刷新",
+    },
+    content:
+      "创建目标后，可以下拉页面刷新目标列表。点击目标卡片可以编辑进度和状态，助您更好地追踪目标完成情况！",
+    params: {
+      placement: "top",
+      highlight: true,
+    },
+  },
+]);
+
+const tourOptions = ref({
+  useKeyboardNavigation: true,
+  labels: {
+    buttonSkip: "跳过",
+    buttonPrevious: "上一步",
+    buttonNext: "下一步",
+    buttonStop: "开始使用",
+  },
+});
+
+const tourCallbacks = ref({
+  onStop: () => {
+    // 引导结束后,标记用户已完成引导
+    localStorage.setItem("goalsTourCompleted", "true");
+  },
+  onSkip: () => {
+    // 跳过引导也标记为已完成
+    localStorage.setItem("goalsTourCompleted", "true");
+  },
+});
+
+// 检查是否需要显示引导
+function checkAndStartTour() {
+  const route = router.currentRoute.value;
+  const isFirstTime = route.query.firstTime === "true";
+  const tourCompleted = localStorage.getItem("goalsTourCompleted");
+
+  console.log('引导检查:', {
+    isFirstTime,
+    tourCompleted,
+    hasTours: !!instance?.proxy?.$tours,
+    hasGoalsTour: !!instance?.proxy?.$tours?.goalsTour
+  });
+
+  // 只在首次登录且未完成引导时显示
+  if (isFirstTime && !tourCompleted) {
+    // 延迟一下让页面完全渲染并等待 tour 组件初始化
+    setTimeout(() => {
+      console.log('尝试启动引导:', {
+        hasTours: !!instance?.proxy?.$tours,
+        hasGoalsTour: !!instance?.proxy?.$tours?.goalsTour
+      });
+
+      // 确保目标元素存在
+      const targetElement = document.querySelector('[data-v-step="1"]');
+      console.log('目标元素是否存在:', !!targetElement, targetElement);
+
+      if (instance?.proxy?.$tours?.goalsTour) {
+        console.log('启动目标页面引导');
+        instance.proxy.$tours.goalsTour.start();
+
+        // 检查引导是否真的启动了
+        setTimeout(() => {
+          const tourElement = document.querySelector('.v-step');
+          const maskElement = document.querySelector('.v-tour__target--highlighted');
+          console.log('引导元素检查:', {
+            tourElement: !!tourElement,
+            maskElement: !!maskElement
+          });
+        }, 500);
+      } else {
+        console.warn('无法找到 goalsTour 实例');
+      }
+    }, 1500);
+  }
+}
 
 // 目标类型选项
 const goalTypes = [
@@ -313,6 +430,8 @@ const formattedAddTargetDate = computed(() => {
 onMounted(() => {
   loadGoals();
   resetAddForm();
+  // 检查并启动引导
+  checkAndStartTour();
 });
 
 function getProgressPercentage(goal: UserGoal): number {
@@ -406,14 +525,32 @@ function goBack() {
 }
 
 .content {
-  padding: $space-md;
+  padding: $space-sm $space-md;
   padding-bottom: 80px;
+  min-height: calc(100vh - 46px); // 减去导航栏高度
 }
 
 .goals-list {
   display: flex;
   flex-direction: column;
   gap: $space-md;
+  margin-top: $space-sm;
+}
+
+// 确保下拉刷新容器占满剩余空间
+:deep(.van-pull-refresh) {
+  min-height: calc(100vh - 46px - $space-sm * 2); // 减去导航栏和内容padding
+}
+
+// 空状态样式调整 - 使用弹性布局自动填充
+:deep(.van-empty) {
+  padding: $space-xl 0;
+  height: 100%;
+  min-height: calc(100vh - 46px - $space-sm * 2 - $space-xl * 2); // 完整视窗高度减去各种padding
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .goal-card {
@@ -567,5 +704,116 @@ function goBack() {
 
 .form-actions {
   padding: $space-lg 0;
+}
+
+// Vue3 Tour 自定义样式 - 高亮目标元素
+:deep(.v-tour__target--highlighted) {
+  box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.6) !important;
+  position: relative !important;
+  z-index: 9999 !important;
+}
+
+// 当引导激活时，body 添加遮罩层
+.goals:has(.v-tour__target--highlighted) {
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9998;
+    pointer-events: none;
+  }
+}
+
+// 确保导航栏不会遮挡引导
+:deep(.van-nav-bar) {
+  z-index: 1 !important;
+
+  &.van-nav-bar--fixed {
+    z-index: 1 !important;
+  }
+}
+
+:deep(.v-step) {
+  background: $white !important;
+  border-radius: $radius-md !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  padding: $space-md !important;
+  max-width: 375px !important;
+  z-index: 10000 !important;
+
+  .v-step__header {
+    margin-bottom: $space-sm !important;
+
+    h3 {
+      font-size: $font-size-lg !important;
+      color: $text-color !important;
+      font-weight: 600 !important;
+      margin: 0 !important;
+    }
+  }
+
+  .v-step__content {
+    font-size: $font-size-sm !important;
+    color: $text-color-2 !important;
+    line-height: 1.6 !important;
+    margin-bottom: $space-md !important;
+  }
+
+  .v-step__buttons {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: $space-sm !important;
+
+    button {
+      flex: 1 !important;
+      padding: 9px $space-md !important;
+      border-radius: $radius-sm !important;
+      font-size: $font-size-sm !important;
+      line-height: 6px;
+      border: none !important;
+      cursor: pointer !important;
+      transition: all 0.3s !important;
+
+      &.v-step__button-skip {
+        background: $background-color !important;
+        color: $text-color-2 !important;
+
+        &:active {
+          opacity: 0.7 !important;
+        }
+      }
+
+      &.v-step__button-previous {
+        background: $background-color !important;
+        color: $text-color !important;
+
+        &:active {
+          opacity: 0.7 !important;
+        }
+      }
+
+      &.v-step__button-next,
+      &.v-step__button-stop {
+        background: $primary-color !important;
+        color: $white !important;
+
+        &:active {
+          opacity: 0.8 !important;
+        }
+      }
+    }
+  }
+
+  .v-step__arrow {
+    border-color: $white !important;
+
+    &--dark {
+      border-color: $white !important;
+    }
+  }
 }
 </style>
