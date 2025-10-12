@@ -74,13 +74,19 @@ jobs:
           script: |
             rm -rf /opt/1panel/www/sites/frontend/index/*
 
+      - name: Prepare dist and list files
+        run: |
+          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
+          echo "Uploading from: $(pwd)"
+          ls -la
+
       - name: Upload new H5 build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "程序实现文档/frontend/h5-app/dist/*"
+          source: "./*"
           target: "/opt/1panel/www/sites/frontend/index"
 
       - name: Reload Nginx (optional)
@@ -128,13 +134,19 @@ jobs:
           script: |
             rm -rf /opt/1panel/www/sites/frontend-admin/index/*
 
+      - name: Prepare dist and list files
+        run: |
+          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/health-manage/dist"
+          echo "Uploading from: $(pwd)"
+          ls -la
+
       - name: Upload new Admin build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "程序实现文档/frontend/health-manage/dist/*"
+          source: "./*"
           target: "/opt/1panel/www/sites/frontend-admin/index"
 
       - name: Reload Nginx (optional)
@@ -182,15 +194,29 @@ jobs:
           script: |
             rm -rf /opt/1panel/www/sites/healthbackend/index/*
 
-      - name: Upload new Server build
+      - name: Prepare server upload (exclude node_modules)
+        run: |
+          SRC="$GITHUB_WORKSPACE/程序实现文档/backend/health-backend"
+          TMP="./server_upload"
+          rm -rf "$TMP"
+          mkdir -p "$TMP"
+          cp -r "$SRC/." "$TMP/"
+          rm -rf "$TMP/node_modules" "$TMP/.git"
+          echo "Prepared files to upload:"
+          find "$TMP" -maxdepth 2 -type f | sed -n '1,200p'
+
+        name: Upload new Server build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ github.workspace }}/程序实现文档/backend/health-backend/dist/*"
+          source: "./server_upload/*"
           target: "/opt/1panel/www/sites/healthbackend/index"
-          strip_components: 6
+
+        name: Cleanup temp upload
+        run: |
+          rm -rf ./server_upload || true
 
       - name: Restart Server (PM2)
         uses: appleboy/ssh-action@v0.1.10
