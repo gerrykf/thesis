@@ -342,7 +342,7 @@ const moodOptions = [
 
 function onDateConfirm(value: any) {
   const selectedValues = value.selectedValues || value;
-  formData.value.date =  `t('selectedvalues-0-string-selectedvalues-1-padstart-2-0-string-selectedvalues-2-padstart-2-0', [selectedValues[0], String( selectedValues[1] ).padStart(2, "0"), String(selectedValues[2]).padStart(2, "0")]) `;
+  formData.value.date =  t('selectedvalues-0-string-selectedvalues-1-padstart-2-0-string-selectedvalues-2-padstart-2-0', [selectedValues[0], String( selectedValues[1] ).padStart(2, "0"), String(selectedValues[2]).padStart(2, "0")]) ;
   showDatePicker.value = false;
 }
 

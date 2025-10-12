@@ -175,7 +175,6 @@
   "pao-bu-0": "🏃 jogging",
   "params0marker-shui-mian-shi-chang-datasleephours-xiao-shi-br": "{0}Sleep duration: {1} hours<br/>",
   "parseintparts1-yue-parseintparts2-ri": "{0}Month{1}",
-  "path-matcher-regex-localewjson-loading-locales-under-eworkspacethesis-cheng-xu-shi-xian-wen-dang-frontendh5appsrclocales-loading-enus-enusjson-17602479741788496-loading-zhcn-zhcnjson-1760247957309273-watching-change-on-eworkspacethesis-cheng-xu-shi-xian-wen-dang-frontendh5appsrclocales-loading-finished": "🗃 Path Matcher Regex: /^(?<locale>[\\w-_] )\\.json$/ 📂 Loading locales under e:\\workspace\\thesis\\Program Implementation Document\\frontend\\h5-app\\src\\locales 📑 Loading (en-US) en-US.json [1760247974178.8496] 📑 Loading \n(zh-CN) zh-CN.json [1760247957309.273] 👀 Watching change on e:\\workspace\\thesis\\Program Implementation Document\\frontend\\h5-app\\src\\locales\n \n✅ Loading finished ――――――",
   "ping-jun-re-liang": "Average calories",
   "ping-jun-shui-mian": "average sleep",
   "ping-jun-ti-zhong": "average weight",
