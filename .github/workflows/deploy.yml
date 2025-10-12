@@ -76,9 +76,11 @@ jobs:
 
       - name: Prepare dist and list files
         run: |
+          # 进入dist目录
           cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
           echo "Uploading from: $(pwd)"
           ls -la
+          # 保存dist目录路径到环境变量
           echo "DIST_PATH=$(pwd)" >> $GITHUB_ENV
 
       - name: Upload new H5 build
@@ -87,7 +89,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ env.DIST_PATH }}/*" # 只上传dist目录的内容
+          source: "${{ env.DIST_PATH }}/*"   # 只上传dist目录内容
           target: "/opt/1panel/www/sites/frontend/index"
 
       - name: Reload Nginx (optional)
@@ -98,6 +100,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             systemctl reload nginx || true
+
 
   # ============ 后台管理 ============
   deploy-admin:
