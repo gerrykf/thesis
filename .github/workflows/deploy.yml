@@ -74,22 +74,13 @@ jobs:
           script: |
             rm -rf /opt/1panel/www/sites/frontend/index/*
 
-      - name: 准备dist目录路径
-        run: |
-          # 进入dist目录
-          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
-          echo "从：$(pwd) 上传"
-          ls -la
-          # 保存dist目录路径到环境变量
-          echo "DIST_PATH=$(pwd)" >> $GITHUB_ENV
-
-      - name: 只上传dist内容
+      - name: 上传dist内容
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ env.DIST_PATH }}/*"  # 仅上传dist目录内容
+          source: "dist/*"  # 仅上传dist目录内容
           target: "/opt/1panel/www/sites/frontend/index"
 
       - name: 重新加载Nginx（可选）
