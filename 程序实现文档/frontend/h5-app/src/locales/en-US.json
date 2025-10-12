@@ -1,0 +1,81 @@
+{
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "submit": "Submit",
+    "reset": "Reset",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No Data",
+    "success": "Success",
+    "failed": "Failed",
+    "networkError": "Network error, please try again later",
+    "loggingIn": "Logging in...",
+    "saving": "Saving...",
+    "inDevelopment": "Under Development"
+  },
+  "nav": {
+    "home": "Home",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "login": {
+    "title": "Login",
+    "appName": "Health Manager",
+    "appDesc": "Track every day, stay healthy",
+    "username": "Username",
+    "password": "Password",
+    "loginBtn": "Login",
+    "registerBtn": "Register",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot Password?",
+    "pleaseEnterUsername": "Please enter username",
+    "pleaseEnterPassword": "Please enter password",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now",
+    "otherLoginMethods": "Other login methods"
+  },
+  "settings": {
+    "title": "Settings",
+    "darkMode": "Dark Mode",
+    "language": "Language",
+    "languageLabel": "语言 / Language",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "pleaseEnterCurrentPassword": "Please enter current password",
+    "pleaseEnterNewPassword": "Please enter new password",
+    "pleaseConfirmPassword": "Please confirm password",
+    "passwordNotMatch": "Passwords do not match",
+    "changing": "Changing...",
+    "changePasswordSuccess": "Password changed successfully, please login again",
+    "changePasswordFailed": "Failed to change password",
+    "switchedToDarkMode": "Switched to dark mode",
+    "switchedToLightMode": "Switched to light mode",
+    "languageSwitched": "Switched to {language}"
+  },
+  "home": {
+    "welcome": "Welcome",
+    "healthMonitor": "Health Monitor",
+    "startMeasure": "Start Measurement"
+  },
+  "history": {
+    "title": "History",
+    "noRecord": "No Records",
+    "date": "Date",
+    "result": "Result"
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "about": "About",
+    "logout": "Logout"
+  }
+}

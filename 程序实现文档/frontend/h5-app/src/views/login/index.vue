@@ -1,13 +1,20 @@
 <template>
   <div class="login">
-    <van-nav-bar title="登录" fixed placeholder />
+    <van-nav-bar :title="t('login.title')" fixed placeholder>
+      <template #right>
+        <div class="language-trigger" @click="showLanguageDialog = true">
+          <van-icon name="globe-o" />
+          <span class="language-text">{{ currentLanguageName }}</span>
+        </div>
+      </template>
+    </van-nav-bar>
 
     <div class="content">
       <!-- Logo 区域 -->
       <div class="logo-section">
         <div class="logo-icon">🏃</div>
-        <h1 class="app-name">健康管理</h1>
-        <p class="app-desc">记录每一天，健康每一刻</p>
+        <h1 class="app-name">{{ t('login.appName') }}</h1>
+        <p class="app-desc">{{ t('login.appDesc') }}</p>
       </div>
 
       <!-- 登录表单 -->
@@ -16,9 +23,9 @@
           <van-field
             v-model="formData.username"
             name="username"
-            label="用户名"
-            placeholder="请输入用户名"
-            :rules="[{ required: true, message: '请输入用户名' }]"
+            :label="t('login.username')"
+            :placeholder="t('login.pleaseEnterUsername')"
+            :rules="[{ required: true, message: t('login.pleaseEnterUsername') }]"
             clearable
           >
             <template #left-icon>
@@ -30,9 +37,9 @@
             v-model="formData.password"
             type="password"
             name="password"
-            label="密码"
-            placeholder="请输入密码"
-            :rules="[{ required: true, message: '请输入密码' }]"
+            :label="t('login.password')"
+            :placeholder="t('login.pleaseEnterPassword')"
+            :rules="[{ required: true, message: t('login.pleaseEnterPassword') }]"
             clearable
           >
             <template #left-icon>
@@ -43,8 +50,8 @@
 
         <!-- 记住我 & 忘记密码 -->
         <div class="form-options">
-          <van-checkbox v-model="formData.remember">记住我</van-checkbox>
-          <span class="link-text" @click="handleForgotPassword">忘记密码？</span>
+          <van-checkbox v-model="formData.remember">{{ t('login.rememberMe') }}</van-checkbox>
+          <span class="link-text" @click="handleForgotPassword">{{ t('login.forgotPassword') }}</span>
         </div>
 
         <!-- 登录按钮 -->
@@ -55,40 +62,55 @@
             type="primary"
             native-type="submit"
             :loading="loading"
-            loading-text="登录中..."
+            :loading-text="t('common.loggingIn')"
           >
-            登录
+            {{ t('login.loginBtn') }}
           </van-button>
         </div>
       </van-form>
 
       <!-- 注册链接 -->
       <div class="register-link">
-        <span>还没有账号？</span>
-        <span class="link-text" @click="goToRegister">立即注册</span>
+        <span>{{ t('login.noAccount') }}</span>
+        <span class="link-text" @click="goToRegister">{{ t('login.registerNow') }}</span>
       </div>
 
       <!-- 第三方登录 -->
-      <div class="social-login">
+      <!-- <div class="social-login">
         <div class="divider">
-          <span>其他登录方式</span>
+          <span>{{ t('login.otherLoginMethods') }}</span>
         </div>
         <div class="social-icons">
-          <div class="social-item" @click="showToast('功能开发中')">
+          <div class="social-item" @click="showToast(t('common.inDevelopment'))">
             <van-icon name="wechat" size="30" color="#09bb07" />
           </div>
-          <div class="social-item" @click="showToast('功能开发中')">
+          <div class="social-item" @click="showToast(t('common.inDevelopment'))">
             <van-icon name="friends-o" size="30" color="#1989fa" />
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
+
+    <!-- 语言选择弹窗 -->
+    <van-action-sheet
+      v-model:show="showLanguageDialog"
+      :actions="languageActions"
+      @select="onSelectLanguage"
+      :cancel-text="t('common.cancel')"
+      close-on-click-action
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { showToast } from 'vant'
+import { useI18n } from 'vue-i18n'
 import { useLoginForm } from './utils'
+import { SUPPORT_LOCALES, LOCALE_NAMES, saveLocale, type SupportLocale } from '@/i18n'
+import { setVantLocale } from '@/i18n/vant'
+
+const { t, locale } = useI18n()
 
 const {
   formData,
@@ -97,6 +119,42 @@ const {
   goToRegister,
   handleForgotPassword
 } = useLoginForm()
+
+// 语言设置
+const showLanguageDialog = ref(false)
+
+// 当前语言显示名称
+const currentLanguageName = computed(() => {
+  return LOCALE_NAMES[locale.value as SupportLocale] || '简体中文'
+})
+
+// 语言选项列表
+const languageActions = computed(() => {
+  return SUPPORT_LOCALES.map(lang => ({
+    name: LOCALE_NAMES[lang],
+    value: lang,
+    className: locale.value === lang ? 'active-language' : ''
+  }))
+})
+
+// 选择语言
+function onSelectLanguage(action: { value: SupportLocale }) {
+  const newLocale = action.value
+  if (newLocale !== locale.value) {
+    // 更新 vue-i18n 语言
+    locale.value = newLocale
+    // 更新 Vant 语言
+    setVantLocale(newLocale)
+    // 保存到本地存储
+    saveLocale(newLocale)
+    // 提示
+    showToast({
+      message: t('settings.languageSwitched', { language: LOCALE_NAMES[newLocale] }),
+      duration: 1500
+    })
+  }
+  showLanguageDialog.value = false
+}
 </script>
 
 <style scoped lang="scss">
@@ -232,5 +290,28 @@ const {
 
 :deep(.van-field__left-icon) {
   margin-right: $space-sm;
+}
+
+.language-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  user-select: none;
+  color: #323233;
+  transition: opacity 0.3s ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+
+  .language-text {
+    font-size: 14px;
+  }
+
+  .van-icon {
+    font-size: 16px;
+  }
 }
 </style>

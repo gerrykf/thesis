@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "WebFetch(domain:vant-ui.github.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

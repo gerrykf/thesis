@@ -1,0 +1,8 @@
+{
+  "i18n-ally.workspaceMode": "multiRoot",
+  "i18n-ally.localesPaths": [
+    "程序实现文档/frontend/h5-app/src/locales",
+    "程序实现文档/frontend/h5-app/src/i18n"
+  ],
+  "i18n-ally.enable": true
+}

@@ -239,6 +239,7 @@ const healthDateRange = computed({
   }),
   set: (val) => {
     // 通过事件处理，不需要在这里设置
+    console.log("健康记录日期范围设置:", val);
   },
 });
 
@@ -246,6 +247,7 @@ const dietDateRange = computed({
   get: () => ({ startDate: dietStartDate.value, endDate: dietEndDate.value }),
   set: (val) => {
     // 通过事件处理，不需要在这里设置
+    console.log("饮食记录日期范围设置:", val);
   },
 });
 

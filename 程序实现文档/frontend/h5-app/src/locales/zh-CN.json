@@ -1,0 +1,82 @@
+{
+  "common": {
+    "back": "返回",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "failed": "操作失败",
+    "inDevelopment": "功能开发中",
+    "loading": "加载中...",
+    "loggingIn": "登录中...",
+    "networkError": "网络错误，请稍后重试",
+    "noData": "暂无数据",
+    "reset": "重置",
+    "save": "保存",
+    "saving": "保存中...",
+    "search": "搜索",
+    "submit": "提交",
+    "success": "操作成功"
+  },
+  "history": {
+    "date": "日期",
+    "noRecord": "暂无记录",
+    "result": "结果",
+    "title": "历史记录"
+  },
+  "home": {
+    "healthMonitor": "健康监测",
+    "startMeasure": "开始测量",
+    "welcome": "欢迎使用"
+  },
+  "login": {
+    "appDesc": "记录每一天，健康每一刻",
+    "appName": "健康管理",
+    "forgotPassword": "忘记密码？",
+    "loginBtn": "登录",
+    "noAccount": "还没有账号？",
+    "otherLoginMethods": "其他登录方式",
+    "password": "密码",
+    "pleaseEnterPassword": "请输入密码",
+    "pleaseEnterUsername": "请输入用户名",
+    "registerBtn": "注册",
+    "registerNow": "立即注册",
+    "rememberMe": "记住我",
+    "title": "登录",
+    "username": "用户名"
+  },
+  "nav": {
+    "history": "历史",
+    "home": "首页",
+    "profile": "我的"
+  },
+  "path-matcher-regex-localewjson-loading-locales-under-eworkspacethesis-cheng-xu-shi-xian-wen-dang-frontendh5appsrclocales-loading-enus-enusjson-17602479741788496-loading-zhcn-zhcnjson-1760247957309273-watching-change-on-eworkspacethesis-cheng-xu-shi-xian-wen-dang-frontendh5appsrclocales-loading-finished": "🗃 Path Matcher Regex: /^(?<locale>[\\w-_]+)\\.json$/ 📂 Loading locales under e:\\workspace\\thesis\\程序实现文档\\frontend\\h5-app\\src\\locales 📑 Loading (en-US) en-US.json [1760247974178.8496] 📑 Loading (zh-CN) zh-CN.json [1760247957309.273] 👀 Watching change on e:\\workspace\\thesis\\程序实现文档\\frontend\\h5-app\\src\\locales ✅ Loading finished ――――――",
+  "profile": {
+    "about": "关于",
+    "language": "语言",
+    "logout": "退出登录",
+    "settings": "设置",
+    "title": "个人中心"
+  },
+  "settings": {
+    "changePassword": "修改密码",
+    "changePasswordFailed": "密码修改失败",
+    "changePasswordSuccess": "密码修改成功，请重新登录",
+    "changing": "修改中...",
+    "confirmPassword": "确认密码",
+    "currentPassword": "当前密码",
+    "darkMode": "深色模式",
+    "language": "语言",
+    "languageLabel": "语言 / Language",
+    "languageSwitched": "已切换到{language}",
+    "newPassword": "新密码",
+    "passwordMinLength": "密码至少6位",
+    "passwordNotMatch": "两次密码不一致",
+    "pleaseConfirmPassword": "请再次输入新密码",
+    "pleaseEnterCurrentPassword": "请输入当前密码",
+    "pleaseEnterNewPassword": "请输入新密码",
+    "switchedToDarkMode": "已切换到深色模式",
+    "switchedToLightMode": "已切换到浅色模式",
+    "title": "设置"
+  }
+}

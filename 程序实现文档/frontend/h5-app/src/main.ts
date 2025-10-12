@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
+import i18n from './i18n'
 import { initFlexible } from './utils/flexible'
 import { useUserStore } from './stores/user'
 import VueTour from 'vue3-tour'
@@ -18,6 +19,7 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+app.use(i18n)
 app.use(VueTour)
 
 // 初始化用户信息
