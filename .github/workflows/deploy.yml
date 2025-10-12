@@ -205,7 +205,7 @@ jobs:
           echo "Prepared files to upload:"
           find "$TMP" -maxdepth 2 -type f | sed -n '1,200p'
 
-        name: Upload new Server build
+      - name: Upload new Server build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -214,7 +214,7 @@ jobs:
           source: "./server_upload/*"
           target: "/opt/1panel/www/sites/healthbackend/index"
 
-        name: Cleanup temp upload
+      - name: Cleanup temp upload
         run: |
           rm -rf ./server_upload || true
 
