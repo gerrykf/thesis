@@ -46,25 +46,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: 进入仓库根目录
         run: |
           cd $GITHUB_WORKSPACE
           echo "当前目录：$(pwd)"
           ls -la
-
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
-
       - name: 安装依赖并构建 H5
         run: |
           cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app"
           echo "在$(pwd)中构建"
           npm install --no-audit --no-fund
           npm run build
-
       - name: 清理旧文件
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -73,16 +69,20 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             rm -rf /opt/1panel/www/sites/frontend/index/*
-
-      - name: 上传dist内容
+      - name: 准备dist目录路径
+        run: |
+          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
+          echo "从：$(pwd) 上传"
+          ls -la
+          echo "DIST_PATH=$(pwd)" >> $GITHUB_ENV
+      - name: 只上传dist内容
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "dist/*"  # 仅上传dist目录内容
+          source: "${{ env.DIST_PATH }}/*"  # 只上传dist目录内容
           target: "/opt/1panel/www/sites/frontend/index"
-
       - name: 重新加载Nginx（可选）
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -91,7 +91,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             systemctl reload nginx || true
-
 
   # ============ 后台管理 ============
   deploy-admin:
@@ -129,22 +128,23 @@ jobs:
           script: |
             rm -rf /opt/1panel/www/sites/frontend-admin/index/*
 
-      - name: Prepare dist and list files
+      - name: Prepare dist目录路径
         run: |
           cd "$GITHUB_WORKSPACE/程序实现文档/frontend/health-manage/dist"
-          echo "Uploading from: $(pwd)"
+          echo "从：$(pwd) 上传"
           ls -la
+          echo "ADMIN_DIST_PATH=$(pwd)" >> $GITHUB_ENV
 
-      - name: Upload new Admin build
+      - name: 只上传dist内容
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "./*"
+          source: "${{ env.ADMIN_DIST_PATH }}/*"  # 只上传dist目录内容
           target: "/opt/1panel/www/sites/frontend-admin/index"
 
-      - name: Reload Nginx (optional)
+      - name: Reload Nginx（可选）
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -152,6 +152,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             systemctl reload nginx || true
+
 
   # ============ 服务端 ============
   deploy-server:
