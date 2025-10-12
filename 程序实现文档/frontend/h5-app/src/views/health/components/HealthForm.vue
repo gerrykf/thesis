@@ -1,7 +1,7 @@
 <template>
   <div class="health">
     <van-nav-bar
-      title="健康打卡"
+      :title="t('utils.quickActions.healthCheckIn')"
       left-arrow
       @click-left="onClickLeft"
       fixed
@@ -16,8 +16,8 @@
             v-model="formData.date"
             is-link
             readonly
-            label="📅 日期"
-            placeholder="选择日期"
+            :label="t('ri-qi')"
+            :placeholder="t('xuan-ze-ri-qi')"
             @click="showDatePicker = true"
           />
         </van-cell-group>
@@ -28,8 +28,8 @@
             v-model="formData.weight"
             type="text"
             inputmode="decimal"
-            label="⚖️ 体重(kg)"
-            placeholder="请输入体重，如：65.5"
+            :label="t('ti-zhong-kg')"
+            :placeholder="t('qing-shu-ru-ti-zhong-ru-655')"
             :rules="[{ required: true, message: '请输入体重' }]"
           />
         </van-cell-group>
@@ -39,14 +39,14 @@
           <van-field
             v-model="formData.exercise_duration"
             type="number"
-            label="🏃 运动(分钟)"
-            placeholder="请输入运动时长"
+            :label="t('yun-dong-fen-zhong')"
+            :placeholder="t('qing-shu-ru-yun-dong-shi-chang')"
           />
         </van-cell-group>
 
         <!-- 运动类型 -->
         <van-cell-group inset>
-          <van-field label="🎯 运动类型">
+          <van-field :label="t('yun-dong-lei-xing')">
             <template #input>
               <div class="exercise-type-tags">
                 <van-tag
@@ -68,7 +68,7 @@
           <van-field
             v-if="showCustomExercise"
             v-model="customExerciseType"
-            placeholder="请输入自定义运动类型"
+            :placeholder="t('qing-shu-ru-zi-ding-yi-yun-dong-lei-xing')"
             @blur="onCustomExerciseBlur"
           />
         </van-cell-group>
@@ -79,8 +79,8 @@
             v-model="formData.sleep_hours"
             type="text"
             inputmode="decimal"
-            label="😴 睡眠(小时)"
-            placeholder="请输入睡眠时长，如：7.5"
+            :label="t('shui-mian-xiao-shi')"
+            :placeholder="t('qing-shu-ru-shui-mian-shi-chang-ru-75')"
           />
         </van-cell-group>
 
@@ -90,8 +90,8 @@
             v-model="formData.sleep_quality"
             is-link
             readonly
-            label="🌙 睡眠质量"
-            placeholder="请选择睡眠质量"
+            :label="t('shui-mian-zhi-liang')"
+            :placeholder="t('qing-xuan-ze-shui-mian-zhi-liang')"
             @click="showSleepQualityPicker = true"
           />
         </van-cell-group>
@@ -102,8 +102,8 @@
             v-model="formData.mood"
             is-link
             readonly
-            label="😊 心情状态"
-            placeholder="请选择心情状态"
+            :label="t('xin-qing-zhuang-tai')"
+            :placeholder="t('qing-xuan-ze-xin-qing-zhuang-tai')"
             @click="showMoodPicker = true"
           />
         </van-cell-group>
@@ -114,16 +114,16 @@
             v-model="formData.notes"
             rows="3"
             autosize
-            label="📝 备注"
+            :label="t('bei-zhu')"
             type="textarea"
-            placeholder="今天感觉如何？"
+            :placeholder="t('jin-tian-gan-jue-ru-he')"
           />
         </van-cell-group>
 
         <!-- 提交按钮 -->
         <div style="margin: 24px 16px">
           <van-button block type="primary" native-type="submit">
-            保存打卡
+            {{ t("bao-cun-da-ka") }}
           </van-button>
         </div>
       </van-form>
@@ -170,24 +170,27 @@ import {
   closeToast,
 } from "vant";
 import { postHealthRecords, getHealthRecords } from "@/api/health";
+import { useI18n } from "vue-i18n";
+
+const {t} = useI18n();
 
 const router = useRouter();
 const route = useRoute();
 
 // 运动类型选项
 const exerciseTypes = [
-  { value: "跑步", label: "🏃 跑步", color: "primary" },
-  { value: "游泳", label: "🏊 游泳", color: "success" },
-  { value: "瑜伽", label: "🧘 瑜伽", color: "warning" },
-  { value: "骑行", label: "🚴 骑行", color: "danger" },
-  { value: "健身", label: "💪 健身", color: "primary" },
-  { value: "篮球", label: "🏀 篮球", color: "success" },
-  { value: "足球", label: "⚽ 足球", color: "warning" },
-  { value: "羽毛球", label: "🏸 羽毛球", color: "danger" },
-  { value: "乒乓球", label: "🏓 乒乓球", color: "primary" },
-  { value: "登山", label: "⛰️ 登山", color: "success" },
-  { value: "跳绳", label: "🪢 跳绳", color: "warning" },
-  { value: "自定义", label: "✏️ 自定义", color: "default" },
+  { value: t('pao-bu'), label: t('pao-bu-0'), color: "primary" },
+  { value: t('you-yong'), label: t('you-yong-0'), color: "success" },
+  { value: t('yu-qie'), label: t('yu-qie-0'), color: "warning" },
+  { value: t('qi-hang'), label: t('qi-hang-0'), color: "danger" },
+  { value: t('jian-shen'), label: t('jian-shen-0'), color: "primary" },
+  { value: t('lan-qiu'), label: t('lan-qiu-0'), color: "success" },
+  { value: t('zu-qiu'), label: t('zu-qiu-0'), color: "warning" },
+  { value: t('yu-mao-qiu'), label: t('yu-mao-qiu-0'), color: "danger" },
+  { value: t('ping-pang-qiu'), label: t('ping-pang-qiu-0'), color: "primary" },
+  { value: t('deng-shan'), label: t('deng-shan-0'), color: "success" },
+  { value: t('tiao-sheng'), label: t('tiao-sheng-0'), color: "warning" },
+  { value: t('zi-ding-yi'), label: t('zi-ding-yi-0'), color: "default" },
 ];
 
 // 自定义运动类型相关
@@ -202,7 +205,7 @@ function isExerciseTypeSelected(value: string): boolean {
 
 // 切换运动类型选择（多选）
 function onToggleExerciseType(value: string) {
-  if (value === "自定义") {
+  if (value === t('zi-ding-yi')) {
     showCustomExercise.value = !showCustomExercise.value;
     if (showCustomExercise.value) {
       // 选中自定义，添加到已选列表
@@ -275,7 +278,7 @@ function parseExerciseTypeString(typeString: string) {
       selectedExerciseTypes.value.push(type);
     } else {
       // 不是预设类型，作为自定义类型
-      selectedExerciseTypes.value.push("自定义");
+      selectedExerciseTypes.value.push(t('zi-ding-yi'));
       customExerciseType.value = type;
       showCustomExercise.value = true;
     }
@@ -322,26 +325,24 @@ const maxDate = new Date();
 // 睡眠质量选择器
 const showSleepQualityPicker = ref(false);
 const sleepQualityOptions = [
-  { text: "优秀", value: "excellent" },
-  { text: "良好", value: "good" },
-  { text: "一般", value: "fair" },
-  { text: "较差", value: "poor" },
+  { text: t('you-xiu'), value: "excellent" },
+  { text: t('liang-hao'), value: "good" },
+  { text: t('yi-ban'), value: "fair" },
+  { text: t('jiao-cha'), value: "poor" },
 ];
 
 // 心情状态选择器
 const showMoodPicker = ref(false);
 const moodOptions = [
-  { text: "很好", value: "excellent" },
-  { text: "不错", value: "good" },
-  { text: "一般", value: "fair" },
-  { text: "较差", value: "poor" },
+  { text: t('hen-hao'), value: "excellent" },
+  { text: t('bu-cuo'), value: "good" },
+  { text: t('yi-ban'), value: "fair" },
+  { text: t('jiao-cha'), value: "poor" },
 ];
 
 function onDateConfirm(value: any) {
   const selectedValues = value.selectedValues || value;
-  formData.value.date = `${selectedValues[0]}-${String(
-    selectedValues[1]
-  ).padStart(2, "0")}-${String(selectedValues[2]).padStart(2, "0")}`;
+  formData.value.date =  `t('selectedvalues-0-string-selectedvalues-1-padstart-2-0-string-selectedvalues-2-padstart-2-0', [selectedValues[0], String( selectedValues[1] ).padStart(2, "0"), String(selectedValues[2]).padStart(2, "0")]) `;
   showDatePicker.value = false;
 }
 
@@ -426,16 +427,16 @@ function fillFormData(record: any, preserveDate: boolean = true) {
 
   // 转换睡眠质量和心情显示文本
   const qualityMap: Record<string, string> = {
-    excellent: "优秀",
-    good: "良好",
-    fair: "一般",
-    poor: "较差",
+    excellent: t('you-xiu'),
+    good: t('liang-hao'),
+    fair: t('yi-ban'),
+    poor: t('jiao-cha'),
   };
   const moodMap: Record<string, string> = {
-    excellent: "很好",
-    good: "不错",
-    fair: "一般",
-    poor: "较差",
+    excellent: t('hen-hao-0'),
+    good: t('bu-cuo-0'),
+    fair: t('yi-ban'),
+    poor: t('jiao-cha'),
   };
 
   formData.value.sleep_quality = qualityMap[record.sleep_quality || ""] || "";
@@ -446,25 +447,25 @@ function fillFormData(record: any, preserveDate: boolean = true) {
 async function onSubmit() {
   // 验证必填字段
   if (!formData.value.date) {
-    showToast("请选择日期");
+    showToast(t('qing-xuan-ze-ri-qi'));
     return;
   }
 
   if (!formData.value.weight) {
-    showToast("请输入体重");
+    showToast(t('qing-shu-ru-ti-zhong'));
     return;
   }
 
   // 验证数值字段格式
   const weight = parseFloat(formData.value.weight);
   if (isNaN(weight) || weight <= 0) {
-    showToast("请输入有效的体重");
+    showToast(t('qing-shu-ru-you-xiao-de-ti-zhong'));
     return;
   }
 
   // 显示加载提示
   showLoadingToast({
-    message: "提交中...",
+    message: t('ti-jiao-zhong'),
     forbidClick: true,
     duration: 0,
   });
@@ -533,18 +534,18 @@ async function onSubmit() {
         // 不影响打卡成功的提示
       }
 
-      showSuccessToast("打卡成功！");
+      showSuccessToast(t('da-ka-cheng-gong'));
 
       setTimeout(() => {
         router.push("/health");
       }, 1000);
     } else {
-      showToast("打卡失败，请重试");
+      showToast(t('da-ka-shi-bai-qing-zhong-shi'));
     }
   } catch (error: any) {
     closeToast();
     console.error("打卡失败:", error);
-    showToast(error.message || "打卡失败，请重试");
+    showToast(error.message || t('da-ka-shi-bai-qing-zhong-shi-0'));
   }
 }
 

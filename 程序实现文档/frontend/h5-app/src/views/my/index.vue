@@ -1,6 +1,6 @@
 <template>
   <div class="profile">
-    <van-nav-bar title="个人中心" fixed placeholder />
+    <van-nav-bar :title="t('profile.title')" fixed placeholder />
 
     <div class="content">
       <!-- 用户信息 -->
@@ -37,7 +37,7 @@
                 <!-- 上传状态显示 -->
                 <div v-if="isUploading" class="avatar-uploading">
                   <van-loading type="spinner" size="30" color="#1989fa" />
-                  <div class="upload-text">上传中...</div>
+                  <div class="upload-text">{{ t("shang-chuan-zhong") }}</div>
                 </div>
 
                 <div class="avatar-mask">
@@ -48,15 +48,27 @@
           </van-uploader>
         </div>
         <div class="user-name">{{ userName }}</div>
-        <div class="user-desc">健康生活，从今天开始</div>
+        <div class="user-desc">
+          {{ t("jian-kang-sheng-huo-cong-jin-tian-kai-shi") }}
+        </div>
       </div>
 
       <!-- 功能列表 -->
       <van-cell-group inset>
-        <van-cell title="个人资料" is-link @click="goToEdit" icon="manager-o" />
-        <van-cell title="健康目标" is-link @click="goToGoals" icon="flag-o" />
         <van-cell
-          title="数据统计"
+          :title="t('ge-ren-zi-liao')"
+          is-link
+          @click="goToEdit"
+          icon="manager-o"
+        />
+        <van-cell
+          :title="t('jian-kang-mu-biao')"
+          is-link
+          @click="goToGoals"
+          icon="flag-o"
+        />
+        <van-cell
+          :title="t('shu-ju-tong-ji')"
           is-link
           @click="goToAnalysis"
           icon="chart-trending-o"
@@ -64,14 +76,19 @@
       </van-cell-group>
 
       <van-cell-group inset>
-        <van-cell title="设置" is-link @click="goToSettings" icon="setting-o" />
+        <van-cell
+          :title="t('settings.title')"
+          is-link
+          @click="goToSettings"
+          icon="setting-o"
+        />
         <!-- <van-cell title="帮助与反馈" is-link @click="showToast('功能开发中')" icon="question-o" />
         <van-cell title="关于我们" is-link @click="showToast('功能开发中')" icon="info-o" /> -->
       </van-cell-group>
 
       <div style="margin: 24px 16px">
         <van-button round block type="danger" @click="onLogout">
-          退出登录
+          {{ t("profile.logout") }}
         </van-button>
       </div>
     </div>
@@ -85,6 +102,9 @@ import type { UploaderFileListItem } from "vant";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { postAuthAvatar } from "@/api/auth";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -143,7 +163,7 @@ function beforeRead(file: File | File[]) {
     "image/webp",
   ];
   if (!allowedTypes.includes(fileToCheck.type)) {
-    showToast("只支持上传 JPG、PNG、GIF、WEBP 格式的图片");
+    showToast(t("zhi-zhi-chi-shang-chuan-jpgpnggifwebp-ge-shi-de-tu-pian"));
     return false;
   }
   return true;
@@ -151,7 +171,7 @@ function beforeRead(file: File | File[]) {
 
 // 文件超过大小限制
 function onOversize() {
-  showToast("图片大小不能超过 5MB");
+  showToast(t("tu-pian-da-xiao-bu-neng-chao-guo-5mb"));
 }
 
 // 文件读取完成后上传
@@ -164,7 +184,7 @@ async function afterRead(file: UploaderFileListItem | UploaderFileListItem[]) {
   // 设置上传状态
   isUploading.value = true;
   fileItem.status = "uploading";
-  fileItem.message = "上传中...";
+  fileItem.message = t("shang-chuan-zhong-0");
 
   try {
     const res = await postAuthAvatar(fileItem.file);
@@ -182,7 +202,7 @@ async function afterRead(file: UploaderFileListItem | UploaderFileListItem[]) {
       // 方式2: 从服务器刷新完整用户信息（确保数据一致性）
       userStore.refreshUserInfo();
 
-      showToast("头像上传成功");
+      showToast(t("tou-xiang-shang-chuan-cheng-gong"));
 
       // 清空文件列表，允许再次上传
       setTimeout(() => {
@@ -192,30 +212,30 @@ async function afterRead(file: UploaderFileListItem | UploaderFileListItem[]) {
     } else {
       // 设置失败状态
       fileItem.status = "failed";
-      fileItem.message = "上传失败";
+      fileItem.message = t("shang-chuan-shi-bai");
       isUploading.value = false;
-      showToast(data.message || "上传失败");
+      showToast(data.message || t("shang-chuan-shi-bai-0"));
     }
   } catch (error: any) {
     // 设置失败状态
     fileItem.status = "failed";
-    fileItem.message = "上传失败";
+    fileItem.message = t("shang-chuan-shi-bai-1");
     isUploading.value = false;
     console.error("上传头像失败:", error);
-    showToast(error.message || "上传失败");
+    showToast(error.message || t("shang-chuan-shi-bai-2"));
   }
 }
 
 function onLogout() {
   showConfirmDialog({
-    title: "提示",
-    message: "确定要退出登录吗？",
+    title: t("ti-shi"),
+    message: t("que-ding-yao-tui-chu-deng-lu-ma"),
   })
     .then(() => {
       // 使用 store 的 logout 方法（会保留记住的密码）
       userStore.logout();
 
-      showToast("已退出登录");
+      showToast(t("yi-tui-chu-deng-lu"));
 
       // 跳转到登录页
       router.replace("/login");

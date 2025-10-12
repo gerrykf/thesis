@@ -1,54 +1,74 @@
 <template>
   <div class="analysis">
-    <van-nav-bar title="数据分析" left-arrow @click-left="onClickLeft" fixed placeholder />
+    <van-nav-bar
+      :title="t('utils.quickActions.dataAnalysis')"
+      left-arrow
+      @click-left="onClickLeft"
+      fixed
+      placeholder
+    />
 
     <div class="content">
       <!-- 时间范围选择 -->
       <div class="date-selector">
         <van-tabs v-model:active="activeTab" @change="onTabChange">
-          <van-tab title="7天" name="7" />
-          <van-tab title="30天" name="30" />
-          <van-tab title="90天" name="90" />
+          <van-tab :title="t('7-tian')" name="7" />
+          <van-tab :title="t('30-tian')" name="30" />
+          <van-tab :title="t('90-tian')" name="90" />
         </van-tabs>
       </div>
 
       <!-- 数据概览卡片 -->
       <div v-if="overview" class="overview-card">
         <div class="overview-header">
-          <h3>📊 数据概览</h3>
-          <span class="overview-period">最近 {{ activeTab }} 天</span>
+          <h3>{{ t("shu-ju-gai-lan") }}</h3>
+          <span class="overview-period">{{
+            t("zui-jin-activetab-tian", [activeTab])
+          }}</span>
         </div>
 
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-icon">⚖️</div>
             <div class="stat-info">
-              <div class="stat-label">平均体重</div>
-              <div class="stat-value">{{ formatNumber(overview.avg_weight) }} <span class="unit">kg</span></div>
+              <div class="stat-label">{{ t("ping-jun-ti-zhong") }}</div>
+              <div class="stat-value">
+                {{ formatNumber(overview.avg_weight) }}
+                <span class="unit">kg</span>
+              </div>
             </div>
           </div>
 
           <div class="stat-item">
             <div class="stat-icon">🏃</div>
             <div class="stat-info">
-              <div class="stat-label">平均运动</div>
-              <div class="stat-value">{{ formatNumber(overview.avg_exercise_duration) }} <span class="unit">分钟</span></div>
+              <div class="stat-label">{{ t("ping-jun-yun-dong") }}</div>
+              <div class="stat-value">
+                {{ formatNumber(overview.avg_exercise_duration) }}
+                <span class="unit">{{ t("fen-zhong") }}</span>
+              </div>
             </div>
           </div>
 
           <div class="stat-item">
             <div class="stat-icon">😴</div>
             <div class="stat-info">
-              <div class="stat-label">平均睡眠</div>
-              <div class="stat-value">{{ formatNumber(overview.avg_sleep_hours) }} <span class="unit">小时</span></div>
+              <div class="stat-label">{{ t("ping-jun-shui-mian") }}</div>
+              <div class="stat-value">
+                {{ formatNumber(overview.avg_sleep_hours) }}
+                <span class="unit">{{ t("xiao-shi") }}</span>
+              </div>
             </div>
           </div>
 
           <div class="stat-item">
             <div class="stat-icon">🔥</div>
             <div class="stat-info">
-              <div class="stat-label">平均热量</div>
-              <div class="stat-value">{{ formatNumber(overview.avg_daily_calories) }} <span class="unit">kcal</span></div>
+              <div class="stat-label">{{ t("ping-jun-re-liang") }}</div>
+              <div class="stat-value">
+                {{ formatNumber(overview.avg_daily_calories) }}
+                <span class="unit">kcal</span>
+              </div>
             </div>
           </div>
         </div>
@@ -66,67 +86,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showLoadingToast, closeToast, showToast } from 'vant'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { showLoadingToast, closeToast, showToast } from "vant";
 import {
   getStatsWeightTrend,
   getStatsCaloriesTrend,
   getStatsExerciseTrend,
   getStatsSleepQuality,
-  getStatsOverview
-} from '@/api/stats'
-import WeightChart from './components/WeightChart.vue'
-import NutritionChart from './components/NutritionChart.vue'
-import ExerciseChart from './components/ExerciseChart.vue'
-import SleepChart from './components/SleepChart.vue'
+  getStatsOverview,
+} from "@/api/stats";
+import WeightChart from "./components/WeightChart.vue";
+import NutritionChart from "./components/NutritionChart.vue";
+import ExerciseChart from "./components/ExerciseChart.vue";
+import SleepChart from "./components/SleepChart.vue";
+import { useI18n } from "vue-i18n";
 
-const router = useRouter()
-const activeTab = ref('30')
+const { t } = useI18n();
+
+const router = useRouter();
+const activeTab = ref("30");
 
 function onClickLeft() {
-  router.back()
+  router.back();
 }
 
 // 数据状态
-const weightData = ref<Array<{ record_date: string; weight: number }>>([])
-const nutritionData = ref<Array<{
-  record_date: string
-  total_calories: number
-  total_protein: number
-  total_fat: number
-  total_carbs: number
-}>>([])
-const exerciseData = ref<Array<{
-  record_date: string
-  exercise_duration: number
-  exercise_type?: string
-}>>([])
-const sleepData = ref<Array<{
-  record_date: string
-  sleep_hours: number
-  sleep_quality?: string
-}>>([])
+const weightData = ref<Array<{ record_date: string; weight: number }>>([]);
+const nutritionData = ref<
+  Array<{
+    record_date: string;
+    total_calories: number;
+    total_protein: number;
+    total_fat: number;
+    total_carbs: number;
+  }>
+>([]);
+const exerciseData = ref<
+  Array<{
+    record_date: string;
+    exercise_duration: number;
+    exercise_type?: string;
+  }>
+>([]);
+const sleepData = ref<
+  Array<{
+    record_date: string;
+    sleep_hours: number;
+    sleep_quality?: string;
+  }>
+>([]);
 
 const overview = ref<{
-  avg_weight?: number
-  avg_exercise_duration?: number
-  avg_sleep_hours?: number
-  avg_daily_calories?: number
-  health_records_count?: number
-  diet_records_count?: number
-  total_calories?: number
-}>()
+  avg_weight?: number;
+  avg_exercise_duration?: number;
+  avg_sleep_hours?: number;
+  avg_daily_calories?: number;
+  health_records_count?: number;
+  diet_records_count?: number;
+  total_calories?: number;
+}>();
 
 onMounted(() => {
-  loadAllData()
-})
+  loadAllData();
+});
 
 /**
  * Tab 切换事件
  */
 function onTabChange() {
-  loadAllData()
+  loadAllData();
 }
 
 /**
@@ -134,73 +163,80 @@ function onTabChange() {
  */
 async function loadAllData() {
   showLoadingToast({
-    message: '加载中...',
+    message: t("common.loading"),
     forbidClick: true,
-    duration: 0
-  })
+    duration: 0,
+  });
 
   try {
-    const days = Number(activeTab.value)
+    const days = Number(activeTab.value);
 
     // 并行加载所有数据
-    const [weightRes, nutritionRes, exerciseRes, sleepRes, overviewRes] = await Promise.all([
-      getStatsWeightTrend({ days }),
-      getStatsCaloriesTrend({ days }),
-      getStatsExerciseTrend({ days }),
-      getStatsSleepQuality({ days }),
-      getStatsOverview({ days })
-    ])
+    const [weightRes, nutritionRes, exerciseRes, sleepRes, overviewRes] =
+      await Promise.all([
+        getStatsWeightTrend({ days }),
+        getStatsCaloriesTrend({ days }),
+        getStatsExerciseTrend({ days }),
+        getStatsSleepQuality({ days }),
+        getStatsOverview({ days }),
+      ]);
 
     // 处理体重数据
     if ((weightRes as any).data) {
       weightData.value = ((weightRes as any).data || []).map((item: any) => ({
         record_date: item.record_date,
-        weight: Number(item.weight)
-      }))
+        weight: Number(item.weight),
+      }));
     }
 
     // 处理营养数据
     if ((nutritionRes as any).data) {
-      nutritionData.value = ((nutritionRes as any).data || []).map((item: any) => ({
-        record_date: item.record_date,
-        total_calories: Number(item.total_calories || 0),
-        total_protein: Number(item.total_protein || 0),
-        total_fat: Number(item.total_fat || 0),
-        total_carbs: Number(item.total_carbs || 0)
-      }))
+      nutritionData.value = ((nutritionRes as any).data || []).map(
+        (item: any) => ({
+          record_date: item.record_date,
+          total_calories: Number(item.total_calories || 0),
+          total_protein: Number(item.total_protein || 0),
+          total_fat: Number(item.total_fat || 0),
+          total_carbs: Number(item.total_carbs || 0),
+        })
+      );
     }
 
     // 处理运动数据
     if ((exerciseRes as any).data) {
-      exerciseData.value = ((exerciseRes as any).data || []).map((item: any) => ({
-        record_date: item.record_date,
-        exercise_duration: Number(item.exercise_duration || 0),
-        exercise_type: item.exercise_type
-      }))
+      exerciseData.value = ((exerciseRes as any).data || []).map(
+        (item: any) => ({
+          record_date: item.record_date,
+          exercise_duration: Number(item.exercise_duration || 0),
+          exercise_type: item.exercise_type,
+        })
+      );
     }
 
     // 处理睡眠数据
     if ((sleepRes as any).data?.sleep_trend) {
-      sleepData.value = ((sleepRes as any).data.sleep_trend || []).map((item: any) => ({
-        record_date: item.record_date,
-        sleep_hours: Number(item.sleep_hours || 0),
-        sleep_quality: item.sleep_quality
-      }))
+      sleepData.value = ((sleepRes as any).data.sleep_trend || []).map(
+        (item: any) => ({
+          record_date: item.record_date,
+          sleep_hours: Number(item.sleep_hours || 0),
+          sleep_quality: item.sleep_quality,
+        })
+      );
     }
 
     // 处理概览数据
     if ((overviewRes as any).data) {
-      overview.value = (overviewRes as any).data
+      overview.value = (overviewRes as any).data;
     }
 
-    closeToast()
+    closeToast();
   } catch (error) {
-    console.error('加载数据失败:', error)
-    closeToast()
+    console.error("加载数据失败:", error);
+    closeToast();
     showToast({
-      message: '加载数据失败',
-      icon: 'fail'
-    })
+      message: t("jia-zai-shu-ju-shi-bai"),
+      icon: "fail",
+    });
   }
 }
 
@@ -208,14 +244,14 @@ async function loadAllData() {
  * 格式化数字
  */
 function formatNumber(value?: number): string {
-  if (!value || typeof value !== 'number' || isNaN(value)) return '0'
-  return value.toFixed(1)
+  if (!value || typeof value !== "number" || isNaN(value)) return "0";
+  return value.toFixed(1);
 }
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
-@use '@/styles/mixins.scss' as *;
+@use "@/styles/variables.scss" as *;
+@use "@/styles/mixins.scss" as *;
 
 .analysis {
   min-height: 100vh;
@@ -283,7 +319,11 @@ function formatNumber(value?: number): string {
       align-items: center;
       gap: $space-md;
       padding: $space-md;
-      background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--gradient-header-start) 0%,
+        var(--gradient-header-end) 100%
+      );
       border-radius: $radius-md;
 
       .stat-icon {

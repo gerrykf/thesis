@@ -1,6 +1,6 @@
 <template>
   <div class="goals">
-    <van-nav-bar title="我的目标" fixed placeholder>
+    <van-nav-bar :title="t('wo-de-mu-biao')" fixed placeholder>
       <template #left>
         <van-icon name="arrow-left" @click="goBack" />
       </template>
@@ -55,7 +55,7 @@
               </div>
             </div>
             <div v-if="goal.target_date" class="goal-footer">
-              <span class="date-label">目标日期:</span>
+              <span class="date-label">{{ t('mu-biao-ri-qi') }}</span>
               <span class="date-value">{{ formatDate(goal.target_date) }}</span>
             </div>
           </div>
@@ -74,21 +74,21 @@
     >
       <div class="dialog-header">
         <van-button plain @click="() => (showAddDialog = false)"
-          >取消</van-button
+          >{{ t('common.cancel') }}</van-button
         >
-        <span class="title">添加目标</span>
-        <van-button plain type="primary" @click="onAddGoal">保存</van-button>
+        <span class="title">{{ t('tian-jia-mu-biao') }}</span>
+        <van-button plain type="primary" @click="onAddGoal">{{ t('common.save') }}</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="addFormRef">
           <van-field
             v-model="addForm.goal_name"
             name="goal_name"
-            label="目标名称"
-            placeholder="请输入目标名称"
+            :label="t('mu-biao-ming-cheng')"
+            :placeholder="t('qing-shu-ru-mu-biao-ming-cheng')"
             :rules="[{ required: true, message: '请输入目标名称' }]"
           />
-          <van-field name="goal_type" label="目标类型">
+          <van-field name="goal_type" :label="t('mu-biao-lei-xing')">
             <template #input>
               <div class="goal-type-tags">
                 <van-tag
@@ -108,23 +108,23 @@
             v-model="addForm.current_value"
             name="current_value"
             type="number"
-            label="当前值"
-            placeholder="请输入当前值"
+            :label="t('dang-qian-zhi')"
+            :placeholder="t('qing-shu-ru-dang-qian-zhi')"
             :rules="[{ required: true, message: '请输入当前值' }]"
           />
           <van-field
             v-model="addForm.target_value"
             name="target_value"
             type="number"
-            label="目标值"
-            placeholder="请输入目标值"
+            :label="t('mu-biao-zhi')"
+            :placeholder="t('qing-shu-ru-mu-biao-zhi')"
             :rules="[{ required: true, message: '请输入目标值' }]"
           />
           <van-field
             v-model="addForm.unit"
             name="unit"
-            label="单位"
-            placeholder="如：kg、分钟、kcal"
+            :label="t('dan-wei')"
+            :placeholder="t('ru-kg-fen-zhong-kcal')"
             :rules="[{ required: true, message: '请输入单位' }]"
           />
           <van-field
@@ -132,8 +132,8 @@
             is-link
             readonly
             name="start_date"
-            label="开始日期"
-            placeholder="选择开始日期"
+            :label="t('kai-shi-ri-qi')"
+            :placeholder="t('xuan-ze-kai-shi-ri-qi')"
             @click="() => (showStartDatePicker = true)"
           />
           <van-field
@@ -141,18 +141,18 @@
             is-link
             readonly
             name="target_date"
-            label="目标日期"
-            placeholder="选择目标日期（可选）"
+            :label="t('mu-biao-ri-qi-0')"
+            :placeholder="t('xuan-ze-mu-biao-ri-qi-ke-xuan')"
             @click="() => (showTargetDatePicker = true)"
           />
           <van-field
             v-model="addForm.description"
             rows="2"
             autosize
-            label="描述"
+            :label="t('miao-shu')"
             type="textarea"
             maxlength="200"
-            placeholder="请输入目标描述（可选）"
+            :placeholder="t('qing-shu-ru-mu-biao-miao-shu-ke-xuan')"
             show-word-limit
           />
         </van-form>
@@ -167,48 +167,48 @@
     >
       <div class="dialog-header">
         <van-button plain @click="() => (showEditDialog = false)"
-          >取消</van-button
+          >{{ t('common.cancel') }}</van-button
         >
-        <span class="title">编辑目标</span>
-        <van-button plain type="danger" @click="onDeleteGoal">删除</van-button>
+        <span class="title">{{ t('bian-ji-mu-biao') }}</span>
+        <van-button plain type="danger" @click="onDeleteGoal">{{ t('common.delete') }}</van-button>
       </div>
       <div class="dialog-content">
         <van-form ref="editFormRef">
           <van-field
             v-model="editForm.goal_name"
             name="goal_name"
-            label="目标名称"
-            placeholder="请输入目标名称"
+            :label="t('mu-biao-ming-cheng-0')"
+            :placeholder="t('qing-shu-ru-mu-biao-ming-cheng-0')"
           />
           <van-field
             v-model="editForm.current_value"
             name="current_value"
             type="number"
-            label="当前值"
-            placeholder="请输入当前值"
+            :label="t('dang-qian-zhi-0')"
+            :placeholder="t('qing-shu-ru-dang-qian-zhi-0')"
           />
           <van-field
             v-model="editForm.target_value"
             name="target_value"
             type="number"
-            label="目标值"
-            placeholder="请输入目标值"
+            :label="t('mu-biao-zhi-0')"
+            :placeholder="t('qing-shu-ru-mu-biao-zhi-0')"
           />
           <van-field
             :model-value="formattedEditTargetDate"
             is-link
             readonly
             name="target_date"
-            label="目标日期"
-            placeholder="选择目标日期"
+            :label="t('mu-biao-ri-qi-1')"
+            :placeholder="t('xuan-ze-mu-biao-ri-qi')"
             @click="handleShowEditDatePicker"
           />
-          <van-field name="status" label="状态">
+          <van-field name="status" :label="t('zhuang-tai')">
             <template #input>
               <van-radio-group v-model="editForm.status" direction="horizontal">
-                <van-radio name="active">进行中</van-radio>
-                <van-radio name="completed">已完成</van-radio>
-                <van-radio name="paused">已暂停</van-radio>
+                <van-radio name="active">{{ t('jin-hang-zhong') }}</van-radio>
+                <van-radio name="completed">{{ t('yi-wan-cheng') }}</van-radio>
+                <van-radio name="paused">{{ t('yi-zan-ting') }}</van-radio>
               </van-radio-group>
             </template>
           </van-field>
@@ -216,16 +216,16 @@
             v-model="editForm.description"
             rows="2"
             autosize
-            label="描述"
+            :label="t('miao-shu-0')"
             type="textarea"
             maxlength="200"
-            placeholder="请输入目标描述"
+            :placeholder="t('qing-shu-ru-mu-biao-miao-shu')"
             show-word-limit
           />
         </van-form>
         <div class="form-actions">
           <van-button block type="primary" @click="onUpdateGoal"
-            >保存修改</van-button
+            >{{ t('bao-cun-xiu-gai') }}</van-button
           >
         </div>
       </div>
@@ -271,6 +271,9 @@ import {
   formatDate,
 } from "./utils";
 import type { GoalType, UserGoal } from "./utils";
+import { useI18n } from "vue-i18n";
+
+const {t} = useI18n();
 
 const router = useRouter();
 const instance = getCurrentInstance();
@@ -280,10 +283,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="1"]',
     header: {
-      title: "👋 欢迎来到目标管理",
+      title: t('huan-ying-lai-dao-mu-biao-guan-li'),
     },
     content:
-      "在这里您可以设置和管理健康目标。让我们开始创建第一个目标吧！",
+      t('zai-zhe-li-nin-ke-yi-she-zhi-he-guan-li-jian-kang-mu-biao-rang-wo-men-kai-shi-chuang-jian-di-yi-ge-mu-biao-ba'),
     params: {
       placement: "bottom",
       highlight: true,
@@ -292,10 +295,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="3"]',
     header: {
-      title: "➕ 添加目标",
+      title: t('tian-jia-mu-biao-0'),
     },
     content:
-      "点击右上角的加号按钮，可以创建新的健康目标。支持体重、运动、卡路里和自定义目标类型。",
+      t('dian-ji-you-shang-jiao-de-jia-hao-an-niu-ke-yi-chuang-jian-xin-de-jian-kang-mu-biao-zhi-chi-ti-zhong-yun-dong-ka-lu-li-he-zi-ding-yi-mu-biao-lei-xing'),
     params: {
       placement: "bottom",
       highlight: true,
@@ -304,10 +307,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="2"]',
     header: {
-      title: "🔄 下拉刷新",
+      title: t('xia-la-shua-xin'),
     },
     content:
-      "创建目标后，可以下拉页面刷新目标列表。点击目标卡片可以编辑进度和状态，助您更好地追踪目标完成情况！",
+      t('chuang-jian-mu-biao-hou-ke-yi-xia-la-ye-mian-shua-xin-mu-biao-lie-biao-dian-ji-mu-biao-ka-pian-ke-yi-bian-ji-jin-du-he-zhuang-tai-zhu-nin-geng-hao-di-zhui-zong-mu-biao-wan-cheng-qing-kuang'),
     params: {
       placement: "top",
       highlight: true,
@@ -318,10 +321,10 @@ const tourSteps = ref([
 const tourOptions = ref({
   useKeyboardNavigation: true,
   labels: {
-    buttonSkip: "跳过",
-    buttonPrevious: "上一步",
-    buttonNext: "下一步",
-    buttonStop: "开始使用",
+    buttonSkip: t('tiao-guo'),
+    buttonPrevious: t('shang-yi-bu'),
+    buttonNext: t('xia-yi-bu'),
+    buttonStop: t('kai-shi-shi-yong'),
   },
 });
 
@@ -384,10 +387,10 @@ function checkAndStartTour() {
 
 // 目标类型选项
 const goalTypes = [
-  { value: "weight", label: "体重", color: "primary" },
-  { value: "exercise", label: "运动", color: "success" },
-  { value: "calories", label: "卡路里", color: "warning" },
-  { value: "custom", label: "自定义", color: "default" },
+  { value: "weight", label: t('ti-zhong'), color: "primary" },
+  { value: "exercise", label: t('yun-dong'), color: "success" },
+  { value: "calories", label: t('ka-lu-li'), color: "warning" },
+  { value: "custom", label: t('zi-ding-yi'), color: "default" },
 ];
 
 // 使用Hooks
@@ -625,7 +628,7 @@ function goBack() {
 .goal-title {
   font-size: $font-size-lg;
   font-weight: bold;
-  color: $text-color;
+  color: text-color;
   margin-bottom: $space-md;
 }
 
@@ -645,17 +648,17 @@ function goBack() {
   }
 
   .separator {
-    color: $text-color-3;
+    color: text-color-3;
   }
 
   .target {
-    color: $text-color-2;
+    color: text-color-2;
   }
 }
 
 .goal-footer {
   font-size: $font-size-sm;
-  color: $text-color-2;
+  color: text-color-2;
   margin-top: $space-sm;
 
   .date-label {
@@ -663,7 +666,7 @@ function goBack() {
   }
 
   .date-value {
-    color: $text-color;
+    color: text-color;
   }
 }
 
@@ -677,7 +680,7 @@ function goBack() {
   .title {
     font-size: $font-size-lg;
     font-weight: bold;
-    color: $text-color;
+    color: text-color;
   }
 }
 
@@ -750,7 +753,7 @@ function goBack() {
 
     h3 {
       font-size: $font-size-lg !important;
-      color: $text-color !important;
+      color: text-color !important;
       font-weight: 600 !important;
       margin: 0 !important;
     }
@@ -758,7 +761,7 @@ function goBack() {
 
   .v-step__content {
     font-size: $font-size-sm !important;
-    color: $text-color-2 !important;
+    color: text-color-2 !important;
     line-height: 1.6 !important;
     margin-bottom: $space-md !important;
   }
@@ -780,7 +783,7 @@ function goBack() {
 
       &.v-step__button-skip {
         background: $background-color !important;
-        color: $text-color-2 !important;
+        color: text-color-2 !important;
 
         &:active {
           opacity: 0.7 !important;
@@ -789,7 +792,7 @@ function goBack() {
 
       &.v-step__button-previous {
         background: $background-color !important;
-        color: $text-color !important;
+        color: text-color !important;
 
         &:active {
           opacity: 0.7 !important;

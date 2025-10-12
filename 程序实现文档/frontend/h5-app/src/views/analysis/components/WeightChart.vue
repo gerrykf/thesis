@@ -1,11 +1,11 @@
 <template>
   <div class="chart-card">
     <div class="chart-header">
-      <h3>⚖️ 体重趋势</h3>
+      <h3>{{ t('ti-zhong-qu-shi') }}</h3>
     </div>
     <div class="chart-container">
       <v-chart v-if="hasData" :option="chartOption" :autoresize="true" />
-      <van-empty v-else description="暂无数据" />
+      <van-empty v-else :description="t('common.noData')" />
     </div>
   </div>
 </template>
@@ -22,6 +22,9 @@ import {
   GridComponent,
   LegendComponent
 } from 'echarts/components'
+import { useI18n } from 'vue-i18n'
+
+const {t} = useI18n()
 
 // 注册必需的组件
 use([
@@ -49,7 +52,7 @@ const chartOption = computed(() => ({
     trigger: 'axis',
     formatter: (params: any) => {
       const item = params[0]
-      return `${item.axisValue}<br/>${item.marker}体重: ${item.value} kg`
+      return  t('itemaxisvaluebritemmarker-ti-zhong-itemvalue-kg', [item.axisValue, item.marker, item.value]) 
     }
   },
   grid: {
@@ -72,7 +75,7 @@ const chartOption = computed(() => ({
   },
   yAxis: {
     type: 'value',
-    name: '体重(kg)',
+    name: t('ti-zhong-kg-0'),
     nameTextStyle: {
       fontSize: 12
     },
@@ -82,7 +85,7 @@ const chartOption = computed(() => ({
   },
   series: [
     {
-      name: '体重',
+      name: t('ti-zhong'),
       type: 'line',
       smooth: true,
       symbolSize: 6,
@@ -101,8 +104,8 @@ const chartOption = computed(() => ({
           x2: 0,
           y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(25, 137, 250, 0.3)' },
-            { offset: 1, color: 'rgba(25, 137, 250, 0.05)' }
+            { offset: 0, color: t('rgba-25-137-250-0-3') },
+            { offset: 1, color: t('rgba-25-137-250-0-05') }
           ]
         }
       },

@@ -1,12 +1,18 @@
 <template>
   <div class="register">
-    <van-nav-bar title="注册" fixed left-arrow @click-left="goToLogin" placeholder />
+    <van-nav-bar
+      :title="t('login.registerBtn')"
+      fixed
+      left-arrow
+      @click-left="goToLogin"
+      placeholder
+    />
 
     <div class="content">
       <!-- 顶部说明 -->
       <div class="header-section">
-        <h2>创建账号</h2>
-        <p>开启你的健康管理之旅</p>
+        <h2>{{ t("chuang-jian-zhang-hao") }}</h2>
+        <p>{{ t("kai-qi-ni-de-jian-kang-guan-li-zhi-lv") }}</p>
       </div>
 
       <!-- 注册表单 -->
@@ -15,8 +21,8 @@
           <van-field
             v-model="formData.username"
             name="username"
-            label="用户名"
-            placeholder="3-20位字母、数字或下划线"
+            :label="t('login.username')"
+            :placeholder="t('320-wei-zi-mu-shu-zi-huo-xia-hua-xian')"
             :rules="[{ required: true, message: '请输入用户名' }]"
             clearable
           >
@@ -29,8 +35,8 @@
             v-model="formData.password"
             type="password"
             name="password"
-            label="密码"
-            placeholder="6-20位"
+            :label="t('login.password')"
+            :placeholder="t('620-wei')"
             :rules="[{ required: true, message: '请输入密码' }]"
             clearable
           >
@@ -43,8 +49,8 @@
             v-model="formData.confirmPassword"
             type="password"
             name="confirmPassword"
-            label="确认密码"
-            placeholder="请再次输入密码"
+            :label="t('settings.confirmPassword')"
+            :placeholder="t('qing-zai-ci-shu-ru-mi-ma')"
             :rules="[{ required: true, message: '请再次输入密码' }]"
             clearable
           >
@@ -57,10 +63,14 @@
         <!-- 用户协议 -->
         <div class="agreement-section">
           <van-checkbox v-model="formData.agree">
-            我已阅读并同意
-            <span class="link" @click.stop="showToast('功能开发中')">《用户协议》</span>
-            和
-            <span class="link" @click.stop="showToast('功能开发中')">《隐私政策》</span>
+            {{ t("wo-yi-yue-du-bing-tong-yi") }}
+            <span class="link" @click.stop="showToast('功能开发中')">{{
+              t("yong-hu-xie-yi")
+            }}</span>
+            {{ t("he") }}
+            <span class="link" @click.stop="showToast('功能开发中')">{{
+              t("yin-si-zheng-ce")
+            }}</span>
           </van-checkbox>
         </div>
 
@@ -74,34 +84,34 @@
             :loading="loading"
             loading-text="注册中..."
           >
-            注册
+            {{ t("login.registerBtn") }}
           </van-button>
         </div>
       </van-form>
 
       <!-- 登录链接 -->
       <div class="login-link">
-        <span>已有账号？</span>
-        <span class="link-text" @click="goToLogin">立即登录</span>
+        <span>{{ t("yi-you-zhang-hao") }}</span>
+        <span class="link-text" @click="goToLogin">{{
+          t("li-ji-deng-lu")
+        }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { showToast } from 'vant'
-import { useRegisterForm } from './utils'
+import { showToast } from "vant";
+import { useRegisterForm } from "./utils";
+import { useI18n } from "vue-i18n";
 
-const {
-  formData,
-  loading,
-  handleRegister,
-  goToLogin
-} = useRegisterForm()
+const { t } = useI18n();
+
+const { formData, loading, handleRegister, goToLogin } = useRegisterForm();
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@use "@/styles/variables.scss" as *;
 
 .register {
   min-height: 100vh;
@@ -172,7 +182,6 @@ const {
 }
 
 :deep(.van-field__label) {
-  width: 60px;
   margin-right: $space-base;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="diet">
-    <van-nav-bar title="饮食记录" left-arrow @click-left="onClickLeft" fixed placeholder />
+    <van-nav-bar :title="t('utils.quickActions.dietRecord')" left-arrow @click-left="onClickLeft" fixed placeholder />
 
     <div class="content">
       <!-- 日期选择 -->
@@ -11,7 +11,7 @@
           @click="showDatePicker = true"
         >
           <template #title>
-            <span>📅 选择日期</span>
+            <span>{{ t('xuan-ze-ri-qi-0') }}</span>
           </template>
         </van-cell>
       </van-cell-group>
@@ -19,20 +19,20 @@
       <!-- 营养摘要 -->
       <div class="summary-card" v-if="hasSummary">
         <div class="summary-item">
-          <span class="label">热量</span>
-          <span class="value">{{ summary.total_calories || 0 }} kcal</span>
+          <span class="label">{{ t('re-liang') }}</span>
+          <span class="value">{{ t('summary-total_calories-or-or-0-kcal', [summary.total_calories || 0]) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">蛋白质</span>
-          <span class="value">{{ summary.total_protein || 0 }} g</span>
+          <span class="label">{{ t('dan-bai-zhi') }}</span>
+          <span class="value">{{ t('summary-total_protein-or-or-0-g', [summary.total_protein || 0]) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">脂肪</span>
-          <span class="value">{{ summary.total_fat || 0 }} g</span>
+          <span class="label">{{ t('zhi-fang') }}</span>
+          <span class="value">{{ t('summary-total_fat-or-or-0-g', [summary.total_fat || 0]) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">碳水</span>
-          <span class="value">{{ summary.total_carbs || 0 }} g</span>
+          <span class="label">{{ t('tan-shui') }}</span>
+          <span class="value">{{ t('summary-total_carbs-or-or-0-g', [summary.total_carbs || 0]) }}</span>
         </div>
       </div>
 
@@ -41,8 +41,8 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">🍞 早餐</span>
-            <span class="meal-calories">{{ getMealCalories('breakfast') }} kcal</span>
+            <span class="meal-title">{{ t('zao-can') }}</span>
+            <span class="meal-calories">{{ t('getmealcalories-breakfast-kcal', [getMealCalories('breakfast')]) }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
@@ -59,13 +59,13 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ item.quantity }}g</span>
+                <span class="food-quantity">{{ t('item-quantity-g', [item.quantity]) }}</span>
               </div>
-              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-calories">{{ t('item-calories-kcal', [item.calories]) }}</div>
               <div class="card-nutrition">
-                <span>蛋白 {{ item.protein }}g</span>
-                <span>脂肪 {{ item.fat }}g</span>
-                <span>碳水 {{ item.carbs }}g</span>
+                <span>{{ t('dan-bai-itemprotein-g', [item.protein]) }}</span>
+                <span>{{ t('zhi-fang-itemfat-g', [item.fat]) }}</span>
+                <span>{{ t('tan-shui-itemcarbs-g', [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('breakfast')">
             <van-icon name="plus" />
-            <span>添加食物</span>
+            <span>{{ t('tian-jia-shi-wu') }}</span>
           </div>
         </div>
       </div>
@@ -83,8 +83,8 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">🍱 午餐</span>
-            <span class="meal-calories">{{ getMealCalories('lunch') }} kcal</span>
+            <span class="meal-title">{{ t('wu-can') }}</span>
+            <span class="meal-calories">{{ t('getmealcalories-lunch-kcal', [getMealCalories('lunch')]) }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
@@ -101,13 +101,13 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ item.quantity }}g</span>
+                <span class="food-quantity">{{ t('item-quantity-g-0', [item.quantity]) }}</span>
               </div>
-              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-calories">{{ t('item-calories-kcal-0', [item.calories]) }}</div>
               <div class="card-nutrition">
-                <span>蛋白 {{ item.protein }}g</span>
-                <span>脂肪 {{ item.fat }}g</span>
-                <span>碳水 {{ item.carbs }}g</span>
+                <span>{{ t('dan-bai-itemprotein-g-0', [item.protein]) }}</span>
+                <span>{{ t('zhi-fang-itemfat-g-0', [item.fat]) }}</span>
+                <span>{{ t('tan-shui-itemcarbs-g-0', [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('lunch')">
             <van-icon name="plus" />
-            <span>添加食物</span>
+            <span>{{ t('tian-jia-shi-wu-0') }}</span>
           </div>
         </div>
       </div>
@@ -125,8 +125,8 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">🍜 晚餐</span>
-            <span class="meal-calories">{{ getMealCalories('dinner') }} kcal</span>
+            <span class="meal-title">{{ t('wan-can') }}</span>
+            <span class="meal-calories">{{ t('getmealcalories-dinner-kcal', [getMealCalories('dinner')]) }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
@@ -143,13 +143,13 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ item.quantity }}g</span>
+                <span class="food-quantity">{{ t('item-quantity-g-1', [item.quantity]) }}</span>
               </div>
-              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-calories">{{ t('item-calories-kcal-1', [item.calories]) }}</div>
               <div class="card-nutrition">
-                <span>蛋白 {{ item.protein }}g</span>
-                <span>脂肪 {{ item.fat }}g</span>
-                <span>碳水 {{ item.carbs }}g</span>
+                <span>{{ t('dan-bai-itemprotein-g-1', [item.protein]) }}</span>
+                <span>{{ t('zhi-fang-itemfat-g-1', [item.fat]) }}</span>
+                <span>{{ t('tan-shui-itemcarbs-g-1', [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -157,7 +157,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('dinner')">
             <van-icon name="plus" />
-            <span>添加食物</span>
+            <span>{{ t('tian-jia-shi-wu-1') }}</span>
           </div>
         </div>
       </div>
@@ -167,8 +167,8 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">🍎 加餐</span>
-            <span class="meal-calories">{{ getMealCalories('snack') }} kcal</span>
+            <span class="meal-title">{{ t('jia-can') }}</span>
+            <span class="meal-calories">{{ t('getmealcalories-snack-kcal', [getMealCalories('snack')]) }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
@@ -185,13 +185,13 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ item.quantity }}g</span>
+                <span class="food-quantity">{{ t('item-quantity-g-2', [item.quantity]) }}</span>
               </div>
-              <div class="card-calories">{{ item.calories }} kcal</div>
+              <div class="card-calories">{{ t('item-calories-kcal-2', [item.calories]) }}</div>
               <div class="card-nutrition">
-                <span>蛋白 {{ item.protein }}g</span>
-                <span>脂肪 {{ item.fat }}g</span>
-                <span>碳水 {{ item.carbs }}g</span>
+                <span>{{ t('dan-bai-itemprotein-g-2', [item.protein]) }}</span>
+                <span>{{ t('zhi-fang-itemfat-g-2', [item.fat]) }}</span>
+                <span>{{ t('tan-shui-itemcarbs-g-2', [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -199,7 +199,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('snack')">
             <van-icon name="plus" />
-            <span>添加食物</span>
+            <span>{{ t('tian-jia-shi-wu-2') }}</span>
           </div>
         </div>
       </div>
@@ -225,10 +225,10 @@
     >
       <div class="add-food-dialog" v-if="showAddFoodDialog">
         <div class="dialog-header">
-          <van-button plain @click="showAddFoodDialog = false">取消</van-button>
-          <span class="title">添加食物</span>
+          <van-button plain @click="showAddFoodDialog = false">{{ t('common.cancel') }}</van-button>
+          <span class="title">{{ t('tian-jia-shi-wu-3') }}</span>
           <van-button plain type="primary" @click="onConfirmAdd">
-            确定<span v-if="selectedFoods.length > 0">({{ selectedFoods.length }})</span>
+            {{ t('que-ding') }}<span v-if="selectedFoods.length > 0">{{ t('selectedfoods-length', [selectedFoods.length]) }}</span>
           </van-button>
         </div>
 
@@ -236,7 +236,7 @@
           <!-- 搜索框 -->
           <van-search
             v-model="searchKeyword"
-            placeholder="搜索食物"
+            :placeholder="t('sou-suo-shi-wu')"
             @search="onSearchFood"
             @clear="onSearchFood"
           />
@@ -269,8 +269,7 @@
                   </template>
                   <template #label>
                     <span class="food-info">
-                      {{ food.category }} · 每100g: {{ food.calories_per_100g }}kcal
-                    </span>
+                      {{ t('foodcategory-mei-100g-foodcaloriesper100g-kcal', [food.category, food.calories_per_100g]) }} </span>
                   </template>
                 </van-cell>
               </van-checkbox-group>
@@ -281,8 +280,8 @@
         <!-- 已选食物列表和营养汇总 -->
         <div v-if="selectedFoods.length > 0" class="selected-section">
           <div class="selected-header">
-            <span class="title">已选食物 ({{ selectedFoods.length }})</span>
-            <span class="total-calories">总计: {{ totalNutrition.calories }}kcal</span>
+            <span class="title">{{ t('yi-xuan-shi-wu-selectedfoodslength', [selectedFoods.length]) }}</span>
+            <span class="total-calories">{{ t('zong-ji-totalnutritioncalories-kcal', [totalNutrition.calories]) }}</span>
           </div>
 
           <div class="selected-list">
@@ -308,20 +307,20 @@
           <!-- 营养汇总 -->
           <div class="nutrition-total">
             <div class="total-item">
-              <span class="label">热量</span>
-              <span class="value">{{ totalNutrition.calories }}kcal</span>
+              <span class="label">{{ t('re-liang') }}</span>
+              <span class="value">{{ t('totalnutrition-calories-kcal', [totalNutrition.calories]) }}</span>
             </div>
             <div class="total-item">
-              <span class="label">蛋白质</span>
-              <span class="value">{{ totalNutrition.protein }}g</span>
+              <span class="label">{{ t('dan-bai-zhi') }}</span>
+              <span class="value">{{ t('totalnutrition-protein-g', [totalNutrition.protein]) }}</span>
             </div>
             <div class="total-item">
-              <span class="label">脂肪</span>
-              <span class="value">{{ totalNutrition.fat }}g</span>
+              <span class="label">{{ t('zhi-fang') }}</span>
+              <span class="value">{{ t('totalnutrition-fat-g', [totalNutrition.fat]) }}</span>
             </div>
             <div class="total-item">
-              <span class="label">碳水</span>
-              <span class="value">{{ totalNutrition.carbs }}g</span>
+              <span class="label">{{ t('tan-shui') }}</span>
+              <span class="value">{{ t('totalnutrition-carbs-g', [totalNutrition.carbs]) }}</span>
             </div>
           </div>
         </div>
@@ -336,6 +335,9 @@ import { useRouter } from 'vue-router'
 import { showSuccessToast, showLoadingToast, closeToast, showToast, showConfirmDialog } from 'vant'
 import { getDietRecords, postDietRecords, deleteDietRecordsId, getDietSummary } from '@/api/diet'
 import { getFoods } from '@/api/food'
+import { useI18n } from 'vue-i18n'
+
+const {t} = useI18n()
 
 const router = useRouter()
 
@@ -594,19 +596,19 @@ function onDialogOpened() {
 // 确认添加
 async function onConfirmAdd() {
   if (selectedFoods.value.length === 0) {
-    showToast('请选择至少一个食物')
+    showToast(t('qing-xuan-ze-zhi-shao-yi-ge-shi-wu'))
     return
   }
 
   // 验证所有食物都有数量
   const invalidItems = selectedFoods.value.filter(item => !item.quantity || parseFloat(item.quantity) <= 0)
   if (invalidItems.length > 0) {
-    showToast('请为所有食物输入食用量')
+    showToast(t('qing-wei-suo-you-shi-wu-shu-ru-shi-yong-liang'))
     return
   }
 
   showLoadingToast({
-    message: '添加中...',
+    message: t('tian-jia-zhong'),
     forbidClick: true,
     duration: 0
   })
@@ -625,14 +627,14 @@ async function onConfirmAdd() {
     )
 
     closeToast()
-    showSuccessToast(`成功添加${selectedFoods.value.length}个食物`)
+    showSuccessToast( t('cheng-gong-tian-jia-selectedfoodsvaluelength-ge-shi-wu', [selectedFoods.value.length]) )
     showAddFoodDialog.value = false
 
     // 重新加载数据
     await Promise.all([loadDietRecords(), loadSummary()])
   } catch (error: any) {
     closeToast()
-    showToast(error.message || '添加失败')
+    showToast(error.message || t('tian-jia-shi-bai'))
   }
 }
 
@@ -640,12 +642,12 @@ async function onConfirmAdd() {
 async function onDeleteRecord(id: number) {
   try {
     await showConfirmDialog({
-      title: '提示',
-      message: '确定要删除这条记录吗？'
+      title: t('ti-shi'),
+      message: t('que-ding-yao-shan-chu-zhe-tiao-ji-lu-ma')
     })
 
     showLoadingToast({
-      message: '删除中...',
+      message: t('shan-chu-zhong'),
       forbidClick: true,
       duration: 0
     })
@@ -653,14 +655,14 @@ async function onDeleteRecord(id: number) {
     await deleteDietRecordsId({ id })
 
     closeToast()
-    showSuccessToast('删除成功')
+    showSuccessToast(t('shan-chu-cheng-gong'))
 
     // 重新加载数据
     await Promise.all([loadDietRecords(), loadSummary()])
   } catch (error: any) {
     if (error !== 'cancel') {
       closeToast()
-      showToast(error.message || '删除失败')
+      showToast(error.message || t('shan-chu-shi-bai'))
     }
   }
 }

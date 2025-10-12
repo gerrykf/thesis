@@ -1,11 +1,11 @@
 <template>
   <div class="history">
-    <van-nav-bar title="历史记录" fixed placeholder />
+    <van-nav-bar :title="t('history.title')" fixed placeholder />
 
     <div class="content">
       <van-tabs v-model:active="activeTab" @change="onTabChange">
         <!-- 健康打卡 Tab -->
-        <van-tab title="健康打卡">
+        <van-tab :title="t('utils.quickActions.healthCheckIn')">
           <!-- 日期筛选区域 -->
           <div class="filter-bar">
             <DateFilter
@@ -38,32 +38,42 @@
 
                 <div class="record-content">
                   <div class="record-item">
-                    <span class="label">⚖️ 体重</span>
-                    <span class="value">{{ record.weight }} kg</span>
+                    <span class="label">{{ t("ti-zhong-0") }}</span>
+                    <span class="value">{{
+                      t("record-weight-kg", [record.weight])
+                    }}</span>
                   </div>
 
                   <div v-if="record.exercise_duration" class="record-item">
-                    <span class="label">🏃 运动</span>
+                    <span class="label">{{ t("yun-dong-0") }}</span>
                     <span class="value">
                       {{ formatExerciseDuration(record.exercise_duration) }}
                       <span v-if="record.exercise_type" class="sub-value">
-                        · {{ getExerciseTypeText(record.exercise_type) }}
+                        {{
+                          t("getexercisetypetext-record-exercise_type", [
+                            getExerciseTypeText(record.exercise_type),
+                          ])
+                        }}
                       </span>
                     </span>
                   </div>
 
                   <div v-if="record.sleep_hours" class="record-item">
-                    <span class="label">😴 睡眠</span>
+                    <span class="label">{{ t("shui-mian") }}</span>
                     <span class="value">
-                      {{ record.sleep_hours }} 小时
+                      {{ t("recordsleephours-xiao-shi", [record.sleep_hours]) }}
                       <span v-if="record.sleep_quality" class="sub-value">
-                        · {{ getSleepQualityText(record.sleep_quality) }}
+                        {{
+                          t("getsleepqualitytext-record-sleep_quality", [
+                            getSleepQualityText(record.sleep_quality),
+                          ])
+                        }}
                       </span>
                     </span>
                   </div>
 
                   <div v-if="record.mood" class="record-item">
-                    <span class="label">💪 心情</span>
+                    <span class="label">{{ t("xin-qing") }}</span>
                     <span class="value"
                       >{{ getMoodText(record.mood) }}
                       {{ getMoodIcon(record.mood) }}</span
@@ -71,7 +81,7 @@
                   </div>
 
                   <div v-if="record.notes" class="record-notes">
-                    <span class="label">📝 备注</span>
+                    <span class="label">{{ t("bei-zhu") }}</span>
                     <span class="notes-content">{{ record.notes }}</span>
                   </div>
                 </div>
@@ -86,7 +96,7 @@
         </van-tab>
 
         <!-- 饮食记录 Tab -->
-        <van-tab title="饮食记录">
+        <van-tab :title="t('utils.quickActions.dietRecord')">
           <!-- 日期筛选区域 -->
           <div class="filter-bar">
             <DateFilter
@@ -116,9 +126,11 @@
                       {{ getWeekdayFromDate(date) }}
                     </div>
                   </div>
-                  <span class="day-total"
-                    >{{ getDayTotalCalories(group) }} kcal</span
-                  >
+                  <span class="day-total">{{
+                    t("getdaytotalcalories-group-kcal", [
+                      getDayTotalCalories(group),
+                    ])
+                  }}</span>
                 </div>
 
                 <div class="meals-container">
@@ -145,9 +157,10 @@
                         }}</span>
                         <span class="meal-calories"
                           >{{
-                            getMealTotalCalories(group, mealType)
-                          }}
-                          kcal</span
+                            t("getmealtotalcalories-group-mealtype-kcal", [
+                              getMealTotalCalories(group, mealType),
+                            ])
+                          }}l</span
                         >
                       </div>
 
@@ -161,20 +174,25 @@
                             <span class="food-name">{{
                               record.food_name
                             }}</span>
-                            <span class="food-quantity"
-                              >{{ record.quantity }}g</span
-                            >
+                            <span class="food-quantity">{{
+                              t("record-quantity-g", [record.quantity])
+                            }}</span>
                           </div>
                           <div class="food-nutrition">
                             <span class="calories"
                               >{{
-                                Math.round(Number(record.calories) || 0)
-                              }}
-                              kcal</span
+                                t(
+                                  "math-round-number-record-calories-or-or-0-kcal",
+                                  [Math.round(Number(record.calories) || 0)]
+                                )
+                              }}l</span
                             >
                             <span v-if="record.protein" class="nutrition-item">
-                              蛋白
-                              {{ Math.round(Number(record.protein) || 0) }}g
+                              {{
+                                t("dan-bai-mathroundnumberrecordprotein-0-g", [
+                                  Math.round(Number(record.protein) || 0),
+                                ])
+                              }}
                             </span>
                           </div>
                         </div>
@@ -200,6 +218,9 @@
 import { ref, computed } from "vue";
 import { useHealthRecords, useDietRecords } from "./utils";
 import DateFilter from "./components/DateFilter.vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const activeTab = ref(0);
 
@@ -378,10 +399,23 @@ function formatRecordDate(dateStr: string): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+  const weekdays = [
+    t("ri"),
+    t("yi"),
+    t("er"),
+    t("san"),
+    t("si"),
+    t("wu"),
+    t("liu"),
+  ];
   const weekday = weekdays[date.getDay()];
 
-  return `${year}年${month}月${day}日 星期${weekday}`;
+  return t("year-nian-month-yue-day-ri-xing-qi-weekday", [
+    year,
+    month,
+    day,
+    weekday,
+  ]);
 }
 
 /**
@@ -395,7 +429,7 @@ function formatSimpleDate(dateStr: string): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}年${month}月${day}日`;
+  return t("year-nian-month-yue-day-ri", [year, month, day]);
 }
 
 /**
@@ -406,13 +440,13 @@ function getWeekdayFromDate(dateStr: string): string {
 
   const date = new Date(dateStr);
   const weekdays = [
-    "星期日",
-    "星期一",
-    "星期二",
-    "星期三",
-    "星期四",
-    "星期五",
-    "星期六",
+    t("utils.weekdays.sunday"),
+    t("utils.weekdays.monday"),
+    t("utils.weekdays.tuesday"),
+    t("utils.weekdays.wednesday"),
+    t("utils.weekdays.thursday"),
+    t("utils.weekdays.friday"),
+    t("utils.weekdays.saturday"),
   ];
   return weekdays[date.getDay()] || "";
 }
@@ -425,11 +459,14 @@ function formatExerciseDuration(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     if (remainingMinutes === 0) {
-      return `${hours}小时`;
+      return t("hours-xiao-shi-1", [hours]);
     }
-    return `${hours}小时${remainingMinutes}分钟`;
+    return t("hours-xiao-shi-remainingminutes-fen-zhong-0", [
+      hours,
+      remainingMinutes,
+    ]);
   }
-  return `${minutes}分钟`;
+  return t("minutes-fen-zhong-0", [minutes]);
 }
 
 /**
@@ -437,13 +474,13 @@ function formatExerciseDuration(minutes: number): string {
  */
 function getExerciseTypeText(type: string): string {
   const typeMap: Record<string, string> = {
-    running: "跑步",
-    walking: "步行",
-    cycling: "骑行",
-    swimming: "游泳",
-    yoga: "瑜伽",
-    fitness: "健身",
-    other: "其他",
+    running: t("pao-bu"),
+    walking: t("bu-hang"),
+    cycling: t("qi-hang"),
+    swimming: t("you-yong"),
+    yoga: t("yu-qie"),
+    fitness: t("jian-shen"),
+    other: t("qi-ta"),
   };
   return typeMap[type] || type;
 }
@@ -453,10 +490,10 @@ function getExerciseTypeText(type: string): string {
  */
 function getSleepQualityText(quality: string): string {
   const qualityMap: Record<string, string> = {
-    excellent: "优秀",
-    good: "良好",
-    fair: "一般",
-    poor: "较差",
+    excellent: t("you-xiu"),
+    good: t("liang-hao"),
+    fair: t("yi-ban"),
+    poor: t("jiao-cha"),
   };
   return qualityMap[quality] || quality;
 }
@@ -466,10 +503,10 @@ function getSleepQualityText(quality: string): string {
  */
 function getMoodText(mood: string): string {
   const moodMap: Record<string, string> = {
-    excellent: "心情很好",
-    good: "心情不错",
-    fair: "心情一般",
-    poor: "心情欠佳",
+    excellent: t("xin-qing-hen-hao"),
+    good: t("xin-qing-bu-cuo"),
+    fair: t("xin-qing-yi-ban"),
+    poor: t("xin-qing-qian-jia"),
   };
   return moodMap[mood] || mood;
 }
@@ -492,10 +529,10 @@ function getMoodIcon(mood: string): string {
  */
 function getMealTypeText(type: string): string {
   const typeMap: Record<string, string> = {
-    breakfast: "早餐",
-    lunch: "午餐",
-    dinner: "晚餐",
-    snack: "加餐",
+    breakfast: t("zao-can-0"),
+    lunch: t("wu-can-0"),
+    dinner: t("wan-can-0"),
+    snack: t("jia-can-0"),
   };
   return typeMap[type] || type;
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <van-nav-bar title="今日概览" fixed placeholder />
+    <van-nav-bar :title="t('jin-ri-gai-lan')" fixed placeholder />
 
     <!-- Vue3 Tour 引导 -->
     <v-tour
@@ -40,11 +40,11 @@
       <div class="check-in-card" data-v-step="1">
         <div class="card-header">
           <div class="title-row">
-            <h3>📊 今日打卡</h3>
+            <h3>{{ t('jin-ri-da-ka') }}</h3>
             <van-tag v-if="hasCheckedIn" type="success" size="medium"
-              >已打卡</van-tag
+              >{{ t('yi-da-ka') }}</van-tag
             >
-            <van-tag v-else type="warning" size="medium">去打卡</van-tag>
+            <van-tag v-else type="warning" size="medium">{{ t('qu-da-ka') }}</van-tag>
           </div>
         </div>
 
@@ -85,25 +85,24 @@
         <!-- 未打卡：显示提示 -->
         <div v-else class="not-checked-in">
           <div class="tip-icon">📝</div>
-          <p class="tip-text">今天还没有打卡哦，记录一下吧！</p>
+          <p class="tip-text">{{ t('jin-tian-huan-mei-you-da-kao-ji-lu-yi-xia-ba') }}</p>
           <van-button type="primary" size="small" round @click="goToHealth">
-            立即打卡
-          </van-button>
+            {{ t('li-ji-da-ka') }} </van-button>
         </div>
       </div>
 
       <!-- 今日摄入量 -->
       <div class="nutrition-card" data-v-step="2">
         <div class="card-header">
-          <h3>🍽️ 今日摄入</h3>
-          <span class="view-more" @click="goToDiet">查看详情 ›</span>
+          <h3>{{ t('jin-ri-she-ru') }}</h3>
+          <span class="view-more" @click="goToDiet">{{ t('cha-kan-xiang-qing') }}</span>
         </div>
 
         <div v-if="hasNutritionData" class="nutrition-data">
           <!-- 热量进度条 -->
           <div class="nutrition-item calories">
             <div class="item-header">
-              <span class="label">热量</span>
+              <span class="label">{{ t('re-liang') }}</span>
               <span class="value"
                 >{{ todayCalories }} <span class="unit">kcal</span></span
               >
@@ -120,42 +119,41 @@
           <div class="macros-grid">
             <div class="macro-item protein">
               <div class="macro-icon">💪</div>
-              <div class="macro-label">蛋白质</div>
-              <div class="macro-value">{{ todayProtein }}g</div>
+              <div class="macro-label">{{ t('dan-bai-zhi') }}</div>
+              <div class="macro-value">{{ t('todayprotein-g', [todayProtein]) }}</div>
             </div>
             <div class="macro-item carbs">
               <div class="macro-icon">🍚</div>
-              <div class="macro-label">碳水</div>
-              <div class="macro-value">{{ todayCarbs }}g</div>
+              <div class="macro-label">{{ t('tan-shui') }}</div>
+              <div class="macro-value">{{ t('todaycarbs-g', [todayCarbs]) }}</div>
             </div>
             <div class="macro-item fat">
               <div class="macro-icon">🥑</div>
-              <div class="macro-label">脂肪</div>
-              <div class="macro-value">{{ todayFat }}g</div>
+              <div class="macro-label">{{ t('zhi-fang') }}</div>
+              <div class="macro-value">{{ t('todayfat-g', [todayFat]) }}</div>
             </div>
           </div>
         </div>
 
         <div v-else class="no-nutrition-data">
           <div class="empty-icon">🍴</div>
-          <p class="empty-text">今天还没有饮食记录</p>
+          <p class="empty-text">{{ t('jin-tian-huan-mei-you-yin-shi-ji-lu') }}</p>
           <van-button type="primary" size="small" round @click="goToDiet">
-            添加记录
-          </van-button>
+            {{ t('tian-jia-ji-lu') }} </van-button>
         </div>
       </div>
 
       <!-- 快捷操作 -->
       <div class="quick-actions" data-v-step="3">
         <van-grid :column-num="4" :border="false" :gutter="6">
-          <van-grid-item icon="add-o" text="打卡" @click="goToHealth" />
-          <van-grid-item icon="goods-collect-o" text="饮食" @click="goToDiet" />
+          <van-grid-item icon="add-o" :text="t('da-ka')" @click="goToHealth" />
+          <van-grid-item icon="goods-collect-o" :text="t('yin-shi')" @click="goToDiet" />
           <van-grid-item
             icon="chart-trending-o"
-            text="分析"
+            :text="t('fen-xi')"
             @click="goToAnalysis"
           />
-          <van-grid-item icon="setting-o" text="目标" @click="goToGoals" />
+          <van-grid-item icon="setting-o" :text="t('mu-biao')" @click="goToGoals" />
         </van-grid>
       </div>
     </div>
@@ -174,6 +172,9 @@ import {
   generateHealthTips,
   useTodayData,
 } from "./utils";
+import { useI18n } from "vue-i18n";
+
+const {t} = useI18n();
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -184,10 +185,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="1"]',
     header: {
-      title: "📊 今日打卡",
+      title: t('jin-ri-da-ka-0'),
     },
     content:
-      '在这里查看今天的健康打卡数据，包括体重、运动、睡眠和心情状态。点击"立即打卡"按钮开始记录！',
+      t('zai-zhe-li-cha-kan-jin-tian-de-jian-kang-da-ka-shu-ju-bao-kuo-ti-zhong-yun-dong-shui-mian-he-xin-qing-zhuang-tai-dian-ji-li-ji-da-ka-an-niu-kai-shi-ji-lu'),
     params: {
       placement: "bottom",
       highlight: true,
@@ -196,10 +197,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="2"]',
     header: {
-      title: "🍽️ 今日摄入",
+      title: t('jin-ri-she-ru-0'),
     },
     content:
-      '这里显示今天的饮食营养摄入情况，包括卡路里、蛋白质、碳水和脂肪。点击"添加记录"开始记录饮食！',
+      t('zhe-li-xian-shi-jin-tian-de-yin-shi-ying-yang-she-ru-qing-kuang-bao-kuo-ka-lu-li-dan-bai-zhi-tan-shui-he-zhi-fang-dian-ji-tian-jia-ji-lu-kai-shi-ji-lu-yin-shi'),
     params: {
       placement: "bottom",
       highlight: true,
@@ -208,10 +209,10 @@ const tourSteps = ref([
   {
     target: '[data-v-step="3"]',
     header: {
-      title: "⚡ 快捷操作",
+      title: t('kuai-jie-cao-zuo'),
     },
     content:
-      "通过快捷按钮快速访问各个功能：打卡记录健康数据、饮食管理营养摄入、分析查看数据趋势、目标设置健康计划。",
+      t('tong-guo-kuai-jie-an-niu-kuai-su-fang-wen-ge-ge-gong-neng-da-ka-ji-lu-jian-kang-shu-ju-yin-shi-guan-li-ying-yang-she-ru-fen-xi-cha-kan-shu-ju-qu-shi-mu-biao-she-zhi-jian-kang-ji-hua'),
     params: {
       placement: "top",
       highlight: true,
@@ -222,10 +223,10 @@ const tourSteps = ref([
 const tourOptions = ref({
   useKeyboardNavigation: true,
   labels: {
-    buttonSkip: "跳过",
-    buttonPrevious: "上一步",
-    buttonNext: "下一步",
-    buttonStop: "完成",
+    buttonSkip: t('tiao-guo'),
+    buttonPrevious: t('shang-yi-bu'),
+    buttonNext: t('xia-yi-bu'),
+    buttonStop: t('wan-cheng'),
   },
 });
 
@@ -344,49 +345,49 @@ const hasCheckedIn = computed(() => {
 // 格式化运动时长显示
 const exerciseDisplay = computed(() => {
   const minutes = todayData.value.exercise;
-  if (!minutes) return "未运动";
+  if (!minutes) return t('wei-yun-dong');
   if (minutes >= 60) {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     if (remainingMinutes === 0) {
-      return `${hours}小时`;
+      return t('hours-xiao-shi', [hours]);
     }
-    return `${hours}小时${remainingMinutes}分钟`;
+    return t('hours-xiao-shi-remainingminutes-fen-zhong', [hours, remainingMinutes]);
   }
-  return `${minutes}分钟`;
+  return t('minutes-fen-zhong', [minutes]);
 });
 
 // 运动类型显示
 const exerciseTypeDisplay = computed(() => {
-  return todayData.value.exercise_type || "其他运动";
+  return todayData.value.exercise_type || t('qi-ta-yun-dong');
 });
 
 // 睡眠时长显示
 const sleepDisplay = computed(() => {
   const hours = todayData.value.sleep;
-  return hours ? `${hours}小时` : "未记录";
+  return hours ? t('hours-xiao-shi-0', [hours]) : t('wei-ji-lu');
 });
 
 // 睡眠质量文本
 const sleepQualityText = computed(() => {
   const qualityMap: Record<string, string> = {
-    excellent: "优秀",
-    good: "良好",
-    fair: "一般",
-    poor: "较差",
+    excellent: t('you-xiu'),
+    good: t('liang-hao'),
+    fair: t('yi-ban'),
+    poor: t('jiao-cha'),
   };
-  return qualityMap[todayData.value.sleep_quality || ""] || "未评价";
+  return qualityMap[todayData.value.sleep_quality || ""] || t('wei-ping-jia');
 });
 
 // 心情状态显示
 const moodDisplay = computed(() => {
   const moodMap: Record<string, string> = {
-    excellent: "心情很好",
-    good: "心情不错",
-    fair: "心情一般",
-    poor: "心情欠佳",
+    excellent: t('xin-qing-hen-hao'),
+    good: t('xin-qing-bu-cuo'),
+    fair: t('xin-qing-yi-ban'),
+    poor: t('xin-qing-qian-jia'),
   };
-  return moodMap[todayData.value.mood || ""] || "未记录";
+  return moodMap[todayData.value.mood || ""] || t('wei-ji-lu-0');
 });
 
 // 心情图标

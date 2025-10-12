@@ -171,7 +171,7 @@ export function useTodayData() {
         todayData.value.calories = overview.data.avg_daily_calories || 0
       }
     } catch (error) {
-      console.error('加载今日数据失败:', error)
+      console.error('Failed to load today\'s data:', error)
     } finally {
       loading.value = false
     }

@@ -1,27 +1,30 @@
 <template>
   <div class="chart-card">
     <div class="chart-header">
-      <h3>😴 睡眠质量分析</h3>
+      <h3>{{ t("shui-mian-zhi-liang-fen-xi") }}</h3>
     </div>
     <div class="chart-container">
       <v-chart v-if="hasData" :option="chartOption" :autoresize="true" />
-      <van-empty v-else description="暂无数据" />
+      <van-empty v-else :description="t('common.noData')" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { LineChart, BarChart } from 'echarts/charts'
+import { computed } from "vue";
+import VChart from "vue-echarts";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { LineChart, BarChart } from "echarts/charts";
 import {
   TitleComponent,
   TooltipComponent,
   GridComponent,
-  LegendComponent
-} from 'echarts/components'
+  LegendComponent,
+} from "echarts/components";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // 注册必需的组件
 use([
@@ -31,20 +34,20 @@ use([
   TitleComponent,
   TooltipComponent,
   GridComponent,
-  LegendComponent
-])
+  LegendComponent,
+]);
 
 interface SleepData {
-  record_date: string
-  sleep_hours: number
-  sleep_quality?: string
+  record_date: string;
+  sleep_hours: number;
+  sleep_quality?: string;
 }
 
 const props = defineProps<{
-  data: SleepData[]
-}>()
+  data: SleepData[];
+}>();
 
-const hasData = computed(() => props.data && props.data.length > 0)
+const hasData = computed(() => props.data && props.data.length > 0);
 
 const chartOption = computed(() => {
   // 睡眠质量映射到数值
@@ -52,109 +55,115 @@ const chartOption = computed(() => {
     excellent: 4,
     good: 3,
     fair: 2,
-    poor: 1
-  }
+    poor: 1,
+  };
 
   return {
     tooltip: {
-      trigger: 'axis',
+      trigger: "axis",
       formatter: (params: any) => {
-        const data = props.data[params[0].dataIndex]
-        let result = `${params[0].axisValue}<br/>`
-        result += `${params[0].marker}睡眠时长: ${data?.sleep_hours} 小时<br/>`
+        const data = props.data[params[0].dataIndex];
+        let result = `${params[0].axisValue}<br/>`;
+        result += t(
+          "params0marker-shui-mian-shi-chang-datasleephours-xiao-shi-br",
+          [params[0].marker, data?.sleep_hours]
+        );
         if (data?.sleep_quality) {
-          result += `睡眠质量: ${getSleepQualityText(data.sleep_quality)}`
+          result += t(
+            "shui-mian-zhi-liang-getsleepqualitytextdatasleepquality",
+            [getSleepQualityText(data.sleep_quality)]
+          );
         }
-        return result
-      }
+        return result;
+      },
     },
     legend: {
-      data: ['睡眠时长'],
+      data: [t("shui-mian-shi-chang")],
       bottom: 0,
       textStyle: {
-        fontSize: 10
-      }
+        fontSize: 10,
+      },
     },
     grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '12%',
-      top: '10%',
-      containLabel: true
+      left: "3%",
+      right: "4%",
+      bottom: "12%",
+      top: "10%",
+      containLabel: true,
     },
     xAxis: {
-      type: 'category',
+      type: "category",
       boundaryGap: false,
-      data: props.data.map(item => {
-        const date = new Date(item.record_date)
-        return `${date.getMonth() + 1}/${date.getDate()}`
+      data: props.data.map((item) => {
+        const date = new Date(item.record_date);
+        return `${date.getMonth() + 1}/${date.getDate()}`;
       }),
       axisLabel: {
-        fontSize: 10
-      }
+        fontSize: 10,
+      },
     },
     yAxis: {
-      type: 'value',
-      name: '睡眠时长(小时)',
+      type: "value",
+      name: t("shui-mian-shi-chang-xiao-shi"),
       nameTextStyle: {
-        fontSize: 12
+        fontSize: 12,
       },
       axisLabel: {
-        fontSize: 10
-      }
+        fontSize: 10,
+      },
     },
     series: [
       {
-        name: '睡眠时长',
-        type: 'line',
+        name: t("shui-mian-shi-chang-0"),
+        type: "line",
         smooth: true,
         symbolSize: 6,
         itemStyle: {
           color: (params: any) => {
-            const data = props.data[params.dataIndex]
-            const quality = data?.sleep_quality || 'fair'
-            const qualityValue = qualityMap[quality] || 2
+            const data = props.data[params.dataIndex];
+            const quality = data?.sleep_quality || "fair";
+            const qualityValue = qualityMap[quality] || 2;
             // 根据睡眠质量改变颜色
-            const colors = ['#ee0a24', '#ff976a', '#ffd21e', '#07c160']
-            return colors[qualityValue - 1]
-          }
+            const colors = ["#ee0a24", "#ff976a", "#ffd21e", "#07c160"];
+            return colors[qualityValue - 1];
+          },
         },
         lineStyle: {
-          color: '#1989fa',
-          width: 2
+          color: "#1989fa",
+          width: 2,
         },
         areaStyle: {
           color: {
-            type: 'linear',
+            type: "linear",
             x: 0,
             y: 0,
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(25, 137, 250, 0.3)' },
-              { offset: 1, color: 'rgba(25, 137, 250, 0.05)' }
-            ]
-          }
+              { offset: 0, color: t("rgba-25-137-250-0-3") },
+              { offset: 1, color: t("rgba-25-137-250-0-05") },
+            ],
+          },
         },
-        data: props.data.map(item => item.sleep_hours || 0)
-      }
-    ]
-  }
-})
+        data: props.data.map((item) => item.sleep_hours || 0),
+      },
+    ],
+  };
+});
 
 function getSleepQualityText(quality: string): string {
   const qualityMap: Record<string, string> = {
-    excellent: '优秀',
-    good: '良好',
-    fair: '一般',
-    poor: '较差'
-  }
-  return qualityMap[quality] || quality
+    excellent: t("you-xiu"),
+    good: t("liang-hao"),
+    fair: t("yi-ban"),
+    poor: t("jiao-cha"),
+  };
+  return qualityMap[quality] || quality;
 }
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@use "@/styles/variables.scss" as *;
 
 .chart-card {
   background: $white;

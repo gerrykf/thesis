@@ -7,9 +7,13 @@ import { useUserStore } from './stores/user'
 import VueTour from 'vue3-tour'
 import '@vant/touch-emulator'
 import 'vant/lib/index.css'
-import 'vue3-tour/dist/vue3-tour.css'
-import './styles/global.scss'
-import App from './App.vue'
+import enUS from "vant/es/locale/lang/en-US";
+import "vue3-tour/dist/vue3-tour.css";
+import "./styles/global.scss";
+import App from "./App.vue";
+import { Locale } from "vant";
+
+Locale.use("en-US", enUS);
 
 // 初始化rem适配
 initFlexible()

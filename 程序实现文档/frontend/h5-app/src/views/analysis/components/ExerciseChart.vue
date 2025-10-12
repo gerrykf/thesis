@@ -1,11 +1,11 @@
 <template>
   <div class="chart-card">
     <div class="chart-header">
-      <h3>🏃 运动时长统计</h3>
+      <h3>{{ t('yun-dong-shi-chang-tong-ji') }}</h3>
     </div>
     <div class="chart-container">
       <v-chart v-if="hasData" :option="chartOption" :autoresize="true" />
-      <van-empty v-else description="暂无数据" />
+      <van-empty v-else :description="t('common.noData')" />
     </div>
   </div>
 </template>
@@ -22,6 +22,9 @@ import {
   GridComponent,
   LegendComponent
 } from 'echarts/components'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // 注册必需的组件
 use([
@@ -51,9 +54,9 @@ const chartOption = computed(() => ({
     formatter: (params: any) => {
       const item = params[0]
       const data = props.data[item.dataIndex]
-      let result = `${item.axisValue}<br/>${item.marker}运动时长: ${item.value} 分钟`
+      let result =  t('itemaxisvaluebritemmarker-yun-dong-shi-chang-itemvalue-fen-zhong', [item.axisValue, item.marker, item.value]) 
       if (data?.exercise_type) {
-        result += `<br/>类型: ${getExerciseTypeText(data.exercise_type)}`
+        result +=  t('br-lei-xing-getexercisetypetextdataexercisetype', [getExerciseTypeText(data.exercise_type)]) 
       }
       return result
     }
@@ -77,7 +80,7 @@ const chartOption = computed(() => ({
   },
   yAxis: {
     type: 'value',
-    name: '时长(分钟)',
+    name: t('shi-chang-fen-zhong'),
     nameTextStyle: {
       fontSize: 12
     },
@@ -87,7 +90,7 @@ const chartOption = computed(() => ({
   },
   series: [
     {
-      name: '运动时长',
+      name: t('yun-dong-shi-chang'),
       type: 'bar',
       barWidth: '60%',
       itemStyle: {
@@ -111,13 +114,13 @@ const chartOption = computed(() => ({
 
 function getExerciseTypeText(type: string): string {
   const typeMap: Record<string, string> = {
-    running: '跑步',
-    walking: '步行',
-    cycling: '骑行',
-    swimming: '游泳',
-    yoga: '瑜伽',
-    fitness: '健身',
-    other: '其他'
+    running: t('pao-bu'),
+    walking: t('bu-hang'),
+    cycling: t('qi-hang'),
+    swimming: t('you-yong'),
+    yoga: t('yu-qie'),
+    fitness: t('jian-shen'),
+    other: t('qi-ta')
   }
   return typeMap[type] || type
 }

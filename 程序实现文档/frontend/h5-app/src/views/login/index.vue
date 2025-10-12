@@ -125,7 +125,7 @@ const showLanguageDialog = ref(false)
 
 // 当前语言显示名称
 const currentLanguageName = computed(() => {
-  return LOCALE_NAMES[locale.value as SupportLocale] || '简体中文'
+  return LOCALE_NAMES[locale.value as SupportLocale] || t('jian-ti-zhong-wen')
 })
 
 // 语言选项列表

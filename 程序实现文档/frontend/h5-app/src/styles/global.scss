@@ -275,7 +275,7 @@ body {
   transform: translateX(-50%);
 }
 
-.van-popup--center{
+.van-popup--center {
   max-width: calc(100vw - var(--van-padding-md) * 2);
 }
 
@@ -364,6 +364,10 @@ body {
 
 .van-button--default {
   border-color: var(--border-color) !important;
+}
+
+.van-empty {
+  padding: 0 !important;
 }
 
 // ========== 通用工具类 ==========

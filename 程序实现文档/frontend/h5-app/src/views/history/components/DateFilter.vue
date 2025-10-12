@@ -15,7 +15,7 @@
     >
       <div class="filter-popup">
         <div class="popup-header">
-          <span class="header-title">选择日期范围</span>
+          <span class="header-title">{{ t("xuan-ze-ri-qi-fan-wei") }}</span>
           <van-icon name="cross" @click="showPopup = false" />
         </div>
 
@@ -40,25 +40,27 @@
             class="custom-date-section"
           >
             <div class="date-row">
-              <span class="date-label">开始日期</span>
+              <span class="date-label">{{ t("kai-shi-ri-qi") }}</span>
               <div class="date-input" @click="showStartDatePicker = true">
-                {{ formattedStartDate || "请选择" }}
+                {{ formattedStartDate || t('select') }}
               </div>
             </div>
             <div class="date-row">
-              <span class="date-label">结束日期</span>
+              <span class="date-label">{{ t("jie-shu-ri-qi") }}</span>
               <div class="date-input" @click="showEndDatePicker = true">
-                {{ formattedEndDate || "请选择" }}
+                {{ formattedEndDate || t('select') }}
               </div>
             </div>
           </div>
 
           <!-- 操作按钮 -->
           <div class="action-buttons">
-            <van-button block plain @click="handleReset">清除筛选</van-button>
-            <van-button block type="primary" @click="handleConfirm"
-              >确定</van-button
-            >
+            <van-button block plain @click="handleReset">{{
+              t("qing-chu-shai-xuan")
+            }}</van-button>
+            <van-button block type="primary" @click="handleConfirm">{{
+              t("que-ding")
+            }}</van-button>
           </div>
         </div>
       </div>
@@ -68,7 +70,7 @@
     <van-popup v-model:show="showStartDatePicker" position="bottom">
       <van-date-picker
         v-model="startDatePickerValue"
-        title="选择开始日期"
+        :title="t('xuan-ze-kai-shi-ri-qi')"
         :min-date="minDate"
         :max-date="maxDate"
         @confirm="onStartDateConfirm"
@@ -80,7 +82,7 @@
     <van-popup v-model:show="showEndDatePicker" position="bottom">
       <van-date-picker
         v-model="endDatePickerValue"
-        title="选择结束日期"
+        :title="t('xuan-ze-jie-shu-ri-qi')"
         :min-date="minDate"
         :max-date="maxDate"
         @confirm="onEndDateConfirm"
@@ -92,6 +94,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface QuickOption {
   value: string;
@@ -132,17 +137,17 @@ const maxDate = new Date();
 
 // 快捷选项配置
 const quickOptions: QuickOption[] = [
-  { value: "today", label: "今天", icon: "📅", days: 0 },
-  { value: "currentWeek", label: "本周", icon: "📆" },
-  { value: "week", label: "最近7天", icon: "📊", days: 7 },
-  { value: "month", label: "最近30天", icon: "📈", days: 30 },
-  { value: "custom", label: "自定义", icon: "⚙️" },
+  { value: "today", label: t("jin-tian"), icon: "📅", days: 0 },
+  { value: "currentWeek", label: t("ben-zhou"), icon: "📆" },
+  { value: "week", label: t("zui-jin-7-tian"), icon: "📊", days: 7 },
+  { value: "month", label: t("zui-jin-30-tian"), icon: "📈", days: 30 },
+  { value: "custom", label: t("zi-ding-yi"), icon: "⚙️" },
 ];
 
 // 当前筛选文本
 const currentFilterText = computed(() => {
   if (!props.modelValue?.startDate || !props.modelValue?.endDate) {
-    return "筛选日期";
+    return t("shai-xuan-ri-qi");
   }
 
   const start = props.modelValue.startDate;
@@ -152,7 +157,7 @@ const currentFilterText = computed(() => {
   if (start === end) {
     const today = formatDate(new Date());
     if (start === today) {
-      return "今天";
+      return t("jin-tian-0");
     }
     return formatDisplayDate(start);
   }
@@ -168,7 +173,7 @@ const currentFilterText = computed(() => {
   const weekEnd = formatDate(today);
 
   if (start === weekStart && end === weekEnd) {
-    return "本周";
+    return t("ben-zhou-0");
   }
 
   // 检查是否是最近7天
@@ -177,7 +182,7 @@ const currentFilterText = computed(() => {
   const sevenDaysStart = formatDate(sevenDaysAgo);
 
   if (start === sevenDaysStart && end === weekEnd) {
-    return "最近7天";
+    return t("zui-jin-7-tian-0");
   }
 
   // 检查是否是最近30天
@@ -186,7 +191,7 @@ const currentFilterText = computed(() => {
   const thirtyDaysStart = formatDate(thirtyDaysAgo);
 
   if (start === thirtyDaysStart && end === weekEnd) {
-    return "最近30天";
+    return t("zui-jin-30-tian-0");
   }
 
   // 自定义范围
@@ -219,7 +224,10 @@ function formatDisplayDate(dateStr: string): string {
   if (!dateStr) return "";
   const parts = dateStr.split("-");
   if (parts.length === 3) {
-    return `${parseInt(parts[1] || "")}月${parseInt(parts[2] || "")}日`;
+    return t("parseintparts1-yue-parseintparts2-ri", [
+      parseInt(parts[1] || ""),
+      parseInt(parts[2] || ""),
+    ]);
   }
   return dateStr;
 }

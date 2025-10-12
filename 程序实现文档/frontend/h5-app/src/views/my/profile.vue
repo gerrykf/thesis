@@ -1,6 +1,6 @@
 <template>
   <div class="profile-edit">
-    <van-nav-bar title="个人资料" left-text="返回" left-arrow fixed placeholder @click-left="onBack" />
+    <van-nav-bar :title="t('ge-ren-zi-liao')" :left-text="t('common.back')" left-arrow fixed placeholder @click-left="onBack" />
 
     <div class="content">
       <van-form @submit="onSubmit">
@@ -9,8 +9,8 @@
           <van-field
             v-model="formData.nickname"
             name="nickname"
-            label="昵称"
-            placeholder="请输入昵称"
+            :label="t('ni-cheng')"
+            :placeholder="t('qing-shu-ru-ni-cheng')"
             :disabled="!!formData.nickname"
             :rules="[{ required: true, message: '请输入昵称' }]"
           />
@@ -23,8 +23,8 @@
             is-link
             readonly
             name="gender"
-            label="性别"
-            placeholder="请选择性别"
+            :label="t('xing-bie')"
+            :placeholder="t('qing-xuan-ze-xing-bie')"
             @click="showGenderPicker = true"
           />
         </van-cell-group>
@@ -36,8 +36,8 @@
             is-link
             readonly
             name="birth_date"
-            label="出生日期"
-            placeholder="请选择出生日期"
+            :label="t('chu-sheng-ri-qi')"
+            :placeholder="t('qing-xuan-ze-chu-sheng-ri-qi')"
             @click="showDatePicker = true"
           />
         </van-cell-group>
@@ -48,8 +48,8 @@
             v-model="formData.height"
             type="number"
             name="height"
-            label="身高"
-            placeholder="请输入身高"
+            :label="t('shen-gao')"
+            :placeholder="t('qing-shu-ru-shen-gao')"
             :rules="[{ pattern: /^\d+(\.\d+)?$/, message: '请输入正确的身高' }]"
           >
             <template #right-icon>
@@ -64,8 +64,8 @@
             v-model="formData.target_weight"
             type="number"
             name="target_weight"
-            label="目标体重"
-            placeholder="请输入目标体重"
+            :label="t('mu-biao-ti-zhong')"
+            :placeholder="t('qing-shu-ru-mu-biao-ti-zhong')"
             :rules="[{ pattern: /^\d+(\.\d+)?$/, message: '请输入正确的体重' }]"
           >
             <template #right-icon>
@@ -80,16 +80,16 @@
             v-model="formData.email"
             type="email"
             name="email"
-            label="邮箱"
-            placeholder="请输入邮箱"
+            :label="t('you-xiang')"
+            :placeholder="t('qing-shu-ru-you-xiang')"
             :rules="[{ pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '请输入正确的邮箱' }]"
           />
           <van-field
             v-model="formData.phone"
             type="tel"
             name="phone"
-            label="手机号"
-            placeholder="请输入手机号"
+            :label="t('shou-ji-hao')"
+            :placeholder="t('qing-shu-ru-shou-ji-hao')"
             :rules="[{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' }]"
           />
         </van-cell-group>
@@ -97,8 +97,7 @@
         <!-- 提交按钮 -->
         <div style="margin: 24px 16px;">
           <van-button round block type="primary" native-type="submit" :loading="loading">
-            保存
-          </van-button>
+            {{ t('common.save') }} </van-button>
         </div>
       </van-form>
     </div>
@@ -116,7 +115,7 @@
     <van-popup v-model:show="showDatePicker" position="bottom">
       <van-date-picker
         v-model="currentDate"
-        title="选择出生日期"
+        :title="t('xuan-ze-chu-sheng-ri-qi')"
         :min-date="minDate"
         :max-date="maxDate"
         @confirm="onDateConfirm"
@@ -131,6 +130,9 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useProfileEdit } from './utils'
+import { useI18n } from 'vue-i18n'
+
+const {t} = useI18n()
 
 const router = useRouter()
 const userStore = useUserStore()

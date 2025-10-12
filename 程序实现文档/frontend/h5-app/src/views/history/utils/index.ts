@@ -2,14 +2,16 @@
  * History模块工具函数
  */
 
-export * from './types'
-export * from './hooks'
+import i18n from "@/i18n";
+
+export * from "./types";
+export * from "./hooks";
 
 /**
  * 格式化日期范围
  */
 export function formatDateRange(start: string, end: string): string {
-  return `${start} 至 ${end}`
+  return `${start} ${i18n.global.t("dao")} ${end}`;
 }
 
 /**
