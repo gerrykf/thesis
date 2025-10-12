@@ -40,64 +40,64 @@ jobs:
 
   # ============ H5 前端 ============
   deploy-h5:
-    name: 🌐 Deploy H5 Frontend
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.h5 == 'true' || contains(github.event.head_commit.message, '[all]') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  name: 🌐 Deploy H5 Frontend
+  needs: detect-changes
+  if: ${{ needs.detect-changes.outputs.h5 == 'true' || contains(github.event.head_commit.message, '[all]') }}
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
 
-      - name: Move into repository root
-        run: |
-          cd $GITHUB_WORKSPACE
-          echo "Current dir: $(pwd)"
-          ls -la
+    - name: Move into repository root
+      run: |
+        cd $GITHUB_WORKSPACE
+        echo "Current dir: $(pwd)"
+        ls -la
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.18.1
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.18.1
 
-      - name: Install & Build H5
-        run: |
-          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app"
-          echo "Building in $(pwd)"
-          npm install --no-audit --no-fund
-          npm run build
+    - name: Install & Build H5
+      run: |
+        cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app"
+        echo "Building in $(pwd)"
+        npm install --no-audit --no-fund
+        npm run build
 
-      - name: Clean old H5 files
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            rm -rf /opt/1panel/www/sites/frontend/index/*
+    - name: Clean old H5 files
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          rm -rf /opt/1panel/www/sites/frontend/index/*
 
-      - name: Prepare dist and list files
-        run: |
-          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
-          echo "Uploading from: $(pwd)"
-          ls -la
+    - name: Prepare dist and list files
+      run: |
+        cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
+        echo "Uploading from: $(pwd)"
+        ls -la
+        echo "DIST_PATH=$(pwd)" >> $GITHUB_ENV
 
-      - name: Upload new H5 build
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "./*"
-          target: "/opt/1panel/www/sites/frontend/index"
-        working-directory: 程序实现文档/frontend/h5-app/dist
+    - name: Upload new H5 build
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "${{ env.DIST_PATH }}/*" # 只上传dist目录的内容
+        target: "/opt/1panel/www/sites/frontend/index"
 
-      - name: Reload Nginx (optional)
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            systemctl reload nginx || true
+    - name: Reload Nginx (optional)
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          systemctl reload nginx || true
 
   # ============ 后台管理 ============
   deploy-admin:
