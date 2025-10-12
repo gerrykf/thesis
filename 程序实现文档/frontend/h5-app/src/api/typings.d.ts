@@ -105,6 +105,10 @@ declare namespace API {
     created_at?: string;
     /** 更新时间 */
     updated_at?: string;
+    /** 食物名称 (JOIN查询返回) */
+    food_name?: string;
+    /** 食物分类 (JOIN查询返回) */
+    food_category?: string;
   };
 
   type Food = {
