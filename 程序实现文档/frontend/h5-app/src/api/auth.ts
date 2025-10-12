@@ -2,6 +2,49 @@
 /* eslint-disable */
 import request from "@/utils/request";
 
+/** 上传用户头像 上传并更新用户头像 POST /api/auth/avatar */
+export async function postAuthAvatar(
+  body: {},
+  avatar?: File,
+  options?: { [key: string]: any }
+) {
+  const formData = new FormData();
+
+  if (avatar) {
+    formData.append("avatar", avatar);
+  }
+
+  Object.keys(body).forEach((ele) => {
+    const item = (body as any)[ele];
+
+    if (item !== undefined && item !== null) {
+      if (typeof item === "object" && !(item instanceof File)) {
+        if (item instanceof Array) {
+          item.forEach((f) => formData.append(ele, f || ""));
+        } else {
+          formData.append(
+            ele,
+            new Blob([JSON.stringify(item)], { type: "application/json" })
+          );
+        }
+      } else {
+        formData.append(ele, item);
+      }
+    }
+  });
+
+  return request<{
+    success?: boolean;
+    message?: string;
+    data?: { avatarUrl?: string };
+  }>("/api/auth/avatar", {
+    method: "POST",
+    data: formData,
+     ...(options || {}), // 这里可以加入其他自定义字段
+    ...(options || {}),
+  });
+}
+
 /** 用户登录 用户登录获取访问令牌 POST /api/auth/login */
 export async function postAuthLogin(
   body: API.LoginRequest,
@@ -15,6 +58,29 @@ export async function postAuthLogin(
     data: body,
     ...(options || {}),
   });
+}
+
+/** 修改密码 修改当前登录用户的密码 PUT /api/auth/password */
+export async function putAuthPassword(
+  body: {
+    /** 当前密码 */
+    oldPassword: string;
+    /** 新密码(至少6位) */
+    newPassword: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<{ success?: boolean; message?: string }>(
+    "/api/auth/password",
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: body,
+      ...(options || {}),
+    }
+  );
 }
 
 /** 获取当前用户信息 获取当前登录用户的详细信息 GET /api/auth/profile */
@@ -55,43 +121,6 @@ export async function postAuthRegister(
       "Content-Type": "application/json",
     },
     data: body,
-    ...(options || {}),
-  });
-}
-
-/** 修改密码 修改当前登录用户的密码 PUT /api/auth/password */
-export async function putAuthPassword(
-  body: { oldPassword: string; newPassword: string },
-  options?: { [key: string]: any }
-) {
-  return request<{ success?: boolean; message?: string }>("/api/auth/password", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 上传用户头像 POST /api/auth/avatar */
-export async function postAuthAvatar(
-  file: File,
-  options?: { [key: string]: any }
-) {
-  const formData = new FormData();
-  formData.append('avatar', file);
-
-  return request<{
-    success?: boolean;
-    message?: string;
-    data?: { avatarUrl?: string };
-  }>("/api/auth/avatar", {
-    method: "POST",
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    data: formData,
     ...(options || {}),
   });
 }

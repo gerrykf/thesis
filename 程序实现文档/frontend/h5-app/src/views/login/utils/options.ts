@@ -2,6 +2,8 @@
  * Login模块配置选项
  */
 
+import i18n from "@/i18n";
+
 /**
  * 表单验证规则配置
  */
@@ -10,23 +12,23 @@ export const validationRules = {
     minLength: 3,
     maxLength: 20,
     pattern: /^[a-zA-Z0-9_]+$/,
-    message: '用户名必须是3-20位字母、数字或下划线'
+    message: i18n.global.t("login.usernameRule"),
   },
   password: {
     minLength: 6,
     maxLength: 20,
-    message: '密码长度必须在6-20位之间'
+    message: i18n.global.t("login.passwordRule"),
   },
   phone: {
     pattern: /^1[3-9]\d{9}$/,
-    message: '请输入正确的手机号码'
+    message: i18n.global.t("login.phoneRule"),
   },
   code: {
     length: 6,
     pattern: /^\d{6}$/,
-    message: '请输入6位数字验证码'
-  }
-}
+    message: i18n.global.t("login.codeRule"),
+  },
+};
 
 /**
  * 登录提示信息

@@ -18,6 +18,11 @@ request.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 自动携带语言参数 (通过标准的 Accept-Language Header)
+    const locale = localStorage.getItem("locale") || "zh-CN";
+    config.headers["Accept-Language"] = locale;
+
     return config;
   },
   (error) => {

@@ -91,10 +91,14 @@ FOREIGN KEY (parent_id) REFERENCES food_categories(id) ON DELETE SET NULL;
 -- ================================
 CREATE TABLE IF NOT EXISTS foods (
     id INT PRIMARY KEY AUTO_INCREMENT COMMENT '食物ID',
-    name VARCHAR(100) NOT NULL COMMENT '食物名称',
-    name_en VARCHAR(100) COMMENT '英文名称',
-    category VARCHAR(50) NOT NULL COMMENT '食物分类',
-    sub_category VARCHAR(50) COMMENT '子分类',
+
+    -- 基本信息 (支持中英文)
+    name VARCHAR(100) NOT NULL COMMENT '食物名称(中文)',
+    name_en VARCHAR(100) COMMENT '食物名称(英文)',
+    category VARCHAR(50) NOT NULL COMMENT '食物分类(中文)',
+    category_en VARCHAR(50) COMMENT '食物分类(英文)',
+    sub_category VARCHAR(50) COMMENT '子分类(中文)',
+    sub_category_en VARCHAR(50) COMMENT '子分类(英文)',
     brand VARCHAR(100) COMMENT '品牌',
 
     -- 营养成分 (每100g)
@@ -113,7 +117,8 @@ CREATE TABLE IF NOT EXISTS foods (
     -- 其他信息
     image_url VARCHAR(255) COMMENT '食物图片URL',
     barcode VARCHAR(50) COMMENT '条形码',
-    description TEXT COMMENT '食物描述',
+    description TEXT COMMENT '食物描述(中文)',
+    description_en TEXT COMMENT '食物描述(英文)',
     serving_size DECIMAL(6,2) COMMENT '建议食用量(g)',
 
     -- 状态信息
@@ -124,18 +129,23 @@ CREATE TABLE IF NOT EXISTS foods (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
+    -- 索引
     INDEX idx_name (name),
+    INDEX idx_name_en (name_en),
     INDEX idx_category (category),
+    INDEX idx_category_en (category_en),
     INDEX idx_barcode (barcode),
     INDEX idx_calories (calories_per_100g),
     INDEX idx_created_by (created_by),
     INDEX idx_is_active (is_active),
 
+    -- 外键
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL,
 
-    FULLTEXT INDEX ft_name_desc (name, description)
-) COMMENT '食物表';
+    -- 全文索引(支持中英文搜索)
+    FULLTEXT INDEX ft_name_desc (name, name_en, description, description_en)
+) COMMENT '食物表(支持中英文)';
 
 -- ================================
 -- 4. 创建健康记录表 (health_records)

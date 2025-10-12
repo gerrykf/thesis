@@ -304,18 +304,6 @@ const tourSteps = ref([
       highlight: true,
     },
   },
-  {
-    target: '[data-v-step="2"]',
-    header: {
-      title: t('xia-la-shua-xin'),
-    },
-    content:
-      t('chuang-jian-mu-biao-hou-ke-yi-xia-la-ye-mian-shua-xin-mu-biao-lie-biao-dian-ji-mu-biao-ka-pian-ke-yi-bian-ji-jin-du-he-zhuang-tai-zhu-nin-geng-hao-di-zhui-zong-mu-biao-wan-cheng-qing-kuang'),
-    params: {
-      placement: "top",
-      highlight: true,
-    },
-  },
 ]);
 
 const tourOptions = ref({
@@ -332,10 +320,14 @@ const tourCallbacks = ref({
   onStop: () => {
     // 引导结束后,标记用户已完成引导
     localStorage.setItem("goalsTourCompleted", "true");
+    // 标记用户已经使用过目标页面
+    localStorage.setItem("hasSetGoals", "true");
   },
   onSkip: () => {
     // 跳过引导也标记为已完成
     localStorage.setItem("goalsTourCompleted", "true");
+    // 标记用户已经使用过目标页面
+    localStorage.setItem("hasSetGoals", "true");
   },
 });
 
@@ -510,6 +502,8 @@ function goBack() {
   const route = router.currentRoute.value;
 
   if (route.query.firstTime === 'true') {
+    // 标记用户已经访问过目标页面
+    localStorage.setItem("hasSetGoals", "true");
     // 首次登录进入目标页，返回时跳转到首页
     router.replace('/home');
   } else {
@@ -628,7 +622,7 @@ function goBack() {
 .goal-title {
   font-size: $font-size-lg;
   font-weight: bold;
-  color: text-color;
+  color: $text-color;
   margin-bottom: $space-md;
 }
 
@@ -648,17 +642,17 @@ function goBack() {
   }
 
   .separator {
-    color: text-color-3;
+    color: $text-color-3;
   }
 
   .target {
-    color: text-color-2;
+    color: $text-color-2;
   }
 }
 
 .goal-footer {
   font-size: $font-size-sm;
-  color: text-color-2;
+  color: $text-color-2;
   margin-top: $space-sm;
 
   .date-label {
@@ -666,7 +660,7 @@ function goBack() {
   }
 
   .date-value {
-    color: text-color;
+    color: $text-color;
   }
 }
 
@@ -680,7 +674,7 @@ function goBack() {
   .title {
     font-size: $font-size-lg;
     font-weight: bold;
-    color: text-color;
+    color: $text-color;
   }
 }
 
@@ -753,7 +747,7 @@ function goBack() {
 
     h3 {
       font-size: $font-size-lg !important;
-      color: text-color !important;
+      color: $text-color !important;
       font-weight: 600 !important;
       margin: 0 !important;
     }
@@ -761,7 +755,7 @@ function goBack() {
 
   .v-step__content {
     font-size: $font-size-sm !important;
-    color: text-color-2 !important;
+    color: $text-color-2 !important;
     line-height: 1.6 !important;
     margin-bottom: $space-md !important;
   }
@@ -783,7 +777,7 @@ function goBack() {
 
       &.v-step__button-skip {
         background: $background-color !important;
-        color: text-color-2 !important;
+        color: $text-color-2 !important;
 
         &:active {
           opacity: 0.7 !important;
@@ -792,7 +786,7 @@ function goBack() {
 
       &.v-step__button-previous {
         background: $background-color !important;
-        color: text-color !important;
+        color: $text-color !important;
 
         &:active {
           opacity: 0.7 !important;

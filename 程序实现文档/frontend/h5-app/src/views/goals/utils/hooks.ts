@@ -95,6 +95,8 @@ export function useAddGoalForm() {
     if ((response as any)?.success) {
       showSuccessToast('目标创建成功')
       showAddDialog.value = false
+      // 标记用户已经使用过目标功能
+      localStorage.setItem('hasSetGoals', 'true')
       // 重置表单
       resetAddForm()
       onSuccess?.()

@@ -18,38 +18,58 @@ INSERT INTO food_categories (name, name_en, level, sort_order, icon, color) VALU
 -- ================================
 -- 密码: qweqwe123 (bcrypt加密, rounds=10)
 -- 哈希值对应密码 qweqwe123
-INSERT INTO users (username, password, nickname, email, phone, gender, birth_date, height, target_weight, role, is_active) VALUES
-('admin', '$2b$12$de.B0oJUC7IJC.jbC5z87.xfZ0enoz/Atms6nm6N.211L9mHJqCCC', '系统管理员', 'admin@health-system.com', '13800000001', 'male', '1980-01-01', 175.00, 70.00, 'admin', TRUE),
+INSERT INTO
+    users (
+        username,
+        password,
+        nickname,
+        email,
+        phone,
+        gender,
+        birth_date,
+        height,
+        target_weight,
+        role,
+        is_active
+    )
+VALUES
 ('test01', '$2b$12$5.5Iq2u.4C3K0VCNvmCGRe3HDS5SOuwQSPl1sv6M0gAVI.NKgSkUO', '张小明', 'zhangming@example.com', '13800000002', 'male', '1995-03-15', 172.00, 68.00, 'user', TRUE),
 ('test02', '$2b$12$cOvaCJ9kakXczz1dxV.1UOoYeXidkpaVsHqdMNfV1Oy2Cb4wF01vW', '李小花', 'lihua@example.com', '13800000003', 'female', '1992-07-20', 165.00, 55.00, 'user', TRUE),
 ('test03', '$2b$12$yuoJLcyVJ5Zq35cui0WJb.jJx4j7yw7r3JX7XHsw4yY1RbcUx1V8i', '王大力', 'wangli@example.com', '13800000004', 'male', '1988-11-08', 180.00, 75.00, 'user', TRUE),
 ('test04', '$2b$12$JOIeChQWSXnnzSiu64a5iuiKUVUUAUjBMBDnzw57ywXO8/8cb6tqO', '赵美丽', 'zhaomeili@example.com', '13800000005', 'female', '1996-09-12', 168.00, 52.00, 'user', TRUE);
 
 -- ================================
--- 10. 插入食物数据 (100种食物)
+-- 10. 删除现有食物数据并重新插入 (支持中英文)
 -- ================================
-INSERT INTO foods (name, name_en, category, calories_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, fiber_per_100g, sodium_per_100g, created_by, is_verified) VALUES
+-- 清空现有食物表数据
+DELETE FROM foods;
+
+-- 重置自增ID
+ALTER TABLE foods AUTO_INCREMENT = 1;
+
+-- 插入食物数据 (100种食物,支持中英文)
+INSERT INTO foods (name, name_en, category, category_en, sub_category, sub_category_en, calories_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, fiber_per_100g, sodium_per_100g, description, description_en, created_by, is_verified) VALUES
 -- 主食类 (20种)
-('白米饭', 'White Rice', '主食', 130, 2.6, 0.3, 28.0, 0.4, 5, 1, TRUE),
-('糙米饭', 'Brown Rice', '主食', 123, 2.6, 0.9, 25.0, 1.8, 5, 1, TRUE),
-('白面条', 'White Noodles', '主食', 137, 4.5, 0.5, 28.0, 1.2, 3, 1, TRUE),
-('全麦面条', 'Whole Wheat Noodles', '主食', 124, 5.0, 1.1, 25.0, 3.6, 3, 1, TRUE),
-('白面包', 'White Bread', '主食', 265, 9.0, 3.2, 49.0, 2.7, 491, 1, TRUE),
-('全麦面包', 'Whole Wheat Bread', '主食', 247, 13.0, 4.2, 41.0, 6.0, 491, 1, TRUE),
-('玉米', 'Corn', '主食', 96, 3.4, 1.5, 19.0, 2.9, 35, 1, TRUE),
-('红薯', 'Sweet Potato', '主食', 86, 1.6, 0.1, 20.0, 3.0, 54, 1, TRUE),
-('土豆', 'Potato', '主食', 77, 2.0, 0.1, 17.0, 2.2, 6, 1, TRUE),
-('燕麦', 'Oats', '主食', 389, 16.9, 6.9, 66.0, 10.6, 2, 1, TRUE),
-('小米', 'Millet', '主食', 378, 11.0, 4.2, 73.0, 1.6, 5, 1, TRUE),
-('荞麦', 'Buckwheat', '主食', 343, 13.3, 3.4, 72.0, 10.0, 1, 1, TRUE),
-('黑米', 'Black Rice', '主食', 341, 8.5, 2.5, 72.0, 2.3, 4, 1, TRUE),
-('紫米', 'Purple Rice', '主食', 346, 8.3, 2.8, 73.0, 1.6, 3, 1, TRUE),
-('大麦', 'Barley', '主食', 354, 12.5, 2.3, 73.0, 17.3, 12, 1, TRUE),
-('意大利面', 'Pasta', '主食', 131, 5.0, 1.1, 25.0, 1.8, 1, 1, TRUE),
-('方便面', 'Instant Noodles', '主食', 436, 10.4, 16.2, 63.0, 2.5, 1148, 1, TRUE),
-('馒头', 'Steamed Bread', '主食', 221, 7.0, 1.1, 47.0, 1.7, 163, 1, TRUE),
-('包子', 'Steamed Bun', '主食', 227, 6.1, 8.5, 32.0, 1.5, 378, 1, TRUE),
-('饺子皮', 'Dumpling Wrapper', '主食', 255, 8.5, 1.2, 52.0, 2.1, 338, 1, TRUE),
+('白米饭', 'White Rice', '主食', 'Staple Food', '米类', 'Rice', 130, 2.6, 0.3, 28.0, 0.4, 5, '蒸煮的白米饭,是亚洲主要主食', 'Steamed white rice, main staple food in Asia', 1, TRUE),
+('糙米饭', 'Brown Rice', '主食', 'Staple Food', '米类', 'Rice', 123, 2.6, 0.9, 25.0, 1.8, 5, '保留外层的糙米,营养更丰富', 'Whole grain brown rice with outer layer retained, more nutritious', 1, TRUE),
+('白面条', 'White Noodles', '主食', 'Staple Food', '面类', 'Noodles', 137, 4.5, 0.5, 28.0, 1.2, 3, '普通白面制成的面条', 'Noodles made from refined wheat flour', 1, TRUE),
+('全麦面条', 'Whole Wheat Noodles', '主食', 'Staple Food', '面类', 'Noodles', 124, 5.0, 1.1, 25.0, 3.6, 3, '全麦面粉制成,含更多纤维', 'Made from whole wheat flour, contains more fiber', 1, TRUE),
+('白面包', 'White Bread', '主食', 'Staple Food', '面包', 'Bread', 265, 9.0, 3.2, 49.0, 2.7, 491, '精制面粉烤制的面包', 'Bread baked from refined flour', 1, TRUE),
+('全麦面包', 'Whole Wheat Bread', '主食', 'Staple Food', '面包', 'Bread', 247, 13.0, 4.2, 41.0, 6.0, 491, '全麦面粉烤制,更健康', 'Baked from whole wheat flour, healthier option', 1, TRUE),
+('玉米', 'Corn', '主食', 'Staple Food', '杂粮', 'Grains', 96, 3.4, 1.5, 19.0, 2.9, 35, '新鲜甜玉米,富含膳食纤维', 'Fresh sweet corn, rich in dietary fiber', 1, TRUE),
+('红薯', 'Sweet Potato', '主食', 'Staple Food', '薯类', 'Tubers', 86, 1.6, 0.1, 20.0, 3.0, 54, '蒸煮红薯,低脂高纤维', 'Steamed sweet potato, low fat high fiber', 1, TRUE),
+('土豆', 'Potato', '主食', 'Staple Food', '薯类', 'Tubers', 77, 2.0, 0.1, 17.0, 2.2, 6, '新鲜土豆,富含钾元素', 'Fresh potato, rich in potassium', 1, TRUE),
+('燕麦', 'Oats', '主食', 'Staple Food', '谷物', 'Cereals', 389, 16.9, 6.9, 66.0, 10.6, 2, '燕麦片,适合早餐', 'Oatmeal, perfect for breakfast', 1, TRUE),
+('小米', 'Millet', '主食', 'Staple Food', '谷物', 'Cereals', 378, 11.0, 4.2, 73.0, 1.6, 5, '营养丰富的小米', 'Nutritious millet grain', 1, TRUE),
+('荞麦', 'Buckwheat', '主食', 'Staple Food', '杂粮', 'Grains', 343, 13.3, 3.4, 72.0, 10.0, 1, '高蛋白杂粮,无麸质', 'High protein grain, gluten-free', 1, TRUE),
+('黑米', 'Black Rice', '主食', 'Staple Food', '米类', 'Rice', 341, 8.5, 2.5, 72.0, 2.3, 4, '黑色糙米,抗氧化', 'Black whole grain rice, antioxidant', 1, TRUE),
+('紫米', 'Purple Rice', '主食', 'Staple Food', '米类', 'Rice', 346, 8.3, 2.8, 73.0, 1.6, 3, '紫色糯米,花青素丰富', 'Purple glutinous rice, rich in anthocyanins', 1, TRUE),
+('大麦', 'Barley', '主食', 'Staple Food', '谷物', 'Cereals', 354, 12.5, 2.3, 73.0, 17.3, 12, '大麦仁,高纤维谷物', 'Barley grain, high fiber cereal', 1, TRUE),
+('意大利面', 'Pasta', '主食', 'Staple Food', '面类', 'Noodles', 131, 5.0, 1.1, 25.0, 1.8, 1, '煮熟的意大利面', 'Cooked pasta', 1, TRUE),
+('方便面', 'Instant Noodles', '主食', 'Staple Food', '面类', 'Noodles', 436, 10.4, 16.2, 63.0, 2.5, 1148, '油炸方便面,不建议常吃', 'Fried instant noodles, not recommended for frequent consumption', 1, TRUE),
+('馒头', 'Steamed Bread', '主食', 'Staple Food', '面食', 'Wheat Products', 221, 7.0, 1.1, 47.0, 1.7, 163, '蒸制馒头,传统主食', 'Steamed bread, traditional staple', 1, TRUE),
+('包子', 'Steamed Bun', '主食', 'Staple Food', '面食', 'Wheat Products', 227, 6.1, 8.5, 32.0, 1.5, 378, '带馅蒸包', 'Steamed bun with filling', 1, TRUE),
+('饺子皮', 'Dumpling Wrapper', '主食', 'Staple Food', '面食', 'Wheat Products', 255, 8.5, 1.2, 52.0, 2.1, 338, '饺子皮,面粉制成', 'Dumpling wrapper made from wheat flour', 1, TRUE),
 
 -- 蔬菜类 (20种)
 ('白菜', 'Chinese Cabbage', '蔬菜', 13, 1.5, 0.1, 2.2, 1.0, 57, 1, TRUE),

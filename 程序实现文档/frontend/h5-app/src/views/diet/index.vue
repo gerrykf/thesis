@@ -241,38 +241,35 @@
             @clear="onSearchFood"
           />
 
-          <!-- 食物列表 -->
-          <div class="food-list-section">
+          <!-- 食物列表容器 -->
+          <div class="food-list-section" ref="listContainerRef">
             <van-list
               v-model:loading="foodLoading"
               :finished="foodFinished"
-              finished-text="没有更多了"
+              :finished-text="t('mei-you-geng-duo-le')"
               @load="onLoadFood"
-              :immediate-check="false"
+              :offset="300"
             >
-              <van-checkbox-group v-model="selectedFoods" direction="vertical">
-                <van-cell
-                  v-for="food in foodList"
-                  :key="food.id"
-                  @click="onToggleFood(food)"
-                  clickable
-                >
-                  <template #title>
-                    <div class="food-title">
-                      <van-checkbox
-                        :name="food.id"
-                        :checked="isFoodSelected(food.id!)"
-                        @click.stop="onToggleFood(food)"
-                      />
-                      <span class="food-name">{{ food.name }}</span>
-                    </div>
-                  </template>
-                  <template #label>
-                    <span class="food-info">
-                      {{ t('foodcategory-mei-100g-foodcaloriesper100g-kcal', [food.category, food.calories_per_100g]) }} </span>
-                  </template>
-                </van-cell>
-              </van-checkbox-group>
+              <van-cell
+                v-for="food in foodList"
+                :key="food.id"
+                @click="onToggleFood(food)"
+                clickable
+              >
+                <template #title>
+                  <div class="food-title">
+                    <van-checkbox
+                      :model-value="isFoodSelected(food.id!)"
+                      @click.stop="onToggleFood(food)"
+                    />
+                    <span class="food-name">{{ food.name }}</span>
+                  </div>
+                </template>
+                <template #label>
+                  <span class="food-info">
+                    {{ t('foodcategory-mei-100g-foodcaloriesper100g-kcal', [food.category, food.calories_per_100g]) }} </span>
+                </template>
+              </van-cell>
             </van-list>
           </div>
         </div>
@@ -330,7 +327,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccessToast, showLoadingToast, closeToast, showToast, showConfirmDialog } from 'vant'
 import { getDietRecords, postDietRecords, deleteDietRecordsId, getDietSummary } from '@/api/diet'
@@ -474,15 +471,17 @@ async function loadSummary() {
 
 // 加载食物列表
 async function onLoadFood() {
-  console.log('onLoadFood 被调用', { loading: foodLoading.value, page: foodPage.value })
-  if (foodLoading.value) {
-    console.log('已在加载中，跳过')
+  console.log('onLoadFood 被调用', { loading: foodLoading.value, page: foodPage.value, finished: foodFinished.value })
+
+  // 只检查 finished 状态,List 组件会管理 loading
+  if (foodFinished.value) {
+    console.log('已完成,跳过加载')
     return
   }
 
-  foodLoading.value = true
   try {
     console.log('开始请求食物列表:', { page: foodPage.value, search: searchKeyword.value })
+
     const response = await getFoods({
       page: foodPage.value,
       limit: 20,
@@ -491,23 +490,34 @@ async function onLoadFood() {
 
     console.log('食物列表响应:', response)
     const foods = (response as any).data?.foods || []
-    console.log('解析到的食物数量:', foods.length)
-
-    // 如果返回的食物数量少于请求的数量，说明没有更多了
-    if (foods.length < 20) {
-      foodFinished.value = true
-      console.log('设置 finished = true')
-    }
+    const pagination = (response as any).data?.pagination || {}
+    console.log('解析到的食物数量:', foods.length, '分页信息:', pagination)
 
     if (foods.length > 0) {
       foodList.value.push(...foods)
       foodPage.value++
-      console.log('食物列表更新完成:', { total: foodList.value.length, nextPage: foodPage.value })
+      console.log('食物列表更新完成:', {
+        total: foodList.value.length,
+        nextPage: foodPage.value,
+        currentPage: pagination.page,
+        totalPages: pagination.totalPages
+      })
+    }
+
+    // 根据分页信息判断是否还有更多数据
+    if (foods.length === 0 || (pagination.page >= pagination.totalPages)) {
+      foodFinished.value = true
+      console.log('没有更多数据了')
     }
   } catch (error) {
     console.error('加载食物列表失败:', error)
+    showToast(t('jia-zai-shu-ju-shi-bai'))
   } finally {
+    // 使用 finally 确保 loading 总是被重置
+    // 等待 DOM 更新完成
+    await nextTick()
     foodLoading.value = false
+    console.log('加载完成，重置 loading 状态')
   }
 }
 
@@ -575,22 +585,8 @@ function showAddFood(mealType: MealType) {
 
 // 弹窗完全打开后触发加载
 function onDialogOpened() {
-  console.log('弹窗已打开，手动触发加载')
-  console.log('当前状态:', {
-    listLength: foodList.value.length,
-    finished: foodFinished.value,
-    loading: foodLoading.value
-  })
-  // 由于设置了immediate-check=false，需要手动触发第一次加载
-  if (foodList.value.length === 0 && !foodFinished.value) {
-    console.log('条件满足，调用onLoadFood')
-    onLoadFood()
-  } else {
-    console.log('条件不满足，不加载', {
-      listEmpty: foodList.value.length === 0,
-      notFinished: !foodFinished.value
-    })
-  }
+  console.log('弹窗已打开，List 组件会自动检测滚动')
+  // List 组件移除了 immediate-check=false,会自动检测并触发 load 事件
 }
 
 // 确认添加
@@ -925,18 +921,30 @@ onMounted(() => {
 
   .dialog-content {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     width: 100%;
     background: $background-color;
 
     // 压缩搜索框高度
     :deep(.van-search) {
       padding: 4px $space-sm;
+      flex-shrink: 0;
 
       .van-search__content {
         padding-left: $space-xs;
       }
+    }
+
+    // 食物列表容器 - 关键修复
+    .food-list-section {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      min-height: 0; // 关键:让 flex 子元素正确计算高度
+      position: relative;
     }
 
     // 压缩食物列表项高度
@@ -946,10 +954,6 @@ onMounted(() => {
       .van-cell__title {
         margin-bottom: 2px;
       }
-    }
-
-    .food-list-section {
-      padding-bottom: $space-md;
     }
 
     .food-title {

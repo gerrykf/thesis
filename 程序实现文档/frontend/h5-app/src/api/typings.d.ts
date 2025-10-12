@@ -105,10 +105,6 @@ declare namespace API {
     created_at?: string;
     /** 更新时间 */
     updated_at?: string;
-    /** 食物名称 (JOIN查询返回) */
-    food_name?: string;
-    /** 食物分类 (JOIN查询返回) */
-    food_category?: string;
   };
 
   type Food = {
@@ -175,6 +171,14 @@ declare namespace API {
     search?: string;
     /** 用户角色筛选 */
     role?: "user" | "admin";
+    /** 创建时间开始日期(YYYY-MM-DD) */
+    createdStartDate?: string;
+    /** 创建时间结束日期(YYYY-MM-DD) */
+    createdEndDate?: string;
+    /** 最后登录开始日期(YYYY-MM-DD) */
+    loginStartDate?: string;
+    /** 最后登录结束日期(YYYY-MM-DD) */
+    loginEndDate?: string;
   };
 
   type getDietRecordsParams = {
