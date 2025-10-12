@@ -11,6 +11,9 @@ on:
       - ".github/workflows/deploy.yml"
   workflow_dispatch: # 手动触发部署
 
+env:
+  SKIP_ADMIN_DEPLOY: 'false'  # 设置为'true'跳过后台管理部署，设置为'false'则会执行
+
 defaults:
   run:
     shell: bash
@@ -96,7 +99,7 @@ jobs:
   deploy-admin:
     name: 🧭 Deploy Admin Panel
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]') }}
+    if: ${{ (needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]')) && (env.SKIP_ADMIN_DEPLOY != 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
