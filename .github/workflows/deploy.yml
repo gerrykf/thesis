@@ -11,9 +11,6 @@ on:
       - ".github/workflows/deploy.yml"
   workflow_dispatch: # 手动触发部署
 
-env:
-  SKIP_ADMIN_DEPLOY: 'false'  # 设置为'true'跳过后台管理部署，设置为'false'则会执行
-
 defaults:
   run:
     shell: bash
@@ -84,7 +81,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ env.DIST_PATH }}/*"  # 只上传dist目录内容
+          source: "${{ env.DIST_PATH }}/*" # 只上传dist目录内容
           target: "/opt/1panel/www/sites/frontend/index"
       - name: 重新加载Nginx（可选）
         uses: appleboy/ssh-action@v0.1.10
@@ -99,7 +96,7 @@ jobs:
   deploy-admin:
     name: 🧭 Deploy Admin Panel
     needs: detect-changes
-    if: ${{ (needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]')) && (env.SKIP_ADMIN_DEPLOY != 'true') }}
+    if: ${{ (needs.detect-changes.outputs.admin == 'true' || contains(github.event.head_commit.message, '[all]')) && !contains(github.event.head_commit.message, '[skip-admin]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +141,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ env.ADMIN_DIST_PATH }}/*"  # 只上传dist目录内容
+          source: "${{ env.ADMIN_DIST_PATH }}/*" # 只上传dist目录内容
           target: "/opt/1panel/www/sites/frontend-admin/index"
 
       - name: Reload Nginx（可选）
@@ -155,7 +152,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             systemctl reload nginx || true
-
 
   # ============ 服务端 ============
   deploy-server:
