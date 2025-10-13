@@ -38,7 +38,7 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "qweqwe123"
+  password: "qweqwe123123"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -51,7 +51,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           username: ruleForm.username,
           password: ruleForm.password
         })
-        .then(res => {
+        .then((res: any) => {
           if (res.success) {
             message("登录成功", { type: "success" });
             // 初始化路由后跳转到首页
@@ -68,7 +68,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
                 .finally(() => (disabled.value = false));
             });
           } else {
-            message(res.message || "登录失败", { type: "error" });
+            message(res?.message || "登录失败", { type: "error" });
           }
         })
         .catch(error => {
@@ -131,11 +131,7 @@ useEventListener(document, "keydown", ({ code }) => {
             <Motion :delay="100">
               <el-form-item
                 :rules="[
-                  {
-                    required: true,
-                    message: '请输入账号',
-                    trigger: 'blur'
-                  }
+                  { required: true, message: '请输入账号', trigger: 'blur' }
                 ]"
                 prop="username"
               >

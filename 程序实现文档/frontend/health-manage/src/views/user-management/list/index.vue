@@ -83,7 +83,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon total-users">
-              <el-icon size="24"><User /></el-icon>
+              <el-icon size="24">
+                <User />
+              </el-icon>
             </div>
             <div class="stat-info">
               <h3>{{ userStats.totalUsers }}</h3>
@@ -96,7 +98,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon active-users">
-              <el-icon size="24"><UserFilled /></el-icon>
+              <el-icon size="24">
+                <UserFilled />
+              </el-icon>
             </div>
             <div class="stat-info">
               <h3>{{ userStats.activeUsers }}</h3>
@@ -109,7 +113,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon new-users">
-              <el-icon size="24"><Plus /></el-icon>
+              <el-icon size="24">
+                <Plus />
+              </el-icon>
             </div>
             <div class="stat-info">
               <h3>{{ userStats.newUsersToday }}</h3>
@@ -122,7 +128,9 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon admin-users">
-              <el-icon size="24"><Setting /></el-icon>
+              <el-icon size="24">
+                <Setting />
+              </el-icon>
             </div>
             <div class="stat-info">
               <h3>{{ userStats.adminUsers }}</h3>
