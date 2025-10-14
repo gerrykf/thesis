@@ -346,15 +346,12 @@ export const getFoods = async (
     let query = `SELECT
                 id,
                 name, name_en,
-                category, category_en,
-                sub_category, sub_category_en,
+                category,
                 brand,
-                description, description_en,
                 calories_per_100g, protein_per_100g, fat_per_100g,
                 carbs_per_100g, fiber_per_100g, sodium_per_100g, sugar_per_100g,
-                cholesterol_per_100g, vitamin_c_per_100g, calcium_per_100g, iron_per_100g,
-                image_url, barcode, serving_size, is_active, is_verified,
-                created_by, verified_by, created_at, updated_at
+                image_url, barcode, is_active,
+                created_by, created_at, updated_at
               FROM foods
               WHERE is_active = true`;
 
