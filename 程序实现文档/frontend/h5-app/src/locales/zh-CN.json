@@ -60,6 +60,10 @@
   "deng-shan-0": "⛰️ 登山",
   "dian-ji-you-shang-jiao-de-jia-hao-an-niu-ke-yi-chuang-jian-xin-de-jian-kang-mu-biao-zhi-chi-ti-zhong-yun-dong-ka-lu-li-he-zi-ding-yi-mu-biao-lei-xing": "点击右上角的加号按钮，可以创建新的健康目标。支持体重、运动、卡路里和自定义目标类型。",
   "er": "二",
+  "error": {
+    "networkError": "网络错误，请检查网络连接",
+    "requestFailed": "请求失败"
+  },
   "fen-xi": "分析",
   "fen-zhong": "分钟",
   "foodcategory-mei-100g-foodcaloriesper100g-kcal": "{0} · 每100g: {1}kcal",
@@ -91,6 +95,14 @@
   "hours-xiao-shi-1": "{0}小时",
   "hours-xiao-shi-remainingminutes-fen-zhong": "{0}小时{1}分钟",
   "hours-xiao-shi-remainingminutes-fen-zhong-0": "{0}小时{1}分钟",
+  "http": {
+    "error": {
+      "401": "账号失效或未授权，请重新登录",
+      "403": "拒绝访问",
+      "404": "请求的资源不存在",
+      "500": "服务器错误"
+    }
+  },
   "huan-ying-lai-dao-mu-biao-guan-li": "👋 欢迎来到目标管理",
   "item-calories-kcal": "{0} kcal",
   "item-calories-kcal-0": "{0} kcal",

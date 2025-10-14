@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+import router from "@/router";
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import { showToast } from "vant";
@@ -52,29 +54,29 @@ request.interceptors.response.use(
 
       switch (status) {
         case 401:
-          showToast("未授权，请重新登录");
+          showToast(i18n.global.t("http.error.401"));
           // 清除本地存储
           localStorage.removeItem("token");
           localStorage.removeItem("userInfo");
           // 跳转到登录页
-          window.location.href = "/login";
+          router.push("/login");
           break;
         case 403:
-          showToast("拒绝访问");
+          showToast(i18n.global.t("http.error.403"));
           break;
         case 404:
-          showToast("请求的资源不存在");
+          showToast(i18n.global.t("http.error.404"));
           break;
         case 500:
-          showToast("服务器错误");
+          showToast(i18n.global.t("http.error.500"));
           break;
         default:
-          showToast(data?.message || "请求失败");
+          showToast(data?.message || i18n.global.t("error.requestFailed"));
       }
     } else if (error.request) {
-      showToast("网络错误，请检查网络连接");
+      showToast(i18n.global.t("error.networkError"));
     } else {
-      showToast("请求失败");
+      showToast(i18n.global.t("error.requestFailed"));
     }
 
     return Promise.reject(error);

@@ -60,6 +60,10 @@
   "deng-shan-0": "⛰️ Climbing",
   "dian-ji-you-shang-jiao-de-jia-hao-an-niu-ke-yi-chuang-jian-xin-de-jian-kang-mu-biao-zhi-chi-ti-zhong-yun-dong-ka-lu-li-he-zi-ding-yi-mu-biao-lei-xing": "Click the plus button in the upper right corner to create a new health goal. \nSupports weight, exercise, calories and custom goal types.",
   "er": "two",
+  "error": {
+    "networkError": "Network error, please check network connection",
+    "requestFailed": "Request failed"
+  },
   "fen-xi": "analyze",
   "fen-zhong": "minute",
   "foodcategory-mei-100g-foodcaloriesper100g-kcal": "{0} · Per 100g: {1}kcal",
@@ -91,6 +95,14 @@
   "hours-xiao-shi-1": "{0} hours",
   "hours-xiao-shi-remainingminutes-fen-zhong": "{0} hours {1} minutes",
   "hours-xiao-shi-remainingminutes-fen-zhong-0": "{0} hours {1} minutes",
+  "http": {
+    "error": {
+      "401": "The account is invalid or unauthorized, please log in again.",
+      "403": "access denied",
+      "404": "The requested resource does not exist",
+      "500": "Server error"
+    }
+  },
   "huan-ying-lai-dao-mu-biao-guan-li": "👋 Welcome to Management by Objectives",
   "item-calories-kcal": "{0} kcal",
   "item-calories-kcal-0": "{0} kcal",
