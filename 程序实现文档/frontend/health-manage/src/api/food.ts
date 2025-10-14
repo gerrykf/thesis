@@ -2,7 +2,7 @@
 /* eslint-disable */
 import request from "@/utils/request";
 
-/** 获取食物列表 获取食物列表,支持分页、搜索和分类筛选 GET /api/foods */
+/** 获取食物列表 获取食物列表，支持分页、搜索和分类筛选。支持多语言，通过请求头的 Accept-Language 指定语言（zh-CN 或 en-US） GET /api/foods */
 export async function getFoods(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getFoodsParams,

@@ -1,6 +1,6 @@
-import { Response } from 'express';
-import { db } from '../config/database';
-import { AuthRequest } from '../middleware/auth';
+import { Response } from "express";
+import { db } from "../config/database";
+import { AuthRequest } from "../middleware/auth";
 
 /**
  * @swagger
@@ -95,10 +95,16 @@ import { AuthRequest } from '../middleware/auth';
  *       500:
  *         description: 服务器内部错误
  */
-export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUsers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.pageSize as string) || parseInt(req.query.limit as string) || 20;
+    const limit =
+      parseInt(req.query.pageSize as string) ||
+      parseInt(req.query.limit as string) ||
+      20;
     const offset = (page - 1) * limit;
     const search = req.query.search as string;
     const role = req.query.role as string;
@@ -108,11 +114,13 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
     const loginEndDate = req.query.loginEndDate as string;
 
     // 构建WHERE条件
-    let whereConditions = '';
+    let whereConditions = "";
     const conditions: string[] = [];
 
     if (search) {
-      conditions.push(`(username LIKE '%${search}%' OR nickname LIKE '%${search}%' OR email LIKE '%${search}%')`);
+      conditions.push(
+        `(username LIKE '%${search}%' OR nickname LIKE '%${search}%' OR email LIKE '%${search}%')`
+      );
     }
 
     if (role) {
@@ -138,7 +146,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
     }
 
     if (conditions.length > 0) {
-      whereConditions = ' WHERE ' + conditions.join(' AND ');
+      whereConditions = " WHERE " + conditions.join(" AND ");
     }
 
     const [users] = await db.execute(
@@ -147,8 +155,10 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
        ORDER BY last_login_at DESC, created_at DESC
        LIMIT ${limit} OFFSET ${offset}`
     );
-    
-    const [countResult] = await db.execute(`SELECT COUNT(*) as total FROM users${whereConditions}`);
+
+    const [countResult] = await db.execute(
+      `SELECT COUNT(*) as total FROM users${whereConditions}`
+    );
     const total = (countResult as any[])[0].total;
 
     res.json({
@@ -159,16 +169,19 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
+          totalPages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
-    console.error('获取用户列表错误:', error);
+    console.error("获取用户列表错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误',
-      error: process.env.NODE_ENV === 'development' ? (error as Error)?.message : undefined
+      message: "服务器内部错误",
+      error:
+        process.env.NODE_ENV === "development"
+          ? (error as Error)?.message
+          : undefined,
     });
   }
 };
@@ -211,7 +224,10 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
  *       500:
  *         description: 服务器内部错误
  */
-export const getUserById = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUserById = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
 
@@ -226,20 +242,20 @@ export const getUserById = async (req: AuthRequest, res: Response): Promise<void
     if (users.length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
     res.json({
       success: true,
-      data: users[0]
+      data: users[0],
     });
   } catch (error) {
-    console.error('获取用户详情错误:', error);
+    console.error("获取用户详情错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -283,13 +299,16 @@ export const getUserById = async (req: AuthRequest, res: Response): Promise<void
  *       500:
  *         description: 服务器内部错误
  */
-export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+export const toggleUserStatus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
 
     // 检查用户是否存在
     const [rows] = await db.execute(
-      'SELECT id, is_active FROM users WHERE id = ?',
+      "SELECT id, is_active FROM users WHERE id = ?",
       [userId]
     );
 
@@ -297,28 +316,28 @@ export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise
     if (users.length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
     const newStatus = !users[0].is_active;
 
-    await db.execute(
-      'UPDATE users SET is_active = ? WHERE id = ?',
-      [newStatus, userId]
-    );
+    await db.execute("UPDATE users SET is_active = ? WHERE id = ?", [
+      newStatus,
+      userId,
+    ]);
 
     res.json({
       success: true,
-      message: `用户已${newStatus ? '启用' : '禁用'}`,
-      data: { is_active: newStatus }
+      message: `用户已${newStatus ? "启用" : "禁用"}`,
+      data: { is_active: newStatus },
     });
   } catch (error) {
-    console.error('切换用户状态错误:', error);
+    console.error("切换用户状态错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -368,26 +387,29 @@ export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise
  *       500:
  *         description: 服务器内部错误
  */
-export const getSystemStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getSystemStats = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     // 用户统计
     const [userStats] = await db.execute(
-      'SELECT COUNT(*) as total, SUM(is_active) as active FROM users'
+      "SELECT COUNT(*) as total, SUM(is_active) as active FROM users"
     );
 
     // 健康记录统计
     const [healthStats] = await db.execute(
-      'SELECT COUNT(*) as total FROM health_records'
+      "SELECT COUNT(*) as total FROM health_records"
     );
 
     // 饮食记录统计
     const [dietStats] = await db.execute(
-      'SELECT COUNT(*) as total FROM diet_records'
+      "SELECT COUNT(*) as total FROM diet_records"
     );
 
     // 食物统计
     const [foodStats] = await db.execute(
-      'SELECT COUNT(*) as total FROM foods WHERE is_active = true'
+      "SELECT COUNT(*) as total FROM foods WHERE is_active = true"
     );
 
     const userData = (userStats as any[])[0];
@@ -402,14 +424,14 @@ export const getSystemStats = async (req: AuthRequest, res: Response): Promise<v
         active_users: userData.active || 0,
         total_health_records: healthData.total || 0,
         total_diet_records: dietData.total || 0,
-        total_foods: foodData.total || 0
-      }
+        total_foods: foodData.total || 0,
+      },
     });
   } catch (error) {
-    console.error('获取系统统计错误:', error);
+    console.error("获取系统统计错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -500,7 +522,10 @@ export const getSystemStats = async (req: AuthRequest, res: Response): Promise<v
  *       500:
  *         description: 服务器内部错误
  */
-export const getSystemLogs = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getSystemLogs = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
@@ -508,26 +533,26 @@ export const getSystemLogs = async (req: AuthRequest, res: Response): Promise<vo
     const action = req.query.action as string;
     const userId = req.query.user_id as string;
 
-    let query = 'SELECT * FROM system_logs WHERE 1=1';
-    let countQuery = 'SELECT COUNT(*) as total FROM system_logs WHERE 1=1';
+    let query = "SELECT * FROM system_logs WHERE 1=1";
+    let countQuery = "SELECT COUNT(*) as total FROM system_logs WHERE 1=1";
     const params: any[] = [];
     const countParams: any[] = [];
 
     if (action) {
-      query += ' AND action = ?';
-      countQuery += ' AND action = ?';
+      query += " AND action = ?";
+      countQuery += " AND action = ?";
       params.push(action);
       countParams.push(action);
     }
 
     if (userId) {
-      query += ' AND user_id = ?';
-      countQuery += ' AND user_id = ?';
+      query += " AND user_id = ?";
+      countQuery += " AND user_id = ?";
       params.push(userId);
       countParams.push(userId);
     }
 
-    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
     params.push(limit, offset);
 
     const [logs] = await db.execute(query, params);
@@ -542,59 +567,280 @@ export const getSystemLogs = async (req: AuthRequest, res: Response): Promise<vo
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
+          totalPages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
-    console.error('获取系统日志错误:', error);
+    console.error("获取系统日志错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
 
 /**
- * 更新用户状态 - PUT /api/admin/users/:id
+ * @swagger
+ * /api/admin/users/{id}:
+ *   put:
+ *     summary: 更新用户信息
+ *     tags: [Admin]
+ *     description: 更新指定用户的信息(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nickname:
+ *                 type: string
+ *                 description: 昵称
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: 邮箱
+ *               phone:
+ *                 type: string
+ *                 description: 手机号
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 description: 性别
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 description: 出生日期
+ *               height:
+ *                 type: number
+ *                 description: 身高(cm)
+ *               target_weight:
+ *                 type: number
+ *                 description: 目标体重(kg)
+ *               is_active:
+ *                 type: boolean
+ *                 description: 账号状态
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
+ *                 description: 用户角色
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 用户信息更新成功
+ *       400:
+ *         description: 请求参数错误
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
  */
-export const updateUserStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateUserById = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
-    const { is_active } = req.body;
+    const allowedFields = [
+      "is_active",
+      "nickname",
+      "email",
+      "phone",
+      "gender",
+      "birth_date",
+      "height",
+      "target_weight",
+      "role",
+    ];
 
-    if (typeof is_active !== 'boolean') {
+    // 检查用户是否存在
+    const [userCheck] = await db.execute("SELECT id FROM users WHERE id = ?", [
+      userId,
+    ]);
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    // 构建更新字段
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+
+    Object.keys(req.body).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        updateFields.push(`${key} = ?`);
+        updateValues.push(req.body[key]);
+      }
+    });
+
+    if (updateFields.length === 0) {
       res.status(400).json({
         success: false,
-        message: '请提供有效的用户状态'
+        message: "没有有效的更新字段",
+      });
+      return;
+    }
+
+    // 添加用户ID到参数数组
+    updateValues.push(userId);
+
+    await db.execute(
+      `UPDATE users SET ${updateFields.join(", ")} WHERE id = ?`,
+      updateValues
+    );
+
+    res.json({
+      success: true,
+      message: "用户信息更新成功",
+    });
+  } catch (error) {
+    console.error("更新用户信息错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     summary: 删除用户
+ *     tags: [Admin]
+ *     description: 删除指定用户及其所有相关数据(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 用户删除成功
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限或禁止删除自己
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const deleteUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const currentUserId = req.user?.userId;
+
+    // 防止管理员删除自己
+    if (currentUserId && parseInt(userId) === currentUserId) {
+      res.status(403).json({
+        success: false,
+        message: "不能删除自己的账号",
       });
       return;
     }
 
     // 检查用户是否存在
-    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    const [userCheck] = await db.execute(
+      "SELECT id, username FROM users WHERE id = ?",
+      [userId]
+    );
+
     if ((userCheck as any[]).length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
-    await db.execute(
-      'UPDATE users SET is_active = ? WHERE id = ?',
-      [is_active, userId]
-    );
+    // 开始事务删除用户及其相关数据
+    await db.execute("START TRANSACTION");
 
-    res.json({
-      success: true,
-      message: '用户状态更新成功'
-    });
+    try {
+      // 删除用户的健康记录
+      await db.execute("DELETE FROM health_records WHERE user_id = ?", [
+        userId,
+      ]);
+
+      // 删除用户的饮食记录
+      await db.execute("DELETE FROM diet_records WHERE user_id = ?", [userId]);
+
+      // 删除用户的目标
+      await db.execute("DELETE FROM user_goals WHERE user_id = ?", [userId]);
+
+      // 删除用户的系统日志
+      await db.execute("DELETE FROM system_logs WHERE user_id = ?", [userId]);
+
+      // 最后删除用户
+      await db.execute("DELETE FROM users WHERE id = ?", [userId]);
+
+      // 提交事务
+      await db.execute("COMMIT");
+
+      res.json({
+        success: true,
+        message: "用户删除成功",
+      });
+    } catch (error) {
+      // 回滚事务
+      await db.execute("ROLLBACK");
+      throw error;
+    }
   } catch (error) {
-    console.error('更新用户状态错误:', error);
+    console.error("删除用户错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
+      error:
+        process.env.NODE_ENV === "development"
+          ? (error as Error)?.message
+          : undefined,
     });
   }
 };
@@ -602,11 +848,14 @@ export const updateUserStatus = async (req: AuthRequest, res: Response): Promise
 /**
  * 获取用户统计 - GET /api/admin/stats/users
  */
-export const getUserStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUserStats = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     // 总用户数和活跃用户数
     const [userStats] = await db.execute(
-      'SELECT COUNT(*) as total, SUM(is_active) as active FROM users'
+      "SELECT COUNT(*) as total, SUM(is_active) as active FROM users"
     );
 
     // 管理员用户数
@@ -630,14 +879,14 @@ export const getUserStats = async (req: AuthRequest, res: Response): Promise<voi
         totalUsers: userData.total || 0,
         activeUsers: userData.active || 0,
         adminUsers: adminData.count || 0,
-        newUsersToday: newUsersData.count || 0
-      }
+        newUsersToday: newUsersData.count || 0,
+      },
     });
   } catch (error) {
-    console.error('获取用户统计错误:', error);
+    console.error("获取用户统计错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -645,29 +894,34 @@ export const getUserStats = async (req: AuthRequest, res: Response): Promise<voi
 /**
  * 获取用户健康统计 - GET /api/admin/users/:id/health-stats
  */
-export const getUserHealthStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUserHealthStats = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
 
     // 检查用户是否存在
-    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    const [userCheck] = await db.execute("SELECT id FROM users WHERE id = ?", [
+      userId,
+    ]);
     if ((userCheck as any[]).length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
     // 健康记录总数
     const [healthRecords] = await db.execute(
-      'SELECT COUNT(*) as count FROM health_records WHERE user_id = ?',
+      "SELECT COUNT(*) as count FROM health_records WHERE user_id = ?",
       [userId]
     );
 
     // 饮食记录总数
     const [dietRecords] = await db.execute(
-      'SELECT COUNT(*) as count FROM diet_records WHERE user_id = ?',
+      "SELECT COUNT(*) as count FROM diet_records WHERE user_id = ?",
       [userId]
     );
 
@@ -696,14 +950,14 @@ export const getUserHealthStats = async (req: AuthRequest, res: Response): Promi
         totalRecords: healthData.count || 0,
         dietRecords: dietData.count || 0,
         activeGoals: goalsData.count || 0,
-        activeDays: daysData.count || 0
-      }
+        activeDays: daysData.count || 0,
+      },
     });
   } catch (error) {
-    console.error('获取用户健康统计错误:', error);
+    console.error("获取用户健康统计错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };
@@ -711,7 +965,10 @@ export const getUserHealthStats = async (req: AuthRequest, res: Response): Promi
 /**
  * 获取用户健康记录 - GET /api/admin/users/:id/health-records
  */
-export const getUserHealthRecords = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUserHealthRecords = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
@@ -721,36 +978,39 @@ export const getUserHealthRecords = async (req: AuthRequest, res: Response): Pro
     const endDate = req.query.endDate as string;
 
     // 检查用户是否存在
-    const [userCheck] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+    const [userCheck] = await db.execute("SELECT id FROM users WHERE id = ?", [
+      userId,
+    ]);
     if ((userCheck as any[]).length === 0) {
       res.status(404).json({
         success: false,
-        message: '用户不存在'
+        message: "用户不存在",
       });
       return;
     }
 
-    let query = 'SELECT * FROM health_records WHERE user_id = ?';
-    let countQuery = 'SELECT COUNT(*) as total FROM health_records WHERE user_id = ?';
+    let query = "SELECT * FROM health_records WHERE user_id = ?";
+    let countQuery =
+      "SELECT COUNT(*) as total FROM health_records WHERE user_id = ?";
     const params: any[] = [userId];
     const countParams: any[] = [userId];
 
     // 日期筛选
     if (startDate) {
-      query += ' AND record_date >= ?';
-      countQuery += ' AND record_date >= ?';
+      query += " AND record_date >= ?";
+      countQuery += " AND record_date >= ?";
       params.push(startDate);
       countParams.push(startDate);
     }
 
     if (endDate) {
-      query += ' AND record_date <= ?';
-      countQuery += ' AND record_date <= ?';
+      query += " AND record_date <= ?";
+      countQuery += " AND record_date <= ?";
       params.push(endDate);
       countParams.push(endDate);
     }
 
-    query += ' ORDER BY record_date DESC LIMIT ? OFFSET ?';
+    query += " ORDER BY record_date DESC LIMIT ? OFFSET ?";
     params.push(pageSize, offset);
 
     const [records] = await db.execute(query, params);
@@ -763,14 +1023,14 @@ export const getUserHealthRecords = async (req: AuthRequest, res: Response): Pro
         records,
         total,
         page,
-        pageSize
-      }
+        pageSize,
+      },
     });
   } catch (error) {
-    console.error('获取用户健康记录错误:', error);
+    console.error("获取用户健康记录错误:", error);
     res.status(500).json({
       success: false,
-      message: '服务器内部错误'
+      message: "服务器内部错误",
     });
   }
 };

@@ -6,7 +6,13 @@
       "Bash(pnpm run dev)",
       "Bash(curl -X GET \"http://localhost:3000/api/foods?page=1&limit=1\" -H \"Accept-Language: en-US\" -H \"Authorization: Bearer YOUR_TOKEN\")",
       "Bash(npm run dev)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
+      "Bash(mysql:*)",
+      "Bash(curl -X GET \"http://localhost:3000/api/admin/users/1/health-records?page=1&pageSize=5\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3Mjg4MjEyMDQsImV4cCI6MTcyODgyNDgwNH0.example\")",
+      "Bash(lsof:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

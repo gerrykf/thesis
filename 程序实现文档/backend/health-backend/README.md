@@ -20,6 +20,7 @@
 ### 生产依赖 (dependencies)
 
 #### 核心框架
+
 - **express** (^5.1.0) - 快速、极简的 Web 框架
   - 用途：创建 HTTP 服务器、路由管理、中间件处理
   - 示例：
@@ -29,35 +30,44 @@
     ```
 
 #### 数据库
+
 - **mysql2** (^3.15.1) - MySQL 客户端（支持 Promise）
   - 用途：连接 MySQL 数据库、执行 SQL 查询
   - 特点：支持 Prepared Statements、连接池
   - 示例：
     ```typescript
-    import mysql from 'mysql2/promise'
-    const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [userId])
+    import mysql from "mysql2/promise";
+    const [rows] = await db.execute("SELECT * FROM users WHERE id = ?", [
+      userId,
+    ]);
     ```
 
 #### 安全认证
+
 - **bcryptjs** (^3.0.2) - 密码哈希库
+
   - 用途：加密用户密码、验证密码
   - 特点：自动加盐、防暴力破解
   - 示例：
     ```typescript
-    const hash = await bcrypt.hash(password, 12)
-    const isValid = await bcrypt.compare(password, hash)
+    const hash = await bcrypt.hash(password, 12);
+    const isValid = await bcrypt.compare(password, hash);
     ```
 
 - **jsonwebtoken** (^9.0.2) - JWT 令牌生成和验证
+
   - 用途：用户认证、授权管理
   - 配置：`.env` 中的 `JWT_SECRET` 和 `JWT_EXPIRES_IN`
   - 示例：
     ```typescript
-    const token = jwt.sign({ userId, username }, JWT_SECRET, { expiresIn: '7d' })
-    const decoded = jwt.verify(token, JWT_SECRET)
+    const token = jwt.sign({ userId, username }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    const decoded = jwt.verify(token, JWT_SECRET);
     ```
 
 - **helmet** (^8.1.0) - HTTP 头部安全中间件
+
   - 用途：设置安全的 HTTP 响应头
   - 防护：XSS、点击劫持、MIME 类型嗅探等
   - 使用：`app.use(helmet())`
@@ -67,19 +77,22 @@
   - 配置：`.env` 中的 `CORS_ORIGIN`
   - 示例：
     ```typescript
-    app.use(cors({
-      origin: ['http://localhost:5173'],
-      credentials: true
-    }))
+    app.use(
+      cors({
+        origin: ["http://localhost:5173"],
+        credentials: true,
+      })
+    );
     ```
 
 #### 数据验证
+
 - **express-validator** (^7.2.1) - Express 验证中间件
+
   - 用途：请求参数验证、数据清洗
   - 示例：
     ```typescript
-    body('username').isLength({ min: 3, max: 50 }),
-    body('email').isEmail()
+    body("username").isLength({ min: 3, max: 50 }), body("email").isEmail();
     ```
 
 - **joi** (^18.0.1) - 数据模式验证库
@@ -87,7 +100,9 @@
   - 场景：配置验证、业务逻辑验证
 
 #### API 文档
+
 - **swagger-jsdoc** (^6.2.8) - 从 JSDoc 注释生成 OpenAPI 规范
+
   - 用途：根据代码注释自动生成 API 文档
   - 配置：`src/app.ts` 中的 `swaggerOptions`
   - 示例：
@@ -107,12 +122,14 @@
   - 功能：在线测试 API、查看参数说明
 
 #### 日志工具
+
 - **morgan** (^1.10.1) - HTTP 请求日志中间件
   - 用途：记录所有 HTTP 请求
   - 输出：控制台 + 日志文件
   - 格式：`combined` (详细日志)、`dev` (开发日志)
 
 #### 环境配置
+
 - **dotenv** (^17.2.3) - 环境变量管理
   - 用途：从 `.env` 文件加载配置
   - 场景：数据库连接、JWT 密钥、端口配置
@@ -121,7 +138,9 @@
 ### 开发依赖 (devDependencies)
 
 #### TypeScript
+
 - **typescript** (^5.9.3) - TypeScript 编译器
+
   - 用途：类型检查、编译 TS 到 JS
   - 配置：`tsconfig.json`
 
@@ -130,6 +149,7 @@
   - 命令：`ts-node src/app.ts`
 
 #### 类型定义
+
 - **@types/express** (^5.0.3) - Express 类型定义
 - **@types/cors** (^2.8.19) - CORS 类型定义
 - **@types/jsonwebtoken** (^9.0.10) - JWT 类型定义
@@ -139,6 +159,7 @@
 - **@types/swagger-ui-express** (^4.1.8) - Swagger UI 类型定义
 
 #### 开发工具
+
 - **nodemon** (^3.1.10) - 文件监听和自动重启
   - 用途：代码修改后自动重启服务器
   - 配置：监听 `.ts` 文件变化
@@ -206,6 +227,7 @@ pnpm install
 - `.env.production` - 生产环境配置（已配置）
 
 #### 开发环境 (.env.development)
+
 ```env
 NODE_ENV=development
 PORT=3000
@@ -226,6 +248,7 @@ CORS_ORIGIN=http://localhost:5173,http://localhost:8848
 ```
 
 #### 生产环境 (.env.production)
+
 ```env
 NODE_ENV=production
 PORT=3000
@@ -246,6 +269,7 @@ CORS_ORIGIN=https://healthmanage.xin
 ```
 
 **注意**:
+
 - 生产环境配置已设置，CORS_ORIGIN 为 `https://healthmanage.xin`
 - 请根据实际部署情况修改数据库配置
 - JWT_SECRET 在生产环境应使用强随机字符串
@@ -302,12 +326,14 @@ pnpm test
 ## 主要 API 端点
 
 ### 认证模块 (Auth)
+
 - `POST /api/auth/register` - 用户注册
 - `POST /api/auth/login` - 用户登录
 - `GET /api/auth/profile` - 获取当前用户信息
 - `PUT /api/auth/profile` - 更新用户信息
 
 ### 健康记录 (Health)
+
 - `GET /api/health/records` - 获取健康记录列表
 - `POST /api/health/records` - 创建健康记录
 - `GET /api/health/records/:id` - 获取单条记录
@@ -315,12 +341,14 @@ pnpm test
 - `DELETE /api/health/records/:id` - 删除记录
 
 ### 健康目标 (Goals)
+
 - `GET /api/goals` - 获取用户健康目标
 - `POST /api/goals` - 创建健康目标
 - `PUT /api/goals` - 更新健康目标
 - `DELETE /api/goals` - 删除健康目标
 
 ### 食物管理 (Food)
+
 - `GET /api/foods` - 获取食物列表
 - `POST /api/foods` - 创建食物
 - `GET /api/foods/:id` - 获取食物详情
@@ -328,17 +356,20 @@ pnpm test
 - `DELETE /api/foods/:id` - 删除食物
 
 ### 饮食记录 (Diet)
+
 - `GET /api/diet/records` - 获取饮食记录
 - `POST /api/diet/records` - 创建饮食记录
 - `DELETE /api/diet/records/:id` - 删除记录
 
 ### 数据统计 (Stats)
+
 - `GET /api/stats/overview` - 获取数据概览
 - `GET /api/stats/weight-trend` - 体重趋势
 - `GET /api/stats/calorie-trend` - 卡路里趋势
 - `GET /api/stats/nutrition-summary` - 营养摘要
 
 ### 管理员 (Admin)
+
 - `GET /api/admin/users` - 获取用户列表
 - `PATCH /api/admin/users/:id/toggle-status` - 启用/禁用用户
 
@@ -426,14 +457,15 @@ API 统一返回格式：
 ## 默认账号
 
 ### 管理员账号
+
 - 用户名: `admin`
 - 密码: `admin123456`
 - 角色: `admin`
 
 ## 安全特性
 
-1. **密码加密** - bcryptjs + 12轮盐值
-2. **JWT 认证** - 7天有效期
+1. **密码加密** - bcryptjs + 12 轮盐值
+2. **JWT 认证** - 7 天有效期
 3. **SQL 注入防护** - Prepared Statements
 4. **XSS 防护** - Helmet 安全头
 5. **CORS 配置** - 白名单限制
@@ -443,18 +475,21 @@ API 统一返回格式：
 ## 开发规范
 
 ### 代码风格
+
 - 使用 TypeScript 严格模式
 - 异步函数使用 async/await
 - 错误处理使用 try-catch
 - 避免使用 `any` 类型
 
 ### API 设计
+
 - RESTful 风格
 - 统一响应格式
 - 完整的 Swagger 注释
 - 合理的 HTTP 状态码
 
 ### 安全规范
+
 - 敏感信息存储在 `.env`
 - 不提交 `.env` 到版本控制
 - 定期更新依赖包
@@ -463,10 +498,12 @@ API 统一返回格式：
 ## 日志说明
 
 ### 日志位置
+
 - 访问日志：`logs/access.log`
 - 应用日志：控制台输出
 
 ### 日志格式
+
 ```
 ::1 - - [05/Oct/2025:04:15:23 +0000] "POST /api/auth/login HTTP/1.1" 200 245
 ```
@@ -495,6 +532,7 @@ API 统一返回格式：
 ### 文件上传配置
 
 **限制说明**:
+
 - 文件大小: 最大 5MB
 - 文件类型: jpg, jpeg, png, gif, webp
 - 文件命名: `{userId}_{timestamp}.{ext}`
@@ -563,11 +601,13 @@ pnpm run pm2:restart
 ### 常见问题
 
 1. **数据库连接失败**
+
    - 检查 MySQL 服务是否启动
    - 验证 `.env` 中的数据库配置
    - 确认数据库已创建
 
 2. **JWT 认证失败**
+
    - 检查 Token 是否过期
    - 验证 `JWT_SECRET` 配置
    - 确认 Authorization Header 格式
@@ -587,32 +627,38 @@ pnpm run pm2:restart
 ### 近期更新 (2025-10)
 
 #### 构建优化
-- ✅ 优化构建流程，支持dist目录独立部署
-- ✅ 新增 `scripts/copy-uploads.js` 自动复制uploads到dist
-- ✅ 修改静态文件路径配置，支持从dist提供服务
+
+- ✅ 优化构建流程，支持 dist 目录独立部署
+- ✅ 新增 `scripts/copy-uploads.js` 自动复制 uploads 到 dist
+- ✅ 修改静态文件路径配置，支持从 dist 提供服务
 - ✅ 更新 `.gitignore`，允许跟踪 `dist/uploads/`
 
 #### 环境配置
+
 - ✅ 添加多环境支持（development/production）
 - ✅ 配置生产环境域名：`https://healthmanage.xin`
-- ✅ CORS支持前端H5(5173)和管理端(8848)
+- ✅ CORS 支持前端 H5(5173)和管理端(8848)
 
 #### 文件上传
+
 - ✅ 实现用户头像上传功能
-- ✅ 使用Multer中间件处理文件上传
+- ✅ 使用 Multer 中间件处理文件上传
 - ✅ 支持图片格式：jpg, jpeg, png, gif, webp
 - ✅ 文件大小限制：5MB
 
-#### API接口
+#### API 接口
+
 - ✅ 完善用户认证模块（注册、登录、个人信息）
-- ✅ 实现健康记录CRUD操作
+  - 没有删除用户接口
+- ✅ 实现健康记录 CRUD 操作
 - ✅ 添加健康目标管理
 - ✅ 实现饮食记录和营养统计
 - ✅ 添加数据统计分析功能
 - ✅ 实现管理员用户管理
 
 #### 文档完善
-- ✅ 更新README，添加详细的依赖说明
+
+- ✅ 更新 README，添加详细的依赖说明
 - ✅ 完善部署流程文档
 - ✅ 添加文件上传功能说明
 - ✅ 补充环境配置详细说明
@@ -628,4 +674,3 @@ pnpm run pm2:restart
 ## License
 
 MIT
-test2

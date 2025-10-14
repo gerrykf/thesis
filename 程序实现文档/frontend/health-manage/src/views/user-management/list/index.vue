@@ -392,7 +392,7 @@ onMounted(() => {
   margin: 0 0 4px 0;
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-gray-100, currentColor);
 }
 
 .stat-info p {
@@ -418,7 +418,6 @@ onMounted(() => {
 }
 
 :deep(.el-table th) {
-  background-color: #fafafa;
   color: #606266;
   font-weight: 600;
 }

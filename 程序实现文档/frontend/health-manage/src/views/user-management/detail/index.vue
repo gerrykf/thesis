@@ -5,7 +5,6 @@
       <el-button :icon="ArrowLeft" @click="goBack">返回用户列表</el-button>
       <div class="header-info">
         <h2>用户详情</h2>
-        <p>查看用户的详细信息和健康数据</p>
       </div>
     </div>
 
@@ -197,12 +196,12 @@
         </template>
 
         <el-table :data="healthRecords" stripe>
-          <el-table-column prop="record_date" label="日期" width="120">
+          <el-table-column prop="record_date" label="日期">
             <template #default="{ row }">
               {{ formatDate(row.record_date) }}
             </template>
           </el-table-column>
-          <el-table-column prop="weight" label="体重(kg)" width="100">
+          <el-table-column prop="weight" label="体重(kg)">
             <template #default="{ row }">
               {{ row.weight || "-" }}
             </template>
@@ -216,7 +215,7 @@
               {{ row.exercise_duration || "-" }}
             </template>
           </el-table-column>
-          <el-table-column prop="exercise_type" label="运动类型" width="120">
+          <el-table-column prop="exercise_type" label="运动类型">
             <template #default="{ row }">
               {{ row.exercise_type || "-" }}
             </template>
@@ -230,7 +229,7 @@
               {{ row.sleep_hours || "-" }}
             </template>
           </el-table-column>
-          <el-table-column prop="sleep_quality" label="睡眠质量" width="100">
+          <el-table-column prop="sleep_quality" label="睡眠质量">
             <template #default="{ row }">
               <el-tag
                 v-if="row.sleep_quality"
@@ -242,7 +241,7 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="mood" label="心情" width="80">
+          <el-table-column prop="mood" label="心情">
             <template #default="{ row }">
               <el-tag
                 v-if="row.mood"
@@ -254,7 +253,7 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="notes" label="备注" min-width="150">
+          <el-table-column prop="notes" label="备注">
             <template #default="{ row }">
               {{ row.notes || "-" }}
             </template>
@@ -262,6 +261,168 @@
         </el-table>
       </el-card>
     </div>
+
+    <!-- 全部健康记录对话框 -->
+    <el-dialog
+      v-model="allRecordsDialog.visible"
+      title="全部健康记录"
+      width="80%"
+      :close-on-click-modal="false"
+    >
+      <el-table
+        v-loading="allRecordsDialog.loading"
+        :data="allRecordsDialog.records"
+        stripe
+        max-height="500"
+      >
+        <el-table-column prop="record_date" label="日期">
+          <template #default="{ row }">
+            {{ formatDate(row.record_date) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="weight" label="体重(kg)">
+          <template #default="{ row }">
+            {{ row.weight || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="exercise_duration"
+          label="运动时长(分钟)"
+          width="130"
+        >
+          <template #default="{ row }">
+            {{ row.exercise_duration || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="exercise_type" label="运动类型">
+          <template #default="{ row }">
+            {{ row.exercise_type || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="sleep_hours" label="睡眠时长(小时)">
+          <template #default="{ row }">
+            {{ row.sleep_hours || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="sleep_quality" label="睡眠质量">
+          <template #default="{ row }">
+            <el-tag
+              v-if="row.sleep_quality"
+              :type="getSleepQualityType(row.sleep_quality)"
+              size="small"
+            >
+              {{ getSleepQualityText(row.sleep_quality) }}
+            </el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="mood" label="心情">
+          <template #default="{ row }">
+            <el-tag v-if="row.mood" :type="getMoodType(row.mood)" size="small">
+              {{ getMoodText(row.mood) }}
+            </el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="notes" label="备注">
+          <template #default="{ row }">
+            {{ row.notes || "-" }}
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div style="margin-top: 20px; text-align: center">
+        <el-pagination
+          v-model:current-page="allRecordsDialog.page"
+          :page-size="allRecordsDialog.pageSize"
+          :total="allRecordsDialog.total"
+          layout="total, prev, pager, next, jumper"
+          @current-change="handleRecordsPageChange"
+        />
+      </div>
+    </el-dialog>
+
+    <!-- 编辑用户对话框 -->
+    <el-dialog
+      v-model="editDialog.visible"
+      title="编辑用户信息"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        :model="editDialog.form"
+        label-width="120px"
+        :disabled="editDialog.loading"
+      >
+        <el-form-item label="昵称">
+          <el-input
+            v-model="editDialog.form.nickname"
+            placeholder="请输入昵称"
+          />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input
+            v-model="editDialog.form.email"
+            placeholder="请输入邮箱"
+            type="email"
+          />
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input
+            v-model="editDialog.form.phone"
+            placeholder="请输入手机号"
+          />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-radio-group v-model="editDialog.form.gender">
+            <el-radio label="male">男</el-radio>
+            <el-radio label="female">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="生日">
+          <el-date-picker
+            v-model="editDialog.form.birth_date"
+            type="date"
+            placeholder="选择日期"
+            style="width: 100%"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="身高(cm)">
+          <el-input-number
+            v-model="editDialog.form.height"
+            :min="0"
+            :max="300"
+            :step="1"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="目标体重(kg)">
+          <el-input-number
+            v-model="editDialog.form.target_weight"
+            :min="0"
+            :max="500"
+            :step="0.1"
+            :precision="1"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editDialog.visible = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="editDialog.loading"
+            @click="saveUserEdit"
+          >
+            保存
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -279,6 +440,15 @@ import {
   Edit,
   Delete
 } from "@element-plus/icons-vue";
+import {
+  getUserDetail,
+  getUserHealthStats,
+  getUserHealthRecords,
+  updateUserStatus,
+  deleteUser as deleteUserApi
+} from "@/api/user-management";
+import { putAdminUsersId } from "@/api/admin";
+import { useUserStoreHook } from "@/store/modules/user";
 
 defineOptions({
   name: "UserDetail"
@@ -286,9 +456,10 @@ defineOptions({
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStoreHook();
 
 // 当前登录用户ID
-const currentUserId = ref(1); // TODO: 从store获取
+const currentUserId = ref((userStore as any).id || 1);
 
 // 加载状态
 const loading = ref(false);
@@ -321,6 +492,31 @@ const healthStats = reactive({
 
 // 健康记录列表
 const healthRecords = ref([]);
+
+// 全部记录对话框
+const allRecordsDialog = reactive({
+  visible: false,
+  records: [],
+  total: 0,
+  page: 1,
+  pageSize: 10,
+  loading: false
+});
+
+// 编辑用户对话框
+const editDialog = reactive({
+  visible: false,
+  loading: false,
+  form: {
+    nickname: "",
+    email: "",
+    phone: "",
+    gender: "",
+    birth_date: "",
+    height: null,
+    target_weight: null
+  }
+});
 
 // 返回用户列表
 const goBack = () => {
@@ -396,70 +592,45 @@ const getMoodText = (mood: string) => {
 const loadUserDetail = async () => {
   loading.value = true;
   try {
-    const userId = route.params.id;
+    const userId = Number(route.params.id);
 
-    // TODO: 调用API获取用户详情
-    // const response = await getUserDetail(userId);
-
-    // 模拟数据
-    Object.assign(userInfo, {
-      id: Number(userId),
-      username: "user001",
-      nickname: "张小明",
-      email: "zhangming@example.com",
-      phone: "13800000002",
-      gender: "male",
-      birth_date: "1995-03-15",
-      height: 172,
-      target_weight: 68,
-      avatar: "",
-      role: "user",
-      is_active: true,
-      last_login_at: "2024-01-15T09:15:00.000Z",
-      created_at: "2024-01-02T10:30:00.000Z"
-    });
+    // 调用API获取用户详情
+    try {
+      const userResponse = await getUserDetail(userId);
+      if ((userResponse as any).success && userResponse.data) {
+        Object.assign(userInfo, userResponse.data);
+      }
+    } catch (error) {
+      console.error("获取用户详情失败:", error);
+      ElMessage.error("获取用户详情失败");
+      router.push("/user-management/list");
+      return;
+    }
 
     // 加载健康统计数据
-    Object.assign(healthStats, {
-      totalRecords: 45,
-      dietRecords: 128,
-      activeGoals: 3,
-      activeDays: 42
-    });
-
-    // 加载健康记录
-    healthRecords.value = [
-      {
-        record_date: "2024-01-15",
-        weight: 69.5,
-        exercise_duration: 45,
-        exercise_type: "跑步",
-        sleep_hours: 7.5,
-        sleep_quality: "good",
-        mood: "excellent",
-        notes: "今天感觉很棒"
-      },
-      {
-        record_date: "2024-01-14",
-        weight: 69.8,
-        exercise_duration: 30,
-        exercise_type: "瑜伽",
-        sleep_hours: 8,
-        sleep_quality: "excellent",
-        mood: "good",
-        notes: "瑜伽很放松"
-      },
-      {
-        record_date: "2024-01-13",
-        weight: 70.0,
-        exercise_duration: 60,
-        exercise_type: "游泳",
-        sleep_hours: 7,
-        sleep_quality: "good",
-        mood: "good",
-        notes: "游泳1小时"
+    try {
+      const statsResponse = await getUserHealthStats(userId);
+      if ((statsResponse as any).success && statsResponse.data) {
+        Object.assign(healthStats, statsResponse.data);
       }
-    ];
+    } catch (error) {
+      console.error("获取健康统计失败:", error);
+      // 继续加载其他数据
+    }
+
+    // 加载健康记录（只显示最近5条）
+    try {
+      const recordsResponse = await getUserHealthRecords(userId, {
+        page: 1,
+        pageSize: 5
+      });
+      if ((recordsResponse as any).success && recordsResponse.data) {
+        healthRecords.value = (recordsResponse.data as any).records || [];
+      }
+    } catch (error) {
+      console.error("获取健康记录失败:", error);
+      // 不影响页面加载，只是健康记录不显示
+    }
   } catch (error) {
     console.error("加载用户详情失败:", error);
     ElMessage.error("加载用户详情失败");
@@ -483,13 +654,18 @@ const toggleUserStatus = async () => {
       }
     );
 
-    // TODO: 调用API切换用户状态
-    // await updateUserStatus(userInfo.id, !userInfo.is_active);
+    // 调用API切换用户状态
+    const response = await updateUserStatus(userInfo.id, {
+      is_active: !userInfo.is_active
+    });
 
-    // 模拟状态切换
-    userInfo.is_active = !userInfo.is_active;
-
-    ElMessage.success(`${action}成功`);
+    if ((response as any).success) {
+      // 更新本地状态
+      userInfo.is_active = !userInfo.is_active;
+      ElMessage.success(`${action}成功`);
+    } else {
+      ElMessage.error(`${action}失败`);
+    }
   } catch (error) {
     if (error !== "cancel") {
       console.error(`${action}用户失败:`, error);
@@ -500,7 +676,42 @@ const toggleUserStatus = async () => {
 
 // 编辑用户
 const editUser = () => {
-  ElMessage.info("编辑功能开发中...");
+  // 打开编辑对话框并填充当前用户数据
+  editDialog.form = {
+    nickname: userInfo.nickname || "",
+    email: userInfo.email || "",
+    phone: userInfo.phone || "",
+    gender: (userInfo.gender || "") as "male" | "female" | "",
+    birth_date: userInfo.birth_date || "",
+    height: userInfo.height || null,
+    target_weight: userInfo.target_weight || null
+  };
+  editDialog.visible = true;
+};
+
+// 保存用户编辑
+const saveUserEdit = async () => {
+  editDialog.loading = true;
+  try {
+    const response = (await putAdminUsersId(
+      { id: userInfo.id },
+      editDialog.form as any
+    )) as any;
+
+    if (response.success) {
+      ElMessage.success("保存成功");
+      editDialog.visible = false;
+      // 重新加载用户数据
+      await loadUserDetail();
+    } else {
+      ElMessage.error(response.message || "保存失败");
+    }
+  } catch (error) {
+    console.error("保存用户信息失败:", error);
+    ElMessage.error("保存用户信息失败");
+  } finally {
+    editDialog.loading = false;
+  }
 };
 
 // 删除用户
@@ -516,11 +727,15 @@ const deleteUser = async () => {
       }
     );
 
-    // TODO: 调用API删除用户
-    // await deleteUser(userInfo.id);
+    // 调用API删除用户
+    const response = (await deleteUserApi(userInfo.id)) as any;
 
-    ElMessage.success("删除成功");
-    router.push("/user-management/list");
+    if (response.success) {
+      ElMessage.success("删除成功");
+      router.push("/user-management/list");
+    } else {
+      ElMessage.error(response.message || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       console.error("删除用户失败:", error);
@@ -530,8 +745,36 @@ const deleteUser = async () => {
 };
 
 // 查看全部记录
-const viewAllRecords = () => {
-  ElMessage.info("查看全部记录功能开发中...");
+const viewAllRecords = async () => {
+  allRecordsDialog.visible = true;
+  await loadAllRecords();
+};
+
+// 加载所有健康记录
+const loadAllRecords = async () => {
+  allRecordsDialog.loading = true;
+  try {
+    const response = (await getUserHealthRecords(Number(route.params.id), {
+      page: allRecordsDialog.page,
+      pageSize: allRecordsDialog.pageSize
+    })) as any;
+
+    if (response.success && response.data) {
+      allRecordsDialog.records = response.data.records || [];
+      allRecordsDialog.total = response.data.total || 0;
+    }
+  } catch (error) {
+    console.error("加载健康记录失败:", error);
+    ElMessage.error("加载健康记录失败");
+  } finally {
+    allRecordsDialog.loading = false;
+  }
+};
+
+// 全部记录对话框分页变化
+const handleRecordsPageChange = (page: number) => {
+  allRecordsDialog.page = page;
+  loadAllRecords();
 };
 
 // 页面初始化
@@ -703,7 +946,6 @@ onMounted(() => {
 }
 
 :deep(.el-table th) {
-  background-color: #fafafa;
   color: #606266;
   font-weight: 600;
 }

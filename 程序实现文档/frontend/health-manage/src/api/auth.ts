@@ -14,13 +14,13 @@ export async function postAuthAvatar(
     formData.append("avatar", avatar);
   }
 
-  Object.keys(body).forEach(ele => {
+  Object.keys(body).forEach((ele) => {
     const item = (body as any)[ele];
 
     if (item !== undefined && item !== null) {
       if (typeof item === "object" && !(item instanceof File)) {
         if (item instanceof Array) {
-          item.forEach(f => formData.append(ele, f || ""));
+          item.forEach((f) => formData.append(ele, f || ""));
         } else {
           formData.append(
             ele,
@@ -40,10 +40,7 @@ export async function postAuthAvatar(
   }>("/api/auth/avatar", {
     method: "POST",
     data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data"
-    },
-    ...(options || {})
+    ...(options || {}),
   });
 }
 
@@ -55,10 +52,10 @@ export async function postAuthLogin(
   return request<API.LoginResponse>("/api/auth/login", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     data: body,
-    ...(options || {})
+    ...(options || {}),
   });
 }
 
@@ -77,10 +74,10 @@ export async function putAuthPassword(
     {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       data: body,
-      ...(options || {})
+      ...(options || {}),
     }
   );
 }
@@ -89,7 +86,7 @@ export async function putAuthPassword(
 export async function getAuthProfile(options?: { [key: string]: any }) {
   return request<{ success?: boolean; data?: API.User }>("/api/auth/profile", {
     method: "GET",
-    ...(options || {})
+    ...(options || {}),
   });
 }
 
@@ -101,10 +98,10 @@ export async function putAuthProfile(
   return request<{ success?: boolean; message?: string }>("/api/auth/profile", {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     data: body,
-    ...(options || {})
+    ...(options || {}),
   });
 }
 
@@ -120,9 +117,9 @@ export async function postAuthRegister(
   }>("/api/auth/register", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     data: body,
-    ...(options || {})
+    ...(options || {}),
   });
 }

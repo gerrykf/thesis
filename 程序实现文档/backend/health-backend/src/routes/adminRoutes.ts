@@ -4,7 +4,8 @@ import {
   getUsers,
   getUserById,
   toggleUserStatus,
-  updateUserStatus,
+  updateUserById,
+  deleteUser,
   getSystemStats,
   getSystemLogs,
   getUserStats,
@@ -28,7 +29,8 @@ router.use(requireRole('admin'));
 router.get('/users', getUsers);
 router.get('/users/:id', getUserById);
 router.patch('/users/:id/toggle-status', toggleUserStatus);
-router.put('/users/:id', updateUserStatus);
+router.put('/users/:id', updateUserById);
+router.delete('/users/:id', deleteUser);
 
 // 用户健康数据管理
 router.get('/users/:id/health-stats', getUserHealthStats);

@@ -107,6 +107,64 @@ export async function getAdminUsersId(
   );
 }
 
+/** 更新用户信息 更新指定用户的信息(需要管理员权限) PUT /api/admin/users/${param0} */
+export async function putAdminUsersId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminUsersIdParams,
+  body: {
+    /** 昵称 */
+    nickname?: string;
+    /** 邮箱 */
+    email?: string;
+    /** 手机号 */
+    phone?: string;
+    /** 性别 */
+    gender?: "male" | "female" | "other";
+    /** 出生日期 */
+    birth_date?: string;
+    /** 身高(cm) */
+    height?: number;
+    /** 目标体重(kg) */
+    target_weight?: number;
+    /** 账号状态 */
+    is_active?: boolean;
+    /** 用户角色 */
+    role?: "user" | "admin";
+  },
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{ success?: boolean; message?: string }>(
+    `/api/admin/users/${param0}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      params: { ...queryParams },
+      data: body,
+      ...(options || {}),
+    }
+  );
+}
+
+/** 删除用户 删除指定用户及其所有相关数据(需要管理员权限) DELETE /api/admin/users/${param0} */
+export async function deleteAdminUsersId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deleteAdminUsersIdParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{ success?: boolean; message?: string }>(
+    `/api/admin/users/${param0}`,
+    {
+      method: "DELETE",
+      params: { ...queryParams },
+      ...(options || {}),
+    }
+  );
+}
+
 /** 切换用户状态 启用或禁用用户账号(需要管理员权限) PATCH /api/admin/users/${param0}/toggle-status */
 export async function patchAdminUsersIdToggleStatus(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

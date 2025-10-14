@@ -58,6 +58,11 @@ declare namespace API {
     notes?: string;
   };
 
+  type deleteAdminUsersIdParams = {
+    /** 用户ID */
+    id: number;
+  };
+
   type deleteDietRecordsIdParams = {
     /** 记录ID */
     id: number;
@@ -171,6 +176,14 @@ declare namespace API {
     search?: string;
     /** 用户角色筛选 */
     role?: "user" | "admin";
+    /** 创建时间开始日期(YYYY-MM-DD) */
+    createdStartDate?: string;
+    /** 创建时间结束日期(YYYY-MM-DD) */
+    createdEndDate?: string;
+    /** 最后登录开始日期(YYYY-MM-DD) */
+    loginStartDate?: string;
+    /** 最后登录结束日期(YYYY-MM-DD) */
+    loginEndDate?: string;
   };
 
   type getDietRecordsParams = {
@@ -203,15 +216,15 @@ declare namespace API {
   };
 
   type getFoodsParams = {
-    /** 页码 */
+    /** 页码（从1开始） */
     page?: number;
-    /** 每页数量 */
+    /** 每页显示数量 */
     limit?: number;
-    /** 搜索关键词(食物名称) */
+    /** 搜索关键词（用于匹配食物名称） */
     search?: string;
-    /** 食物分类 */
+    /** 食物类别筛选 */
     category?: string;
-    /** 条形码查询 */
+    /** 根据条形码筛选 */
     barcode?: string;
   };
 
@@ -306,6 +319,11 @@ declare namespace API {
     id: number;
   };
 
+  type putAdminUsersIdParams = {
+    /** 用户ID */
+    id: number;
+  };
+
   type putFoodsIdParams = {
     /** 食物ID */
     id: number;
@@ -367,8 +385,6 @@ declare namespace API {
     avatar?: string;
     /** 用户角色 */
     role?: "user" | "admin";
-    /** 是否启用 */
-    is_active?: boolean;
     /** 创建时间 */
     created_at?: string;
     /** 最后登录时间 */

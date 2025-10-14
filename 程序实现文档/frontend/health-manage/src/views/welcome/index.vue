@@ -174,7 +174,6 @@ const formatTime = (date: Date) => {
 <style scoped>
 .welcome-container {
   padding: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: calc(100vh - 120px);
   border-radius: 8px;
 }
@@ -182,7 +181,7 @@ const formatTime = (date: Date) => {
 .welcome-header {
   text-align: center;
   margin-bottom: 40px;
-  color: white;
+  color: var(--color-gray-600, currentColor);
 }
 
 .welcome-title {

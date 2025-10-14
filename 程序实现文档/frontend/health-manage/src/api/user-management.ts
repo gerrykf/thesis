@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import request from "@/utils/request";
+import { putAuthProfile } from "./auth";
 
 /** 获取用户列表 管理员获取用户列表 GET /api/admin/users */
 export async function getUserList(
@@ -25,7 +26,7 @@ export async function getUserList(
   }>("/api/admin/users", {
     method: "GET",
     params,
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -39,7 +40,7 @@ export async function getUserDetail(
     data?: API.User;
   }>(`/api/admin/users/${userId}`, {
     method: "GET",
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -57,10 +58,10 @@ export async function updateUserStatus(
   }>(`/api/admin/users/${userId}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
     data: body,
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -74,7 +75,7 @@ export async function deleteUser(
     message?: string;
   }>(`/api/admin/users/${userId}`, {
     method: "DELETE",
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -90,7 +91,7 @@ export async function getUserStats(options?: { [key: string]: any }) {
     };
   }>("/api/admin/stats/users", {
     method: "GET",
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -109,7 +110,7 @@ export async function getUserHealthStats(
     };
   }>(`/api/admin/users/${userId}/health-stats`, {
     method: "GET",
-    ...(options || {}),
+    ...(options || {})
   });
 }
 
@@ -135,6 +136,6 @@ export async function getUserHealthRecords(
   }>(`/api/admin/users/${userId}/health-records`, {
     method: "GET",
     params,
-    ...(options || {}),
+    ...(options || {})
   });
 }
