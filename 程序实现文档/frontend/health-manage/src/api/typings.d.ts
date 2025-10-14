@@ -162,6 +162,24 @@ declare namespace API {
     user_id?: number;
   };
 
+  type getAdminUsersIdHealthRecordsParams = {
+    /** 用户ID */
+    id: number;
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 开始日期(YYYY-MM-DD) */
+    startDate?: string;
+    /** 结束日期(YYYY-MM-DD) */
+    endDate?: string;
+  };
+
+  type getAdminUsersIdHealthStatsParams = {
+    /** 用户ID */
+    id: number;
+  };
+
   type getAdminUsersIdParams = {
     /** 用户ID */
     id: number;
@@ -385,6 +403,8 @@ declare namespace API {
     avatar?: string;
     /** 用户角色 */
     role?: "user" | "admin";
+    /** 账号状态 */
+    is_active?: boolean;
     /** 创建时间 */
     created_at?: string;
     /** 最后登录时间 */

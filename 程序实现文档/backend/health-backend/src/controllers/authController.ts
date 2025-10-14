@@ -50,6 +50,9 @@ import fs from "fs";
  *           type: string
  *           enum: [user, admin]
  *           description: 用户角色
+ *         is_active:
+ *           type: boolean
+ *           description: 账号状态
  *         created_at:
  *           type: string
  *           format: date-time

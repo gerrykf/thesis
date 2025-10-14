@@ -40,6 +40,7 @@ export async function postAuthAvatar(
   }>("/api/auth/avatar", {
     method: "POST",
     data: formData,
+    requestType: "form",
     ...(options || {}),
   });
 }

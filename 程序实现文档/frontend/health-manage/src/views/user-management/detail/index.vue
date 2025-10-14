@@ -107,7 +107,7 @@
 
             <el-row :gutter="20">
               <el-col :span="6">
-                <div class="stat-item">
+                <div class="stat-item clickable" @click="viewAllRecords">
                   <div class="stat-icon health">
                     <el-icon size="24"><DataAnalysis /></el-icon>
                   </div>
@@ -118,7 +118,7 @@
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="stat-item">
+                <div class="stat-item clickable" @click="viewDietRecords">
                   <div class="stat-icon diet">
                     <el-icon size="24"><Food /></el-icon>
                   </div>
@@ -129,7 +129,7 @@
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="stat-item">
+                <div class="stat-item clickable" @click="viewActiveGoals">
                   <div class="stat-icon goals">
                     <el-icon size="24"><Flag /></el-icon>
                   </div>
@@ -140,7 +140,7 @@
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="stat-item">
+                <div class="stat-item clickable" @click="viewActiveDays">
                   <div class="stat-icon days">
                     <el-icon size="24"><Calendar /></el-icon>
                   </div>
@@ -342,6 +342,59 @@
       </div>
     </el-dialog>
 
+    <!-- 饮食记录对话框 -->
+    <el-dialog
+      v-model="dietRecordsDialog.visible"
+      title="饮食记录"
+      width="80%"
+      :close-on-click-modal="false"
+    >
+      <el-alert
+        title="功能开发中"
+        type="info"
+        description="饮食记录功能正在开发中，敬请期待。"
+        :closable="false"
+        style="margin-bottom: 20px"
+      />
+    </el-dialog>
+
+    <!-- 活跃目标对话框 -->
+    <el-dialog
+      v-model="activeGoalsDialog.visible"
+      title="活跃目标"
+      width="80%"
+      :close-on-click-modal="false"
+    >
+      <el-alert
+        title="功能开发中"
+        type="info"
+        description="活跃目标功能正在开发中，敬请期待。"
+        :closable="false"
+        style="margin-bottom: 20px"
+      />
+    </el-dialog>
+
+    <!-- 活跃天数对话框 -->
+    <el-dialog
+      v-model="activeDaysDialog.visible"
+      title="活跃天数"
+      width="60%"
+      :close-on-click-modal="false"
+    >
+      <el-alert
+        title="功能开发中"
+        type="info"
+        description="活跃天数日历视图功能正在开发中，敬请期待。"
+        :closable="false"
+        style="margin-bottom: 20px"
+      />
+      <div style="text-align: center; padding: 40px 0">
+        <el-statistic :value="healthStats.activeDays" title="累计活跃天数">
+          <template #suffix>天</template>
+        </el-statistic>
+      </div>
+    </el-dialog>
+
     <!-- 编辑用户对话框 -->
     <el-dialog
       v-model="editDialog.visible"
@@ -441,13 +494,14 @@ import {
   Delete
 } from "@element-plus/icons-vue";
 import {
-  getUserDetail,
-  getUserHealthStats,
-  getUserHealthRecords,
-  updateUserStatus,
-  deleteUser as deleteUserApi
-} from "@/api/user-management";
-import { putAdminUsersId } from "@/api/admin";
+  getAdminUsersId,
+  getAdminUsersIdHealthStats,
+  getAdminUsersIdHealthRecords,
+  putAdminUsersId,
+  patchAdminUsersIdToggleStatus,
+  deleteAdminUsersId
+} from "@/api/admin";
+import { unwrap } from "@/utils/api";
 import { useUserStoreHook } from "@/store/modules/user";
 
 defineOptions({
@@ -501,6 +555,21 @@ const allRecordsDialog = reactive({
   page: 1,
   pageSize: 10,
   loading: false
+});
+
+// 饮食记录对话框
+const dietRecordsDialog = reactive({
+  visible: false
+});
+
+// 活跃目标对话框
+const activeGoalsDialog = reactive({
+  visible: false
+});
+
+// 活跃天数对话框
+const activeDaysDialog = reactive({
+  visible: false
 });
 
 // 编辑用户对话框
@@ -596,8 +665,8 @@ const loadUserDetail = async () => {
 
     // 调用API获取用户详情
     try {
-      const userResponse = await getUserDetail(userId);
-      if ((userResponse as any).success && userResponse.data) {
+      const userResponse = await unwrap(getAdminUsersId({ id: userId }));
+      if (userResponse?.success && userResponse.data) {
         Object.assign(userInfo, userResponse.data);
       }
     } catch (error) {
@@ -609,8 +678,10 @@ const loadUserDetail = async () => {
 
     // 加载健康统计数据
     try {
-      const statsResponse = await getUserHealthStats(userId);
-      if ((statsResponse as any).success && statsResponse.data) {
+      const statsResponse = await unwrap(
+        getAdminUsersIdHealthStats({ id: userId })
+      );
+      if (statsResponse?.success && statsResponse.data) {
         Object.assign(healthStats, statsResponse.data);
       }
     } catch (error) {
@@ -620,12 +691,15 @@ const loadUserDetail = async () => {
 
     // 加载健康记录（只显示最近5条）
     try {
-      const recordsResponse = await getUserHealthRecords(userId, {
-        page: 1,
-        pageSize: 5
-      });
-      if ((recordsResponse as any).success && recordsResponse.data) {
-        healthRecords.value = (recordsResponse.data as any).records || [];
+      const recordsResponse = await unwrap(
+        getAdminUsersIdHealthRecords({
+          id: userId,
+          page: 1,
+          pageSize: 5
+        })
+      );
+      if (recordsResponse?.success && recordsResponse.data) {
+        healthRecords.value = recordsResponse.data.records || [];
       }
     } catch (error) {
       console.error("获取健康记录失败:", error);
@@ -655,11 +729,11 @@ const toggleUserStatus = async () => {
     );
 
     // 调用API切换用户状态
-    const response = await updateUserStatus(userInfo.id, {
-      is_active: !userInfo.is_active
-    });
+    const response = await unwrap(
+      patchAdminUsersIdToggleStatus({ id: userInfo.id })
+    );
 
-    if ((response as any).success) {
+    if (response?.success) {
       // 更新本地状态
       userInfo.is_active = !userInfo.is_active;
       ElMessage.success(`${action}成功`);
@@ -693,18 +767,17 @@ const editUser = () => {
 const saveUserEdit = async () => {
   editDialog.loading = true;
   try {
-    const response = (await putAdminUsersId(
-      { id: userInfo.id },
-      editDialog.form as any
-    )) as any;
+    const response = await unwrap(
+      putAdminUsersId({ id: userInfo.id }, editDialog.form as any)
+    );
 
-    if (response.success) {
+    if (response?.success) {
       ElMessage.success("保存成功");
       editDialog.visible = false;
       // 重新加载用户数据
       await loadUserDetail();
     } else {
-      ElMessage.error(response.message || "保存失败");
+      ElMessage.error(response?.message || "保存失败");
     }
   } catch (error) {
     console.error("保存用户信息失败:", error);
@@ -728,13 +801,13 @@ const deleteUser = async () => {
     );
 
     // 调用API删除用户
-    const response = (await deleteUserApi(userInfo.id)) as any;
+    const response = await unwrap(deleteAdminUsersId({ id: userInfo.id }));
 
-    if (response.success) {
+    if (response?.success) {
       ElMessage.success("删除成功");
       router.push("/user-management/list");
     } else {
-      ElMessage.error(response.message || "删除失败");
+      ElMessage.error(response?.message || "删除失败");
     }
   } catch (error) {
     if (error !== "cancel") {
@@ -754,12 +827,15 @@ const viewAllRecords = async () => {
 const loadAllRecords = async () => {
   allRecordsDialog.loading = true;
   try {
-    const response = (await getUserHealthRecords(Number(route.params.id), {
-      page: allRecordsDialog.page,
-      pageSize: allRecordsDialog.pageSize
-    })) as any;
+    const response = await unwrap(
+      getAdminUsersIdHealthRecords({
+        id: Number(route.params.id),
+        page: allRecordsDialog.page,
+        pageSize: allRecordsDialog.pageSize
+      })
+    );
 
-    if (response.success && response.data) {
+    if (response?.success && response.data) {
       allRecordsDialog.records = response.data.records || [];
       allRecordsDialog.total = response.data.total || 0;
     }
@@ -775,6 +851,21 @@ const loadAllRecords = async () => {
 const handleRecordsPageChange = (page: number) => {
   allRecordsDialog.page = page;
   loadAllRecords();
+};
+
+// 查看饮食记录
+const viewDietRecords = () => {
+  dietRecordsDialog.visible = true;
+};
+
+// 查看活跃目标
+const viewActiveGoals = () => {
+  activeGoalsDialog.visible = true;
+};
+
+// 查看活跃天数
+const viewActiveDays = () => {
+  activeDaysDialog.visible = true;
 };
 
 // 页面初始化
@@ -880,6 +971,17 @@ onMounted(() => {
   padding: 20px;
   border-radius: 8px;
   background: #fafafa;
+}
+
+.stat-item.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stat-item.clickable:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {

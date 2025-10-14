@@ -392,7 +392,7 @@ onMounted(() => {
   margin: 0 0 4px 0;
   font-size: 24px;
   font-weight: 600;
-  color: var(--color-gray-100, currentColor);
+  color: var(--color-gray-500, currentColor);
 }
 
 .stat-info p {

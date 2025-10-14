@@ -1,17 +1,17 @@
 // 用户管理模块组合式函数
 
-import { ref, reactive, computed } from "vue";
+import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  getUserList,
-  getUserDetail,
-  getUserStats,
-  updateUserStatus,
-  getUserHealthStats,
-  getUserHealthRecords
-} from "@/api/user-management";
+  getAdminUsers,
+  getAdminUsersId,
+  getAdminStatsUsers,
+  getAdminUsersIdHealthStats,
+  getAdminUsersIdHealthRecords,
+  patchAdminUsersIdToggleStatus
+} from "@/api/admin";
+import { unwrap } from "@/utils/api";
 import type {
-  UserListParams,
   UserStats,
   SearchForm,
   Pagination,
@@ -41,26 +41,30 @@ export function useUserList() {
   const loadUserList = async () => {
     loading.value = true;
     try {
-      const params: UserListParams = {
+      // 组合搜索条件
+      let search = "";
+      if (searchForm.username) {
+        search = searchForm.username;
+      } else if (searchForm.nickname) {
+        search = searchForm.nickname;
+      }
+
+      const params: API.getAdminUsersParams = {
         page: pagination.page,
-        pageSize: pagination.pageSize,
-        username: searchForm.username || undefined,
-        nickname: searchForm.nickname || undefined,
-        role: searchForm.role || undefined,
-        is_active: searchForm.is_active,
-        createdStartDate:
-          searchForm.createdDateRange?.[0] || undefined,
-        createdEndDate:
-          searchForm.createdDateRange?.[1] || undefined,
-        loginStartDate:
-          searchForm.loginDateRange?.[0] || undefined,
+        limit: pagination.pageSize,
+        search: search || undefined,
+        role: searchForm.role as any,
+        createdStartDate: searchForm.createdDateRange?.[0] || undefined,
+        createdEndDate: searchForm.createdDateRange?.[1] || undefined,
+        loginStartDate: searchForm.loginDateRange?.[0] || undefined,
         loginEndDate: searchForm.loginDateRange?.[1] || undefined
       };
 
-      const response = await getUserList(params) as any;
+      const response = await unwrap(getAdminUsers(params));
+      console.log("用户列表响应:", response);
       if (response?.success && response.data) {
         userList.value = response.data.users || [];
-        pagination.total = response.data.total || 0;
+        pagination.total = response.data.pagination?.total || 0;
       }
     } catch (error) {
       console.error("加载用户列表失败:", error);
@@ -112,7 +116,7 @@ export function useUserStats() {
 
   const loadUserStats = async () => {
     try {
-      const response = await getUserStats() as any;
+      const response = await unwrap(getAdminStatsUsers());
       if (response?.success && response.data) {
         Object.assign(userStats, {
           totalUsers: response.data.totalUsers || 0,
@@ -151,16 +155,18 @@ export function useUserActions() {
         }
       );
 
-      const response = await updateUserStatus(user.id!, {
-        is_active: !user.is_active
-      }) as any;
+      const response = await unwrap(
+        patchAdminUsersIdToggleStatus({
+          id: user.id!
+        })
+      );
 
       if (response?.success) {
         user.is_active = !user.is_active;
         ElMessage.success(`${action}成功`);
         return { success: true, message: `${action}成功` };
       } else {
-        throw new Error(response.message || `${action}用户失败`);
+        throw new Error(response?.message || `${action}用户失败`);
       }
     } catch (error: any) {
       if (error !== "cancel") {
@@ -193,7 +199,7 @@ export function useUserDetail(userId: string | number) {
   const loadUserDetail = async () => {
     loading.value = true;
     try {
-      const response = await getUserDetail(Number(userId)) as any;
+      const response = await unwrap(getAdminUsersId({ id: Number(userId) }));
       if (response?.success && response.data) {
         userInfo.value = response.data;
       }
@@ -208,9 +214,18 @@ export function useUserDetail(userId: string | number) {
   // 加载健康统计
   const loadHealthStats = async () => {
     try {
-      const response = await getUserHealthStats(Number(userId)) as any;
+      const response = await unwrap(
+        getAdminUsersIdHealthStats({
+          id: Number(userId)
+        })
+      );
       if (response?.success && response.data) {
-        healthStats.value = response.data;
+        healthStats.value = {
+          totalRecords: response.data.totalRecords || 0,
+          dietRecords: response.data.dietRecords || 0,
+          activeGoals: response.data.activeGoals || 0,
+          activeDays: response.data.activeDays || 0
+        };
       }
     } catch (error) {
       console.error("加载健康统计失败:", error);
@@ -220,10 +235,13 @@ export function useUserDetail(userId: string | number) {
   // 加载健康记录
   const loadHealthRecords = async () => {
     try {
-      const response = await getUserHealthRecords(Number(userId), {
-        page: 1,
-        pageSize: 10
-      }) as any;
+      const response = await unwrap(
+        getAdminUsersIdHealthRecords({
+          id: Number(userId),
+          page: 1,
+          pageSize: 10
+        })
+      );
       if (response?.success && response.data) {
         healthRecords.value = response.data.records || [];
       }

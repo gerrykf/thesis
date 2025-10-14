@@ -59,6 +59,22 @@ export async function getAdminStatsSystem(options?: { [key: string]: any }) {
   });
 }
 
+/** 获取用户统计 获取用户统计数据(需要管理员权限) GET /api/admin/stats/users */
+export async function getAdminStatsUsers(options?: { [key: string]: any }) {
+  return request<{
+    success?: boolean;
+    data?: {
+      totalUsers?: number;
+      activeUsers?: number;
+      adminUsers?: number;
+      newUsersToday?: number;
+    };
+  }>("/api/admin/stats/users", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
+
 /** 获取用户列表 获取所有用户列表(需要管理员权限) GET /api/admin/users */
 export async function getAdminUsers(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -163,6 +179,57 @@ export async function deleteAdminUsersId(
       ...(options || {}),
     }
   );
+}
+
+/** 获取用户健康记录 获取指定用户的健康记录列表(需要管理员权限) GET /api/admin/users/${param0}/health-records */
+export async function getAdminUsersIdHealthRecords(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminUsersIdHealthRecordsParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{
+    success?: boolean;
+    data?: {
+      records?: API.HealthRecord[];
+      total?: number;
+      page?: number;
+      pageSize?: number;
+    };
+  }>(`/api/admin/users/${param0}/health-records`, {
+    method: "GET",
+    params: {
+      // page has a default value: 1
+      page: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+
+      ...queryParams,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取用户健康统计 获取指定用户的健康统计数据(需要管理员权限) GET /api/admin/users/${param0}/health-stats */
+export async function getAdminUsersIdHealthStats(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminUsersIdHealthStatsParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{
+    success?: boolean;
+    data?: {
+      totalRecords?: number;
+      dietRecords?: number;
+      activeGoals?: number;
+      activeDays?: number;
+    };
+  }>(`/api/admin/users/${param0}/health-stats`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
 }
 
 /** 切换用户状态 启用或禁用用户账号(需要管理员权限) PATCH /api/admin/users/${param0}/toggle-status */

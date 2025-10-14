@@ -107,7 +107,10 @@ export const getUsers = async (
       20;
     const offset = (page - 1) * limit;
     const search = req.query.search as string;
+    const username = req.query.username as string;
+    const nickname = req.query.nickname as string;
     const role = req.query.role as string;
+    const is_active = req.query.is_active as string;
     const createdStartDate = req.query.createdStartDate as string;
     const createdEndDate = req.query.createdEndDate as string;
     const loginStartDate = req.query.loginStartDate as string;
@@ -123,8 +126,22 @@ export const getUsers = async (
       );
     }
 
+    if (username) {
+      conditions.push(`username LIKE '%${username}%'`);
+    }
+
+    if (nickname) {
+      conditions.push(`nickname LIKE '%${nickname}%'`);
+    }
+
     if (role) {
       conditions.push(`role = '${role}'`);
+    }
+
+    if (is_active !== undefined && is_active !== null && is_active !== '') {
+      // 处理布尔值：'true', 'false', true, false, 1, 0
+      const activeValue = is_active === 'true' || is_active === '1' || (is_active as any) === true;
+      conditions.push(`is_active = ${activeValue ? 1 : 0}`);
     }
 
     // 创建时间筛选
@@ -136,18 +153,32 @@ export const getUsers = async (
       conditions.push(`DATE(created_at) <= '${createdEndDate}'`);
     }
 
-    // 最后登录时间筛选
+    // 最后登录时间筛选 (last_login_at 可能为 NULL，需要处理)
     if (loginStartDate) {
-      conditions.push(`DATE(last_login_at) >= '${loginStartDate}'`);
+      conditions.push(`(last_login_at IS NOT NULL AND DATE(last_login_at) >= '${loginStartDate}')`);
     }
 
     if (loginEndDate) {
-      conditions.push(`DATE(last_login_at) <= '${loginEndDate}'`);
+      conditions.push(`(last_login_at IS NOT NULL AND DATE(last_login_at) <= '${loginEndDate}')`);
     }
 
     if (conditions.length > 0) {
       whereConditions = " WHERE " + conditions.join(" AND ");
     }
+
+    // 添加调试日志
+    console.log('查询条件:', {
+      search,
+      username,
+      nickname,
+      role,
+      is_active,
+      createdStartDate,
+      createdEndDate,
+      loginStartDate,
+      loginEndDate,
+      whereConditions
+    });
 
     const [users] = await db.execute(
       `SELECT id, username, nickname, email, phone, gender, role, is_active, created_at, last_login_at
@@ -696,7 +727,17 @@ export const updateUserById = async (
     Object.keys(req.body).forEach((key) => {
       if (allowedFields.includes(key)) {
         updateFields.push(`${key} = ?`);
-        updateValues.push(req.body[key]);
+
+        // 处理日期格式：将ISO 8601格式转换为MySQL DATE格式 (YYYY-MM-DD)
+        if (key === 'birth_date' && req.body[key]) {
+          const date = new Date(req.body[key]);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          updateValues.push(`${year}-${month}-${day}`);
+        } else {
+          updateValues.push(req.body[key]);
+        }
       }
     });
 
@@ -799,29 +840,32 @@ export const deleteUser = async (
       return;
     }
 
-    // 开始事务删除用户及其相关数据
-    await db.execute("START TRANSACTION");
+    // 获取连接以进行事务操作
+    const connection = await db.getConnection();
 
     try {
+      // 开始事务
+      await connection.beginTransaction();
+
       // 删除用户的健康记录
-      await db.execute("DELETE FROM health_records WHERE user_id = ?", [
+      await connection.execute("DELETE FROM health_records WHERE user_id = ?", [
         userId,
       ]);
 
       // 删除用户的饮食记录
-      await db.execute("DELETE FROM diet_records WHERE user_id = ?", [userId]);
+      await connection.execute("DELETE FROM diet_records WHERE user_id = ?", [userId]);
 
       // 删除用户的目标
-      await db.execute("DELETE FROM user_goals WHERE user_id = ?", [userId]);
+      await connection.execute("DELETE FROM user_goals WHERE user_id = ?", [userId]);
 
       // 删除用户的系统日志
-      await db.execute("DELETE FROM system_logs WHERE user_id = ?", [userId]);
+      await connection.execute("DELETE FROM system_logs WHERE user_id = ?", [userId]);
 
       // 最后删除用户
-      await db.execute("DELETE FROM users WHERE id = ?", [userId]);
+      await connection.execute("DELETE FROM users WHERE id = ?", [userId]);
 
       // 提交事务
-      await db.execute("COMMIT");
+      await connection.commit();
 
       res.json({
         success: true,
@@ -829,8 +873,11 @@ export const deleteUser = async (
       });
     } catch (error) {
       // 回滚事务
-      await db.execute("ROLLBACK");
+      await connection.rollback();
       throw error;
+    } finally {
+      // 释放连接
+      connection.release();
     }
   } catch (error) {
     console.error("删除用户错误:", error);
@@ -846,7 +893,46 @@ export const deleteUser = async (
 };
 
 /**
- * 获取用户统计 - GET /api/admin/stats/users
+ * @swagger
+ * /api/admin/stats/users:
+ *   get:
+ *     summary: 获取用户统计
+ *     tags: [Admin]
+ *     description: 获取用户统计数据(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalUsers:
+ *                       type: integer
+ *                       description: 总用户数
+ *                     activeUsers:
+ *                       type: integer
+ *                       description: 活跃用户数
+ *                     adminUsers:
+ *                       type: integer
+ *                       description: 管理员用户数
+ *                     newUsersToday:
+ *                       type: integer
+ *                       description: 今日新增用户数
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       500:
+ *         description: 服务器内部错误
  */
 export const getUserStats = async (
   req: AuthRequest,
@@ -892,7 +978,55 @@ export const getUserStats = async (
 };
 
 /**
- * 获取用户健康统计 - GET /api/admin/users/:id/health-stats
+ * @swagger
+ * /api/admin/users/{id}/health-stats:
+ *   get:
+ *     summary: 获取用户健康统计
+ *     tags: [Admin]
+ *     description: 获取指定用户的健康统计数据(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalRecords:
+ *                       type: integer
+ *                       description: 健康记录总数
+ *                     dietRecords:
+ *                       type: integer
+ *                       description: 饮食记录总数
+ *                     activeGoals:
+ *                       type: integer
+ *                       description: 活跃目标数
+ *                     activeDays:
+ *                       type: integer
+ *                       description: 活跃天数(30天内)
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
  */
 export const getUserHealthStats = async (
   req: AuthRequest,
@@ -963,7 +1097,80 @@ export const getUserHealthStats = async (
 };
 
 /**
- * 获取用户健康记录 - GET /api/admin/users/:id/health-records
+ * @swagger
+ * /api/admin/users/{id}/health-records:
+ *   get:
+ *     summary: 获取用户健康记录
+ *     tags: [Admin]
+ *     description: 获取指定用户的健康记录列表(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页数量
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 开始日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 结束日期(YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     records:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/HealthRecord'
+ *                     total:
+ *                       type: integer
+ *                       description: 总记录数
+ *                     page:
+ *                       type: integer
+ *                       description: 当前页码
+ *                     pageSize:
+ *                       type: integer
+ *                       description: 每页数量
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
  */
 export const getUserHealthRecords = async (
   req: AuthRequest,
@@ -1010,8 +1217,7 @@ export const getUserHealthRecords = async (
       countParams.push(endDate);
     }
 
-    query += " ORDER BY record_date DESC LIMIT ? OFFSET ?";
-    params.push(pageSize, offset);
+    query += ` ORDER BY record_date DESC LIMIT ${pageSize} OFFSET ${offset}`;
 
     const [records] = await db.execute(query, params);
     const [countResult] = await db.execute(countQuery, countParams);
