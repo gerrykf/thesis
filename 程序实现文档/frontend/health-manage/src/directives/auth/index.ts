@@ -3,6 +3,7 @@ import type { Directive, DirectiveBinding } from "vue";
 
 export const auth: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding<string | Array<string>>) {
+    debugger;
     const { value } = binding;
     if (value) {
       !hasAuth(value) && el.parentNode?.removeChild(el);

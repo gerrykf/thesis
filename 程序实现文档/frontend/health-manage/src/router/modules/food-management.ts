@@ -19,7 +19,8 @@ export default {
       meta: {
         title: "食物列表",
         showLink: true,
-        roles: ["admin"]
+        roles: ["admin"],
+        auths: ["food.view,food.add,food.edit,food.delete"]
       }
     }
   ]

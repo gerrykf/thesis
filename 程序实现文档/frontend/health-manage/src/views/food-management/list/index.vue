@@ -91,7 +91,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right" v-auth="'food.view,food.add,food.edit,food.delete'">
           <template #default="{ row }">
             <el-button
               type="primary"

@@ -37,6 +37,8 @@ declare namespace API {
     sugar_per_100g?: number;
     /** 条形码 */
     barcode?: string;
+    image_url?: string;
+    is_active?: boolean;
   };
 
   type CreateHealthRecordRequest = {
