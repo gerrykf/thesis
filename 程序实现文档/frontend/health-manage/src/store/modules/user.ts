@@ -7,13 +7,9 @@ import {
   routerArrays,
   storageLocal
 } from "../utils";
-import {
-  postAuthLogin as getLogin,
-  getAuthProfile,
-  putAuthProfile
-} from "@/api/auth";
+import { postAuthLogin as getLogin } from "@/api/auth";
+import { getAdminMenus } from "@/api/admin";
 // 使用 API 命名空间中的类型
-type LoginResponse = API.LoginResponse;
 type User = API.User;
 
 type UserResult = {
@@ -41,11 +37,13 @@ export const useUserStore = defineStore("pure-user", {
     username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
     // 昵称
     nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
-    // 页面级别权限
+    // 页面级别权限（角色）
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
-    // 按钮级别权限
+    // 按钮级别权限（权限标识列表）
     permissions:
       storageLocal().getItem<DataInfo<number>>(userKey)?.permissions ?? [],
+    // 用户菜单权限（从后端获取的菜单树）
+    userMenus: [],
     // 是否勾选了登录页的免登录
     isRemembered: false,
     // 登录页的免登录存储几天，默认7天
@@ -71,6 +69,10 @@ export const useUserStore = defineStore("pure-user", {
     /** 存储按钮级别权限 */
     SET_PERMS(permissions: Array<string>) {
       this.permissions = permissions;
+    },
+    /** 存储用户菜单 */
+    SET_USER_MENUS(menus: any[]) {
+      this.userMenus = menus;
     },
     /** 存储是否勾选了登录页的免登录 */
     SET_ISREMEMBERED(bool: boolean) {
@@ -130,8 +132,53 @@ export const useUserStore = defineStore("pure-user", {
       resetRouter();
       router.push("/login");
     },
+    /** 获取用户权限菜单 */
+    async getUserPermissions() {
+      return new Promise<any>((resolve, reject) => {
+        getAdminMenus()
+          .then(response => {
+            if (response && response.data) {
+              const menus = response.data;
+
+              // 提取所有权限标识
+              const permissions: string[] = [];
+              const extractPermissions = (menuList: any[]) => {
+                menuList.forEach(menu => {
+                  if (menu.permission) {
+                    permissions.push(menu.permission);
+                  }
+                  if (menu.children && menu.children.length > 0) {
+                    extractPermissions(menu.children);
+                  }
+                });
+              };
+              extractPermissions(menus);
+
+              // 存储到 store 和 localStorage
+              this.SET_USER_MENUS(menus);
+              this.SET_PERMS(permissions);
+
+              // 更新 localStorage 中的权限信息
+              const userInfo =
+                storageLocal().getItem<DataInfo<number>>(userKey);
+              if (userInfo) {
+                userInfo.permissions = permissions;
+                storageLocal().setItem(userKey, userInfo);
+              }
+
+              resolve({ menus, permissions });
+            } else {
+              reject(new Error("获取用户权限失败"));
+            }
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
     /** 刷新`token` */
     async handRefreshToken(data: any) {
+      console.log("触发刷新token", data);
       return new Promise<RefreshTokenResult>((resolve, reject) => {
         // TODO: 实现刷新token API
         // refreshTokenApi(data)

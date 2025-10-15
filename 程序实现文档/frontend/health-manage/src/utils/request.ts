@@ -53,6 +53,10 @@ request.interceptors.request.use(
     if (tokenData?.accessToken) {
       config.headers.Authorization = `Bearer ${tokenData.accessToken}`;
     }
+
+    // 标识客户端类型为管理端
+    config.headers["X-Client-Type"] = "admin";
+
     return config;
   },
   error => {

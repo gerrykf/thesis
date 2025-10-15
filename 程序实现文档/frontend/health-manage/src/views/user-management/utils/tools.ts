@@ -1,7 +1,6 @@
 // 用户管理模块工具函数
 
 import { sleepQualityOptions, moodOptions } from "./options";
-import { SleepQuality, Mood } from "./enums";
 
 /**
  * 格式化日期
@@ -70,6 +69,7 @@ export function getMoodType(mood: number): string {
  */
 export function getUserRoleText(role: string): string {
   const roleMap = {
+    super_admin: "超级管理员",
     admin: "管理员",
     user: "普通用户"
   };
@@ -81,9 +81,10 @@ export function getUserRoleText(role: string): string {
  * @param role 用户角色
  * @returns 标签类型
  */
-export function getUserRoleType(role: string): string {
+export function getUserRoleType(role: string): any {
   const typeMap = {
-    admin: "danger",
+    super_admin: "danger",
+    admin: "warning",
     user: "primary"
   };
   return typeMap[role as keyof typeof typeMap] || "info";

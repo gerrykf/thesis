@@ -1,3 +1,5 @@
+import { RoleCode } from "@/utils/rbac";
+
 const Layout = () => import("@/layout/index.vue");
 
 export default {
@@ -9,7 +11,7 @@ export default {
     icon: "ep/user-filled",
     title: "用户管理",
     rank: 2,
-    roles: ["admin"]
+    roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN]
   },
   children: [
     {
@@ -19,7 +21,7 @@ export default {
       meta: {
         title: "用户列表",
         showLink: true,
-        roles: ["admin"]
+        roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN]
       }
     },
     {
@@ -29,7 +31,7 @@ export default {
       meta: {
         title: "用户详情",
         showLink: false,
-        roles: ["admin"],
+        roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN],
         activePath: "/user-management/list"
       }
     }

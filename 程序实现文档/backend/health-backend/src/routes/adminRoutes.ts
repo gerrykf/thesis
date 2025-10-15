@@ -1,5 +1,5 @@
 import { Router, type Router as RouterType } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
+import { authenticateToken, requireRole, requireAdminClient } from '../middleware/auth';
 import {
   getUsers,
   getUserById,
@@ -16,7 +16,19 @@ import {
   getAdminFoodById,
   createAdminFood,
   updateAdminFood,
-  deleteAdminFood
+  deleteAdminFood,
+  // 角色管理
+  getRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+  toggleRoleStatus,
+  // 菜单管理
+  getMenus,
+  getRoleMenus,
+  updateRoleMenus,
+  // 用户角色管理
+  updateUserRole
 } from '../controllers/adminController';
 
 const router: RouterType = Router();
@@ -29,7 +41,8 @@ router.use((req, res, next) => {
 
 // 管理员认证中间件 - 应用到所有admin路由
 router.use(authenticateToken);
-router.use(requireRole('admin'));
+router.use(requireAdminClient); // 要求必须是管理端客户端
+router.use(requireRole('admin', 'super_admin')); // 要求管理员角色
 
 // 用户管理路由
 router.get('/users', getUsers);
@@ -56,6 +69,21 @@ router.get('/foods/:id', getAdminFoodById);
 router.post('/foods', createAdminFood);
 router.put('/foods/:id', updateAdminFood);
 router.delete('/foods/:id', deleteAdminFood);
+
+// 角色管理路由（只有超级管理员可以访问）
+router.get('/roles', requireRole('super_admin'), getRoles);
+router.post('/roles', requireRole('super_admin'), createRole);
+router.put('/roles/:id', requireRole('super_admin'), updateRole);
+router.delete('/roles/:id', requireRole('super_admin'), deleteRole);
+router.patch('/roles/:id/status', requireRole('super_admin'), toggleRoleStatus);
+
+// 菜单管理路由（只有超级管理员可以访问）
+router.get('/menus', requireRole('super_admin'), getMenus);
+router.get('/roles/:id/menus', requireRole('super_admin'), getRoleMenus);
+router.put('/roles/:id/menus', requireRole('super_admin'), updateRoleMenus);
+
+// 用户角色管理路由（管理员和超级管理员都可以访问）
+router.put('/users/:id/role', updateUserRole);
 
 // 测试路由（保留用于调试）
 router.get('/test', (req: any, res) => {

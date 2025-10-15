@@ -46,7 +46,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   await formEl.validate(valid => {
     if (valid) {
       loading.value = true;
-      useUserStoreHook()
+      const userStore = useUserStoreHook();
+
+      userStore
         .loginByUsername({
           username: ruleForm.username,
           password: ruleForm.password
@@ -54,28 +56,40 @@ const onLogin = async (formEl: FormInstance | undefined) => {
         .then((res: any) => {
           if (res.success) {
             message("登录成功", { type: "success" });
-            // 初始化路由后跳转到首页
-            return initRouter().then(() => {
-              disabled.value = true;
-              // 直接跳转到首页/welcome，如果不存在则跳转到根路径
-              const targetPath = "/welcome";
-              router
-                .push(targetPath)
-                .catch(() => {
-                  // 如果welcome路由不存在，跳转到根路径
-                  router.push("/");
-                })
-                .finally(() => (disabled.value = false));
-            });
+
+            // 获取用户权限菜单
+            return userStore
+              .getUserPermissions()
+              .then(permissionData => {
+                console.log("用户权限已加载:", permissionData);
+                // 初始化路由后跳转到首页
+                return initRouter().then(() => {
+                  disabled.value = true;
+                  // 直接跳转到首页/welcome，如果不存在则跳转到根路径
+                  const targetPath = "/welcome";
+                  router
+                    .push(targetPath)
+                    .catch(() => {
+                      // 如果welcome路由不存在，跳转到根路径
+                      router.push("/");
+                    })
+                    .finally(() => (disabled.value = false));
+                });
+              })
+              .catch(permError => {
+                console.warn("获取权限失败，但继续登录:", permError);
+                // 即使获取权限失败也继续初始化路由
+                return initRouter().then(() => {
+                  disabled.value = true;
+                  router
+                    .push("/welcome")
+                    .catch(() => router.push("/"))
+                    .finally(() => (disabled.value = false));
+                });
+              });
           } else {
             message(res?.message || "登录失败", { type: "error" });
           }
-        })
-        .catch(error => {
-          console.error("登录错误:", error);
-          message(error.message || "登录失败，请检查用户名和密码", {
-            type: "error"
-          });
         })
         .finally(() => (loading.value = false));
     }

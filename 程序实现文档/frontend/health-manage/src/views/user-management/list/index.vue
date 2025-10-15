@@ -29,10 +29,11 @@
             v-model="searchForm.role"
             placeholder="请选择角色"
             clearable
-            style="width: 120px"
+            style="width: 150px"
           >
-            <el-option label="用户" value="user" />
+            <el-option label="超级管理员" value="super_admin" />
             <el-option label="管理员" value="admin" />
+            <el-option label="用户" value="user" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
@@ -186,10 +187,10 @@
             {{ row.phone || "-" }}
           </template>
         </el-table-column>
-        <el-table-column label="角色" width="100">
+        <el-table-column label="角色" width="120">
           <template #default="{ row }">
-            <el-tag :type="row.role === 'admin' ? 'danger' : 'primary'">
-              {{ row.role === "admin" ? "管理员" : "用户" }}
+            <el-tag :type="getUserRoleType(row.role)">
+              {{ getUserRoleText(row.role) }}
             </el-tag>
           </template>
         </el-table-column>

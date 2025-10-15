@@ -21,6 +21,9 @@ request.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // 标识客户端类型为 H5
+    config.headers["X-Client-Type"] = "h5";
+
     // 自动携带语言参数 (通过标准的 Accept-Language Header)
     const locale = localStorage.getItem("locale") || "zh-CN";
     config.headers["Accept-Language"] = locale;

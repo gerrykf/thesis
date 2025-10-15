@@ -1676,3 +1676,814 @@ export const deleteAdminFood = async (
     });
   }
 };
+
+// ==================== 角色管理相关接口 ====================
+
+/**
+ * @swagger
+ * /api/admin/roles:
+ *   get:
+ *     summary: 获取角色列表
+ *     tags: [Admin]
+ *     description: 获取所有角色列表(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页数量
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: 角色名称搜索
+ *       - in: query
+ *         name: code
+ *         schema:
+ *           type: string
+ *         description: 角色标识搜索
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: integer
+ *           enum: [0, 1]
+ *         description: 状态筛选 1:启用 0:禁用
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要超级管理员权限
+ */
+export const getRoles = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+    const name = req.query.name as string;
+    const code = req.query.code as string;
+    const status = req.query.status as string;
+
+    // 构建WHERE条件
+    let whereConditions = "";
+    const conditions: string[] = [];
+
+    if (name) {
+      conditions.push(`name LIKE '%${name}%'`);
+    }
+
+    if (code) {
+      conditions.push(`code LIKE '%${code}%'`);
+    }
+
+    if (status !== undefined && status !== null && status !== '') {
+      conditions.push(`status = ${status}`);
+    }
+
+    if (conditions.length > 0) {
+      whereConditions = " WHERE " + conditions.join(" AND ");
+    }
+
+    const [roles] = await db.execute(
+      `SELECT id, name, code, status, remark, created_at, updated_at
+       FROM roles${whereConditions}
+       ORDER BY id ASC
+       LIMIT ${limit} OFFSET ${offset}`
+    );
+
+    const [countResult] = await db.execute(
+      `SELECT COUNT(*) as total FROM roles${whereConditions}`
+    );
+    const total = (countResult as any[])[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        roles,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("获取角色列表错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles:
+ *   post:
+ *     summary: 创建角色
+ *     tags: [Admin]
+ *     description: 创建新角色(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - code
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 角色名称
+ *               code:
+ *                 type: string
+ *                 description: 角色标识
+ *               remark:
+ *                 type: string
+ *                 description: 备注
+ *     responses:
+ *       201:
+ *         description: 创建成功
+ */
+export const createRole = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { name, code, remark } = req.body;
+
+    if (!name || !code) {
+      res.status(400).json({
+        success: false,
+        message: "角色名称和角色标识为必填项",
+      });
+      return;
+    }
+
+    // 检查角色标识是否已存在
+    const [existing] = await db.execute(
+      "SELECT id FROM roles WHERE code = ?",
+      [code]
+    );
+
+    if ((existing as any[]).length > 0) {
+      res.status(400).json({
+        success: false,
+        message: "角色标识已存在",
+      });
+      return;
+    }
+
+    const [result] = await db.execute(
+      "INSERT INTO roles (name, code, remark, status) VALUES (?, ?, ?, 1)",
+      [name, code, remark || null]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "角色创建成功",
+      data: { roleId: (result as any).insertId },
+    });
+  } catch (error) {
+    console.error("创建角色错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles/{id}:
+ *   put:
+ *     summary: 更新角色
+ *     tags: [Admin]
+ *     description: 更新角色信息(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *               remark:
+ *                 type: string
+ *               status:
+ *                 type: integer
+ *                 enum: [0, 1]
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ */
+export const updateRole = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const roleId = req.params.id;
+    const { name, code, remark, status } = req.body;
+
+    // 检查角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "角色不存在",
+      });
+      return;
+    }
+
+    // 如果修改了code，检查是否与其他角色重复
+    if (code) {
+      const [existing] = await db.execute(
+        "SELECT id FROM roles WHERE code = ? AND id != ?",
+        [code, roleId]
+      );
+
+      if ((existing as any[]).length > 0) {
+        res.status(400).json({
+          success: false,
+          message: "角色标识已被其他角色使用",
+        });
+        return;
+      }
+    }
+
+    // 构建更新字段
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+
+    if (name !== undefined) {
+      updateFields.push("name = ?");
+      updateValues.push(name);
+    }
+
+    if (code !== undefined) {
+      updateFields.push("code = ?");
+      updateValues.push(code);
+    }
+
+    if (remark !== undefined) {
+      updateFields.push("remark = ?");
+      updateValues.push(remark);
+    }
+
+    if (status !== undefined) {
+      updateFields.push("status = ?");
+      updateValues.push(status);
+    }
+
+    if (updateFields.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "没有有效的更新字段",
+      });
+      return;
+    }
+
+    updateValues.push(roleId);
+
+    await db.execute(
+      `UPDATE roles SET ${updateFields.join(", ")} WHERE id = ?`,
+      updateValues
+    );
+
+    res.json({
+      success: true,
+      message: "角色信息更新成功",
+    });
+  } catch (error) {
+    console.error("更新角色错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles/{id}:
+ *   delete:
+ *     summary: 删除角色
+ *     tags: [Admin]
+ *     description: 删除角色(需要超级管理员权限)，不能删除系统内置角色
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ */
+export const deleteRole = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const roleId = req.params.id;
+
+    // 不能删除内置角色 (id 1, 2, 3)
+    if (['1', '2', '3'].includes(roleId)) {
+      res.status(403).json({
+        success: false,
+        message: "不能删除系统内置角色",
+      });
+      return;
+    }
+
+    // 检查角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "角色不存在",
+      });
+      return;
+    }
+
+    // 检查是否有用户使用该角色
+    const [usersWithRole] = await db.execute(
+      "SELECT COUNT(*) as count FROM users WHERE role_id = ?",
+      [roleId]
+    );
+
+    if ((usersWithRole as any[])[0].count > 0) {
+      res.status(400).json({
+        success: false,
+        message: "该角色下还有用户，无法删除",
+      });
+      return;
+    }
+
+    // 删除角色及其关联的菜单权限（通过外键自动级联删除）
+    await db.execute("DELETE FROM roles WHERE id = ?", [roleId]);
+
+    res.json({
+      success: true,
+      message: "角色删除成功",
+    });
+  } catch (error) {
+    console.error("删除角色错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles/{id}/status:
+ *   patch:
+ *     summary: 切换角色状态
+ *     tags: [Admin]
+ *     description: 启用或禁用角色(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     responses:
+ *       200:
+ *         description: 操作成功
+ */
+export const toggleRoleStatus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const roleId = req.params.id;
+
+    // 检查角色是否存在
+    const [rows] = await db.execute(
+      "SELECT id, status FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    const roles = rows as any[];
+    if (roles.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "角色不存在",
+      });
+      return;
+    }
+
+    const newStatus = roles[0].status === 1 ? 0 : 1;
+
+    await db.execute("UPDATE roles SET status = ? WHERE id = ?", [
+      newStatus,
+      roleId,
+    ]);
+
+    res.json({
+      success: true,
+      message: `角色已${newStatus === 1 ? "启用" : "禁用"}`,
+      data: { status: newStatus },
+    });
+  } catch (error) {
+    console.error("切换角色状态错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+// ==================== 菜单管理相关接口 ====================
+
+/**
+ * @swagger
+ * /api/admin/menus:
+ *   get:
+ *     summary: 获取所有菜单
+ *     tags: [Admin]
+ *     description: 获取所有菜单列表（树形结构）(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getMenus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    // 获取所有菜单
+    const [menus] = await db.execute(
+      `SELECT id, parent_id, title, path, component, icon, sort, type, permission, status
+       FROM menus
+       WHERE status = 1
+       ORDER BY sort ASC, id ASC`
+    );
+
+    // 构建树形结构
+    const menuList = menus as any[];
+    const buildTree = (parentId: number = 0): any[] => {
+      return menuList
+        .filter((menu) => menu.parent_id === parentId)
+        .map((menu) => ({
+          ...menu,
+          children: buildTree(menu.id),
+        }));
+    };
+
+    const menuTree = buildTree(0);
+
+    res.json({
+      success: true,
+      data: menuTree,
+    });
+  } catch (error) {
+    console.error("获取菜单列表错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles/{id}/menus:
+ *   get:
+ *     summary: 获取角色已授权的菜单ID列表
+ *     tags: [Admin]
+ *     description: 获取指定角色已授权的菜单ID列表(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getRoleMenus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const roleId = req.params.id;
+
+    // 检查角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "角色不存在",
+      });
+      return;
+    }
+
+    // 获取角色的菜单ID列表
+    const [menuIds] = await db.execute(
+      "SELECT menu_id FROM role_menus WHERE role_id = ?",
+      [roleId]
+    );
+
+    const ids = (menuIds as any[]).map((item) => item.menu_id);
+
+    res.json({
+      success: true,
+      data: {
+        menuIds: ids,
+      },
+    });
+  } catch (error) {
+    console.error("获取角色菜单错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/roles/{id}/menus:
+ *   put:
+ *     summary: 更新角色菜单权限
+ *     tags: [Admin]
+ *     description: 保存角色的菜单权限(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - menuIds
+ *             properties:
+ *               menuIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: 菜单ID数组
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ */
+export const updateRoleMenus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const roleId = req.params.id;
+    const { menuIds } = req.body;
+
+    if (!Array.isArray(menuIds)) {
+      res.status(400).json({
+        success: false,
+        message: "menuIds 必须是数组",
+      });
+      return;
+    }
+
+    // 不能修改内置角色的权限
+    if (['1', '2', '3'].includes(roleId)) {
+      res.status(403).json({
+        success: false,
+        message: "不能修改系统内置角色的权限",
+      });
+      return;
+    }
+
+    // 检查角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "角色不存在",
+      });
+      return;
+    }
+
+    // 使用事务
+    const connection = await db.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 删除旧的关联
+      await connection.execute("DELETE FROM role_menus WHERE role_id = ?", [
+        roleId,
+      ]);
+
+      // 插入新的关联
+      if (menuIds.length > 0) {
+        const values = menuIds.map((menuId) => `(${roleId}, ${menuId})`).join(", ");
+        await connection.execute(
+          `INSERT INTO role_menus (role_id, menu_id) VALUES ${values}`
+        );
+      }
+
+      await connection.commit();
+
+      res.json({
+        success: true,
+        message: "角色菜单权限更新成功",
+      });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error("更新角色菜单错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+// ==================== 用户角色管理相关接口 ====================
+
+/**
+ * @swagger
+ * /api/admin/users/{id}/role:
+ *   put:
+ *     summary: 修改用户角色
+ *     tags: [Admin]
+ *     description: 修改用户的角色(管理员可以修改为普通用户或管理员，超级管理员可以修改为任何角色)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - roleId
+ *             properties:
+ *               roleId:
+ *                 type: integer
+ *                 description: 角色ID (1:普通用户, 2:管理员, 3:超级管理员)
+ *     responses:
+ *       200:
+ *         description: 修改成功
+ */
+export const updateUserRole = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const { roleId } = req.body;
+    const currentUserRole = req.user?.role;
+
+    if (!roleId) {
+      res.status(400).json({
+        success: false,
+        message: "roleId 为必填项",
+      });
+      return;
+    }
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute(
+      "SELECT id, username FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    // 检查目标角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id, code FROM roles WHERE id = ?",
+      [roleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "目标角色不存在",
+      });
+      return;
+    }
+
+    const targetRoleCode = (roleCheck as any[])[0].code;
+
+    // 权限检查：只有超级管理员可以设置为超级管理员
+    if (targetRoleCode === 'super_admin' && currentUserRole !== 'super_admin') {
+      res.status(403).json({
+        success: false,
+        message: "只有超级管理员可以将用户设置为超级管理员",
+      });
+      return;
+    }
+
+    // 防止管理员修改自己的角色
+    if (parseInt(userId) === req.user?.userId) {
+      res.status(403).json({
+        success: false,
+        message: "不能修改自己的角色",
+      });
+      return;
+    }
+
+    // 更新用户角色
+    await db.execute(
+      "UPDATE users SET role_id = ? WHERE id = ?",
+      [roleId, userId]
+    );
+
+    res.json({
+      success: true,
+      message: "用户角色修改成功",
+    });
+  } catch (error) {
+    console.error("修改用户角色错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};

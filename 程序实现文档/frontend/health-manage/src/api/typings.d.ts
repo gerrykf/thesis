@@ -66,6 +66,11 @@ declare namespace API {
     id: number;
   };
 
+  type deleteAdminRolesIdParams = {
+    /** 角色ID */
+    id: number;
+  };
+
   type deleteAdminUsersIdParams = {
     /** 用户ID */
     id: number;
@@ -183,6 +188,24 @@ declare namespace API {
     action?: string;
     /** 用户ID筛选 */
     user_id?: number;
+  };
+
+  type getAdminRolesIdMenusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type getAdminRolesParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    limit?: number;
+    /** 角色名称搜索 */
+    name?: string;
+    /** 角色标识搜索 */
+    code?: string;
+    /** 状态筛选 1:启用 0:禁用 */
+    status?: 0 | 1;
   };
 
   type getAdminUsersIdHealthRecordsParams = {
@@ -355,6 +378,11 @@ declare namespace API {
     data?: { token?: string; user?: User };
   };
 
+  type patchAdminRolesIdStatusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
   type patchAdminUsersIdToggleStatusParams = {
     /** 用户ID */
     id: number;
@@ -364,7 +392,22 @@ declare namespace API {
     id: number;
   };
 
+  type putAdminRolesIdMenusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type putAdminRolesIdParams = {
+    /** 角色ID */
+    id: number;
+  };
+
   type putAdminUsersIdParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type putAdminUsersIdRoleParams = {
     /** 用户ID */
     id: number;
   };

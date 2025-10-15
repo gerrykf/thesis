@@ -42,6 +42,7 @@ export type userType = {
   nickname?: string;
   roles?: Array<string>;
   permissions?: Array<string>;
+  userMenus?: Array<any>;
   isRemembered?: boolean;
   loginDay?: number;
 };

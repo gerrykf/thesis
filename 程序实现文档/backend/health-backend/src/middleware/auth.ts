@@ -8,6 +8,7 @@ export interface AuthRequest extends Request {
     username: string;
     role: string;
   };
+  clientType?: 'h5' | 'admin'; // 客户端类型
 }
 
 export const authenticateToken = async (
@@ -50,6 +51,10 @@ export const authenticateToken = async (
       role: users[0].role
     };
 
+    // 识别客户端类型（通过自定义请求头）
+    const clientType = req.headers['x-client-type'] as string;
+    req.clientType = clientType === 'h5' ? 'h5' : 'admin';
+
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
@@ -86,15 +91,35 @@ export const requireAdmin = (
   next();
 };
 
-export const requireRole = (role: string) => (
+// 支持单个角色或多个角色
+// 可选参数 requireAdminClient: 是否要求必须是管理端客户端访问
+export const requireRole = (...roles: string[]) => (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): void => {
-  if (req.user?.role !== role) {
+  const userRole = req.user?.role;
+
+  if (!userRole || !roles.includes(userRole)) {
     res.status(403).json({
       success: false,
-      message: `需要${role}权限`
+      message: `需要${roles.join('或')}权限`
+    });
+    return;
+  }
+  next();
+};
+
+// 要求必须是管理端客户端访问
+export const requireAdminClient = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.clientType !== 'admin') {
+    res.status(403).json({
+      success: false,
+      message: '该接口仅限管理端访问'
     });
     return;
   }

@@ -36,7 +36,12 @@
             搜索
           </el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-          <el-button type="success" :icon="Plus" @click="handleCreate">
+          <el-button
+            v-perms="[FoodPermission.ADD]"
+            type="success"
+            :icon="Plus"
+            @click="handleCreate"
+          >
             新增食物
           </el-button>
         </el-form-item>
@@ -100,7 +105,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-auth="'food.view,food.add,food.edit,food.delete'"
+          v-perms="[FoodPermission.EDIT, FoodPermission.DELETE]"
           label="操作"
           width="200"
           fixed="right"
@@ -293,6 +298,7 @@ import { useFoodList, useFoodCategories, useFoodActions } from "../utils/hooks";
 import { postAdminFoods, putAdminFoodsId } from "@/api/admin";
 import { unwrap } from "@/utils/api";
 import type { FormInstance, FormRules } from "element-plus";
+import { FoodPermission } from "@/utils/rbac";
 
 defineOptions({
   name: "FoodList"

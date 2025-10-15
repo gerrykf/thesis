@@ -374,6 +374,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // 检查客户端类型和用户角色匹配
+    const clientType = req.headers['x-client-type'] as string;
+    if (clientType === 'admin') {
+      // 管理后台登录：只允许管理员和超级管理员
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
+        res.status(403).json({
+          success: false,
+          message: "该账号无权访问管理后台",
+        });
+        return;
+      }
+    }
+
     // 更新最后登录时间
     await db.execute(
       "UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?",
@@ -394,12 +407,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 返回用户信息（不包含密码）
     const { password: _, ...userWithoutPassword } = user;
 
+    // 添加 roles 数组字段供前端权限验证使用
+    const userWithRoles = {
+      ...userWithoutPassword,
+      roles: [user.role] // 将 role 字符串转换为数组
+    };
+
     res.json({
       success: true,
       message: "登录成功",
       data: {
         token,
-        user: userWithoutPassword,
+        user: userWithRoles,
       },
     });
   } catch (error) {

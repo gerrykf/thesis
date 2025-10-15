@@ -134,6 +134,144 @@ export async function getAdminLogs(
   });
 }
 
+/** 获取所有菜单 获取所有菜单列表（树形结构）(需要超级管理员权限) GET /api/admin/menus */
+export async function getAdminMenus(options?: { [key: string]: any }) {
+  return request<any>("/api/admin/menus", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
+
+/** 获取角色列表 获取所有角色列表(需要超级管理员权限) GET /api/admin/roles */
+export async function getAdminRoles(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminRolesParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/roles", {
+    method: "GET",
+    params: {
+      // page has a default value: 1
+      page: "1",
+      // limit has a default value: 10
+      limit: "10",
+
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 创建角色 创建新角色(需要超级管理员权限) POST /api/admin/roles */
+export async function postAdminRoles(
+  body: {
+    /** 角色名称 */
+    name: string;
+    /** 角色标识 */
+    code: string;
+    /** 备注 */
+    remark?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/roles", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 更新角色 更新角色信息(需要超级管理员权限) PUT /api/admin/roles/${param0} */
+export async function putAdminRolesId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminRolesIdParams,
+  body: {
+    name?: string;
+    code?: string;
+    remark?: string;
+    status?: 0 | 1;
+  },
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/roles/${param0}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: { ...queryParams },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 删除角色 删除角色(需要超级管理员权限)，不能删除系统内置角色 DELETE /api/admin/roles/${param0} */
+export async function deleteAdminRolesId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deleteAdminRolesIdParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/roles/${param0}`, {
+    method: "DELETE",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 获取角色已授权的菜单ID列表 获取指定角色已授权的菜单ID列表(需要超级管理员权限) GET /api/admin/roles/${param0}/menus */
+export async function getAdminRolesIdMenus(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminRolesIdMenusParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/roles/${param0}/menus`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 更新角色菜单权限 保存角色的菜单权限(需要超级管理员权限) PUT /api/admin/roles/${param0}/menus */
+export async function putAdminRolesIdMenus(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminRolesIdMenusParams,
+  body: {
+    /** 菜单ID数组 */
+    menuIds: number[];
+  },
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/roles/${param0}/menus`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: { ...queryParams },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 切换角色状态 启用或禁用角色(需要超级管理员权限) PATCH /api/admin/roles/${param0}/status */
+export async function patchAdminRolesIdStatus(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.patchAdminRolesIdStatusParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/roles/${param0}/status`, {
+    method: "PATCH",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 获取系统统计 获取系统整体统计数据(需要管理员权限) GET /api/admin/stats/system */
 export async function getAdminStatsSystem(options?: { [key: string]: any }) {
   return request<{
@@ -320,6 +458,28 @@ export async function getAdminUsersIdHealthStats(
   }>(`/api/admin/users/${param0}/health-stats`, {
     method: "GET",
     params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 修改用户角色 修改用户的角色(管理员可以修改为普通用户或管理员，超级管理员可以修改为任何角色) PUT /api/admin/users/${param0}/role */
+export async function putAdminUsersIdRole(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminUsersIdRoleParams,
+  body: {
+    /** 角色ID (1:普通用户, 2:管理员, 3:超级管理员) */
+    roleId: number;
+  },
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/users/${param0}/role`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: { ...queryParams },
+    data: body,
     ...(options || {}),
   });
 }
