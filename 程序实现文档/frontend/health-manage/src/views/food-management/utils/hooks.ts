@@ -3,12 +3,10 @@
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  getFoods,
-  postFoods,
-  putFoodsId,
-  deleteFoodsId,
-  getFoodsCategories
-} from "@/api/food";
+  getAdminFoods,
+  deleteAdminFoodsId,
+  getAdminFoodsCategories
+} from "@/api/admin";
 import { unwrap } from "@/utils/api";
 
 export interface SearchForm {
@@ -41,14 +39,14 @@ export function useFoodList() {
   const loadFoodList = async () => {
     loading.value = true;
     try {
-      const params: API.getFoodsParams = {
+      const params: API.getAdminFoodsParams = {
         page: pagination.page,
         limit: pagination.pageSize,
         search: searchForm.search || undefined,
         category: searchForm.category || undefined
       };
 
-      const response = await unwrap(getFoods(params));
+      const response = await unwrap(getAdminFoods(params));
       console.log("食物列表响应:", response);
       if (response?.success && response.data) {
         foodList.value = response.data.foods || [];
@@ -93,9 +91,11 @@ export function useFoodCategories() {
 
   const loadCategories = async () => {
     try {
-      const response = await unwrap(getFoodsCategories());
+      const response = await unwrap(getAdminFoodsCategories());
       if (response?.success && response.data) {
-        categories.value = response.data.map(item => item.category || "");
+        categories.value = response.data.map(
+          (item: any) => item.category || ""
+        );
       }
     } catch (error) {
       console.error("加载食物分类失败:", error);
@@ -124,7 +124,7 @@ export function useFoodActions() {
       );
 
       const response = await unwrap(
-        deleteFoodsId({
+        deleteAdminFoodsId({
           id: food.id!
         })
       );

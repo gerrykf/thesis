@@ -77,10 +77,18 @@
         <el-table-column label="营养成分（每100g）" min-width="350">
           <template #default="{ row }">
             <div class="nutrition-info">
-              <el-tag size="small">热量: {{ row.calories_per_100g }}kcal</el-tag>
-              <el-tag size="small" type="success">蛋白质: {{ row.protein_per_100g }}g</el-tag>
-              <el-tag size="small" type="warning">脂肪: {{ row.fat_per_100g }}g</el-tag>
-              <el-tag size="small" type="info">碳水: {{ row.carbs_per_100g }}g</el-tag>
+              <el-tag size="small"
+                >热量: {{ row.calories_per_100g }}kcal</el-tag
+              >
+              <el-tag size="small" type="success"
+                >蛋白质: {{ row.protein_per_100g }}g</el-tag
+              >
+              <el-tag size="small" type="warning"
+                >脂肪: {{ row.fat_per_100g }}g</el-tag
+              >
+              <el-tag size="small" type="info"
+                >碳水: {{ row.carbs_per_100g }}g</el-tag
+              >
             </div>
           </template>
         </el-table-column>
@@ -91,7 +99,12 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right" v-auth="'food.view,food.add,food.edit,food.delete'">
+        <el-table-column
+          v-auth="'food.view,food.add,food.edit,food.delete'"
+          label="操作"
+          width="200"
+          fixed="right"
+        >
           <template #default="{ row }">
             <el-button
               type="primary"
@@ -275,15 +288,9 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import {
-  Search,
-  Refresh,
-  Plus,
-  Edit,
-  Delete
-} from "@element-plus/icons-vue";
+import { Search, Refresh, Plus, Edit, Delete } from "@element-plus/icons-vue";
 import { useFoodList, useFoodCategories, useFoodActions } from "../utils/hooks";
-import { postFoods, putFoodsId } from "@/api/food";
+import { postAdminFoods, putAdminFoodsId } from "@/api/admin";
 import { unwrap } from "@/utils/api";
 import type { FormInstance, FormRules } from "element-plus";
 
@@ -385,19 +392,19 @@ const handleEdit = (row: API.Food) => {
   editingId.value = row.id;
   dialogTitle.value = "编辑食物";
 
-  // 填充表单数据
+  // 填充表单数据 - 确保数值类型正确转换
   Object.assign(formData, {
     name: row.name || "",
     name_en: row.name_en || "",
     category: row.category || "",
     brand: row.brand || "",
-    calories_per_100g: row.calories_per_100g || 0,
-    protein_per_100g: row.protein_per_100g || 0,
-    fat_per_100g: row.fat_per_100g || 0,
-    carbs_per_100g: row.carbs_per_100g || 0,
-    fiber_per_100g: row.fiber_per_100g || 0,
-    sodium_per_100g: row.sodium_per_100g || 0,
-    sugar_per_100g: row.sugar_per_100g || 0,
+    calories_per_100g: Number(row.calories_per_100g) || 0,
+    protein_per_100g: Number(row.protein_per_100g) || 0,
+    fat_per_100g: Number(row.fat_per_100g) || 0,
+    carbs_per_100g: Number(row.carbs_per_100g) || 0,
+    fiber_per_100g: Number(row.fiber_per_100g) || 0,
+    sodium_per_100g: Number(row.sodium_per_100g) || 0,
+    sugar_per_100g: Number(row.sugar_per_100g) || 0,
     image_url: row.image_url || "",
     barcode: row.barcode || "",
     is_active: row.is_active !== false
@@ -429,7 +436,7 @@ const handleSubmit = async () => {
     if (isEditing.value && editingId.value) {
       // 更新食物
       const response = await unwrap(
-        putFoodsId({ id: editingId.value }, formData as any)
+        putAdminFoodsId({ id: editingId.value }, formData as any)
       );
       if (response?.success) {
         ElMessage.success("更新成功");
@@ -440,7 +447,7 @@ const handleSubmit = async () => {
       }
     } else {
       // 新增食物
-      const response = await unwrap(postFoods(formData as any));
+      const response = await unwrap(postAdminFoods(formData as any));
       if (response?.success) {
         ElMessage.success("添加成功");
         dialogVisible.value = false;

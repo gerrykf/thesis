@@ -1240,3 +1240,439 @@ export const getUserHealthRecords = async (
     });
   }
 };
+
+// ==================== 食物管理相关接口 ====================
+
+/**
+ * @swagger
+ * /api/admin/foods:
+ *   get:
+ *     summary: 获取食物列表(后台管理端)
+ *     tags: [Admin]
+ *     description: 获取食物列表，返回所有字段包括中英文字段，用于后台管理端编辑
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: 每页数量
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: 搜索关键词
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: 分类筛选
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ */
+export const getAdminFoods = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search as string;
+    const category = req.query.category as string;
+
+    // 构建查询 - 返回所有字段
+    let query = `SELECT * FROM foods WHERE is_active = true`;
+    let countQuery = "SELECT COUNT(*) as total FROM foods WHERE is_active = true";
+
+    const params: any[] = [];
+    const countParams: any[] = [];
+
+    // 搜索条件
+    if (search) {
+      query += " AND (name LIKE ? OR name_en LIKE ?)";
+      countQuery += " AND (name LIKE ? OR name_en LIKE ?)";
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern);
+      countParams.push(searchPattern, searchPattern);
+    }
+
+    if (category) {
+      query += " AND category = ?";
+      countQuery += " AND category = ?";
+      params.push(category);
+      countParams.push(category);
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+
+    const [rows] = await db.execute(query, params);
+    const [countResult] = await db.execute(countQuery, countParams);
+    const total = (countResult as any[])[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        foods: rows,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("获取食物列表错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/foods/categories:
+ *   get:
+ *     summary: 获取食物分类列表(后台管理端)
+ *     tags: [Admin]
+ *     description: 获取所有食物分类
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ */
+export const getAdminFoodCategories = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const [categories] = await db.execute(
+      `SELECT category, COUNT(*) as count
+       FROM foods
+       WHERE is_active = true
+       GROUP BY category
+       ORDER BY category`
+    );
+
+    res.json({
+      success: true,
+      data: categories,
+    });
+  } catch (error) {
+    console.error("获取食物分类错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/foods/{id}:
+ *   get:
+ *     summary: 获取食物详情(后台管理端)
+ *     tags: [Admin]
+ *     description: 获取食物详情，返回所有字段
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *       404:
+ *         description: 食物不存在
+ */
+export const getAdminFoodById = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const foodId = req.params.id;
+
+    const [rows] = await db.execute(
+      "SELECT * FROM foods WHERE id = ?",
+      [foodId]
+    );
+
+    const foods = rows as any[];
+    if (foods.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "食物不存在",
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: foods[0],
+    });
+  } catch (error) {
+    console.error("获取食物详情错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/foods:
+ *   post:
+ *     summary: 创建食物(后台管理端)
+ *     tags: [Admin]
+ *     description: 创建新食物
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateFoodRequest'
+ *     responses:
+ *       201:
+ *         description: 创建成功
+ */
+export const createAdminFood = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      name,
+      name_en,
+      category,
+      brand,
+      calories_per_100g,
+      protein_per_100g,
+      fat_per_100g,
+      carbs_per_100g,
+      fiber_per_100g,
+      sodium_per_100g,
+      sugar_per_100g,
+      image_url,
+      barcode,
+      is_active
+    } = req.body;
+
+    const createdBy = req.user?.userId;
+
+    const [result] = await db.execute(
+      `INSERT INTO foods
+       (name, name_en, category, brand, calories_per_100g, protein_per_100g, fat_per_100g,
+        carbs_per_100g, fiber_per_100g, sodium_per_100g, sugar_per_100g, image_url, barcode, is_active, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        name_en || null,
+        category,
+        brand || null,
+        calories_per_100g,
+        protein_per_100g || 0,
+        fat_per_100g || 0,
+        carbs_per_100g || 0,
+        fiber_per_100g || 0,
+        sodium_per_100g || 0,
+        sugar_per_100g || 0,
+        image_url || null,
+        barcode || null,
+        is_active !== false,
+        createdBy,
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "食物创建成功",
+      data: { foodId: (result as any).insertId },
+    });
+  } catch (error) {
+    console.error("创建食物错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/foods/{id}:
+ *   put:
+ *     summary: 更新食物(后台管理端)
+ *     tags: [Admin]
+ *     description: 更新食物信息
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateFoodRequest'
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ */
+export const updateAdminFood = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const foodId = req.params.id;
+    const {
+      name,
+      name_en,
+      category,
+      brand,
+      calories_per_100g,
+      protein_per_100g,
+      fat_per_100g,
+      carbs_per_100g,
+      fiber_per_100g,
+      sodium_per_100g,
+      sugar_per_100g,
+      image_url,
+      barcode,
+      is_active
+    } = req.body;
+
+    // 检查食物是否存在
+    const [existing] = await db.execute("SELECT id FROM foods WHERE id = ?", [
+      foodId,
+    ]);
+    if ((existing as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "食物不存在",
+      });
+      return;
+    }
+
+    await db.execute(
+      `UPDATE foods SET
+       name = ?, name_en = ?, category = ?, brand = ?,
+       calories_per_100g = ?, protein_per_100g = ?, fat_per_100g = ?,
+       carbs_per_100g = ?, fiber_per_100g = ?, sodium_per_100g = ?,
+       sugar_per_100g = ?, image_url = ?, barcode = ?, is_active = ?
+       WHERE id = ?`,
+      [
+        name,
+        name_en || null,
+        category,
+        brand || null,
+        calories_per_100g,
+        protein_per_100g || 0,
+        fat_per_100g || 0,
+        carbs_per_100g || 0,
+        fiber_per_100g || 0,
+        sodium_per_100g || 0,
+        sugar_per_100g || 0,
+        image_url || null,
+        barcode || null,
+        is_active !== false,
+        foodId,
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "食物信息更新成功",
+    });
+  } catch (error) {
+    console.error("更新食物信息错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/foods/{id}:
+ *   delete:
+ *     summary: 删除食物(后台管理端)
+ *     tags: [Admin]
+ *     description: 软删除食物
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ */
+export const deleteAdminFood = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const foodId = req.params.id;
+
+    const [existing] = await db.execute("SELECT id FROM foods WHERE id = ?", [
+      foodId,
+    ]);
+    if ((existing as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "食物不存在",
+      });
+      return;
+    }
+
+    // 软删除
+    await db.execute("UPDATE foods SET is_active = false WHERE id = ?", [
+      foodId,
+    ]);
+
+    res.json({
+      success: true,
+      message: "食物删除成功",
+    });
+  } catch (error) {
+    console.error("删除食物错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};

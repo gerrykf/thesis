@@ -10,7 +10,13 @@ import {
   getSystemLogs,
   getUserStats,
   getUserHealthStats,
-  getUserHealthRecords
+  getUserHealthRecords,
+  getAdminFoods,
+  getAdminFoodCategories,
+  getAdminFoodById,
+  createAdminFood,
+  updateAdminFood,
+  deleteAdminFood
 } from '../controllers/adminController';
 
 const router: RouterType = Router();
@@ -43,10 +49,18 @@ router.get('/stats/users', getUserStats);
 // 系统日志
 router.get('/logs', getSystemLogs);
 
+// 食物管理路由
+router.get('/foods', getAdminFoods);
+router.get('/foods/categories', getAdminFoodCategories);
+router.get('/foods/:id', getAdminFoodById);
+router.post('/foods', createAdminFood);
+router.put('/foods/:id', updateAdminFood);
+router.delete('/foods/:id', deleteAdminFood);
+
 // 测试路由（保留用于调试）
 router.get('/test', (req: any, res) => {
   console.log('Admin test 路由被调用!');
-  res.json({ 
+  res.json({
     message: 'Admin test route working!',
     user: req.user // 显示当前认证用户信息
   });

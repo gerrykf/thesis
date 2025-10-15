@@ -131,10 +131,18 @@ function getLocalizedField(
  *           type: number
  *           description: 每100g糖(g)
  *           example: 10.4
+ *         image_url:
+ *           type: string
+ *           description: 食物图片URL
+ *           example: ""
  *         barcode:
  *           type: string
  *           description: 条形码
  *           example: ""
+ *         is_active:
+ *           type: boolean
+ *           description: 是否启用
+ *           example: true
  */
 
 /**

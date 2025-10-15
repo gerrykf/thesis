@@ -35,9 +35,11 @@ declare namespace API {
     sodium_per_100g?: number;
     /** 每100g糖(g) */
     sugar_per_100g?: number;
+    /** 食物图片URL */
+    image_url?: string;
     /** 条形码 */
     barcode?: string;
-    image_url?: string;
+    /** 是否启用 */
     is_active?: boolean;
   };
 
@@ -58,6 +60,10 @@ declare namespace API {
     mood?: "excellent" | "good" | "fair" | "poor";
     /** 备注 */
     notes?: string;
+  };
+
+  type deleteAdminFoodsIdParams = {
+    id: number;
   };
 
   type deleteAdminUsersIdParams = {
@@ -151,6 +157,21 @@ declare namespace API {
     created_at?: string;
     /** 更新时间 */
     updated_at?: string;
+  };
+
+  type getAdminFoodsIdParams = {
+    id: number;
+  };
+
+  type getAdminFoodsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    limit?: number;
+    /** 搜索关键词 */
+    search?: string;
+    /** 分类筛选 */
+    category?: string;
   };
 
   type getAdminLogsParams = {
@@ -336,6 +357,10 @@ declare namespace API {
 
   type patchAdminUsersIdToggleStatusParams = {
     /** 用户ID */
+    id: number;
+  };
+
+  type putAdminFoodsIdParams = {
     id: number;
   };
 

@@ -2,6 +2,98 @@
 /* eslint-disable */
 import request from "@/utils/request";
 
+/** 获取食物列表(后台管理端) 获取食物列表，返回所有字段包括中英文字段，用于后台管理端编辑 GET /api/admin/foods */
+export async function getAdminFoods(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminFoodsParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/foods", {
+    method: "GET",
+    params: {
+      // page has a default value: 1
+      page: "1",
+      // limit has a default value: 20
+      limit: "20",
+
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 创建食物(后台管理端) 创建新食物 POST /api/admin/foods */
+export async function postAdminFoods(
+  body: API.CreateFoodRequest,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/foods", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取食物详情(后台管理端) 获取食物详情，返回所有字段 GET /api/admin/foods/${param0} */
+export async function getAdminFoodsId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminFoodsIdParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/foods/${param0}`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 更新食物(后台管理端) 更新食物信息 PUT /api/admin/foods/${param0} */
+export async function putAdminFoodsId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminFoodsIdParams,
+  body: API.CreateFoodRequest,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/foods/${param0}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: { ...queryParams },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 删除食物(后台管理端) 软删除食物 DELETE /api/admin/foods/${param0} */
+export async function deleteAdminFoodsId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deleteAdminFoodsIdParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<any>(`/api/admin/foods/${param0}`, {
+    method: "DELETE",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 获取食物分类列表(后台管理端) 获取所有食物分类 GET /api/admin/foods/categories */
+export async function getAdminFoodsCategories(options?: {
+  [key: string]: any;
+}) {
+  return request<any>("/api/admin/foods/categories", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
+
 /** 获取系统日志 获取系统操作日志(需要管理员权限) GET /api/admin/logs */
 export async function getAdminLogs(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
