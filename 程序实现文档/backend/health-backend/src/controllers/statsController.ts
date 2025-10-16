@@ -158,17 +158,27 @@ export const getStatsOverview = async (req: AuthRequest, res: Response): Promise
 export const getWeightTrend = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const days = parseInt(req.query.days as string) || 30;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    let startDateStr: string;
+    let endDateStr: string;
+
+    // 优先使用 startDate 和 endDate，否则使用 days
+    if (req.query.startDate && req.query.endDate) {
+      startDateStr = req.query.startDate as string;
+      endDateStr = req.query.endDate as string;
+    } else {
+      const days = parseInt(req.query.days as string) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      startDateStr = startDate.toISOString().split('T')[0];
+      endDateStr = new Date().toISOString().split('T')[0];
+    }
 
     const [rows] = await db.execute(
       `SELECT record_date, weight
        FROM health_records
-       WHERE user_id = ? AND record_date >= ? AND weight IS NOT NULL
+       WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND weight IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr]
+      [userId, startDateStr, endDateStr]
     );
 
     res.json({
@@ -314,17 +324,27 @@ export const getCaloriesTrend = async (req: AuthRequest, res: Response): Promise
 export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const days = parseInt(req.query.days as string) || 30;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    let startDateStr: string;
+    let endDateStr: string;
+
+    // 优先使用 startDate 和 endDate，否则使用 days
+    if (req.query.startDate && req.query.endDate) {
+      startDateStr = req.query.startDate as string;
+      endDateStr = req.query.endDate as string;
+    } else {
+      const days = parseInt(req.query.days as string) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      startDateStr = startDate.toISOString().split('T')[0];
+      endDateStr = new Date().toISOString().split('T')[0];
+    }
 
     const [rows] = await db.execute(
       `SELECT record_date, exercise_duration, exercise_type
        FROM health_records
-       WHERE user_id = ? AND record_date >= ? AND exercise_duration IS NOT NULL
+       WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND exercise_duration IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr]
+      [userId, startDateStr, endDateStr]
     );
 
     res.json({
@@ -393,27 +413,37 @@ export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise
 export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const days = parseInt(req.query.days as string) || 30;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    let startDateStr: string;
+    let endDateStr: string;
+
+    // 优先使用 startDate 和 endDate，否则使用 days
+    if (req.query.startDate && req.query.endDate) {
+      startDateStr = req.query.startDate as string;
+      endDateStr = req.query.endDate as string;
+    } else {
+      const days = parseInt(req.query.days as string) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      startDateStr = startDate.toISOString().split('T')[0];
+      endDateStr = new Date().toISOString().split('T')[0];
+    }
 
     // 获取睡眠趋势
     const [sleepTrend] = await db.execute(
       `SELECT record_date, sleep_hours, sleep_quality
        FROM health_records
-       WHERE user_id = ? AND record_date >= ? AND sleep_hours IS NOT NULL
+       WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND sleep_hours IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr]
+      [userId, startDateStr, endDateStr]
     );
 
     // 获取睡眠质量分布
     const [qualityDist] = await db.execute(
       `SELECT sleep_quality, COUNT(*) as count
        FROM health_records
-       WHERE user_id = ? AND record_date >= ? AND sleep_quality IS NOT NULL
+       WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND sleep_quality IS NOT NULL
        GROUP BY sleep_quality`,
-      [userId, startDateStr]
+      [userId, startDateStr, endDateStr]
     );
 
     // 转换为对象格式
@@ -497,10 +527,25 @@ export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<
 export const getNutritionAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const days = parseInt(req.query.days as string) || 7;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    let startDateStr: string;
+    let endDateStr: string;
+    let days: number;
+
+    // 优先使用 startDate 和 endDate，否则使用 days
+    if (req.query.startDate && req.query.endDate) {
+      startDateStr = req.query.startDate as string;
+      endDateStr = req.query.endDate as string;
+      // 计算天数差
+      const start = new Date(startDateStr);
+      const end = new Date(endDateStr);
+      days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    } else {
+      days = parseInt(req.query.days as string) || 7;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      startDateStr = startDate.toISOString().split('T')[0];
+      endDateStr = new Date().toISOString().split('T')[0];
+    }
 
     const [rows] = await db.execute(
       `SELECT
@@ -509,8 +554,8 @@ export const getNutritionAnalysis = async (req: AuthRequest, res: Response): Pro
         SUM(fat) as total_fat,
         SUM(carbs) as total_carbs
        FROM diet_records
-       WHERE user_id = ? AND record_date >= ?`,
-      [userId, startDateStr]
+       WHERE user_id = ? AND record_date >= ? AND record_date <= ?`,
+      [userId, startDateStr, endDateStr]
     );
 
     const data = (rows as any[])[0];

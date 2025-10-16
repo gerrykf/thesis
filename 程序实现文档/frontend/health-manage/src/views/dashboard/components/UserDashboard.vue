@@ -19,6 +19,7 @@ import {
 } from "@/api/stats";
 import { unwrap } from "@/utils/api";
 import { ElMessage } from "element-plus";
+import { Notebook, Food, TrophyBase, MoonNight } from "@element-plus/icons-vue";
 
 // 注册 ECharts 组件
 use([
@@ -50,7 +51,7 @@ const overview = ref({
 const days = ref(30);
 
 // 日期范围选择
-const dateRange = ref<[Date, Date] | null>(null);
+const dateRange = ref<[string, string] | null>(null);
 const useCustomDate = ref(false);
 
 // 图表loading
@@ -97,7 +98,12 @@ const formatDate = (dateStr: string) => {
 const loadWeightTrend = async () => {
   try {
     loading.value = true;
-    const res = await unwrap(getStatsWeightTrend({ days: days.value }));
+    const params =
+      useCustomDate.value && dateRange.value
+        ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
+        : { days: days.value };
+    console.log("加载体重趋势 - 参数:", params);
+    const res = await unwrap(getStatsWeightTrend(params));
 
     if (res?.data && Array.isArray(res.data)) {
       const xData = res.data.map(item => formatDate(item.record_date || ""));
@@ -146,7 +152,11 @@ const loadWeightTrend = async () => {
 // 加载运动趋势
 const loadExerciseTrend = async () => {
   try {
-    const res = await unwrap(getStatsExerciseTrend({ days: days.value }));
+    const params =
+      useCustomDate.value && dateRange.value
+        ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
+        : { days: days.value };
+    const res = await unwrap(getStatsExerciseTrend(params));
 
     if (res?.data && Array.isArray(res.data)) {
       const xData = res.data.map(item => formatDate(item.record_date || ""));
@@ -206,7 +216,11 @@ const loadExerciseTrend = async () => {
 // 加载睡眠质量
 const loadSleepQuality = async () => {
   try {
-    const res = await unwrap(getStatsSleepQuality({ days: days.value }));
+    const params =
+      useCustomDate.value && dateRange.value
+        ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
+        : { days: days.value };
+    const res = await unwrap(getStatsSleepQuality(params));
 
     if (res?.data) {
       const data = res.data;
@@ -260,7 +274,11 @@ const loadSleepQuality = async () => {
 // 加载营养分析
 const loadNutritionAnalysis = async () => {
   try {
-    const res = await unwrap(getStatsNutritionAnalysis({ days: days.value }));
+    const params =
+      useCustomDate.value && dateRange.value
+        ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
+        : { days: days.value };
+    const res = await unwrap(getStatsNutritionAnalysis(params));
 
     if (res?.data) {
       const data = res.data;
@@ -336,12 +354,7 @@ const handleTimeRangeChange = () => {
 // 查询自定义日期范围
 const handleCustomDateQuery = () => {
   if (dateRange.value && dateRange.value[0] && dateRange.value[1]) {
-    // 计算日期差
-    const date1 = new Date(dateRange.value[0]);
-    const date2 = new Date(dateRange.value[1]);
-    const diffTime = Math.abs(date2.getTime() - date1.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    days.value = diffDays;
+    useCustomDate.value = true;
     loadAllData();
   }
 };

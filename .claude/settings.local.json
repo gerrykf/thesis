@@ -27,7 +27,8 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYzLCJ1c2VybmFtZSI6InRlc3QwMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNTgzMTYxLCJleHAiOjE3NjExODc5NjF9.7ul8AfXgH4IZfBENlwiBVKU3jZZJAmXJeuKtx_29Quk\")",
       "Bash(pnpm add:*)",
       "Bash(pnpm approve-builds:*)",
-      "Bash(npx vue-tsc:*)"
+      "Bash(npx vue-tsc:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []

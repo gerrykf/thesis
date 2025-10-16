@@ -19,6 +19,7 @@ import {
 } from "@/api/admin";
 import { unwrap } from "@/utils/api";
 import { ElMessage } from "element-plus";
+import { User, Avatar, Notebook, Food } from "@element-plus/icons-vue";
 
 // 注册 ECharts 组件
 use([
