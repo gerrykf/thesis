@@ -8,6 +8,7 @@ import * as diet from "./diet";
 import * as food from "./food";
 import * as goals from "./goals";
 import * as health from "./health";
+import * as monitor from "./monitor";
 import * as stats from "./stats";
 export default {
   admin,
@@ -16,5 +17,6 @@ export default {
   food,
   goals,
   health,
+  monitor,
   stats,
 };

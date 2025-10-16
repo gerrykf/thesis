@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
+import { unwrap } from "@/utils/api";
 import { getKeyList } from "@pureadmin/utils";
 import {
   getOperationLogs,
@@ -174,9 +175,9 @@ export function useOperationLogs(tableRef: Ref) {
         );
       }
 
-      const { data } = await getOperationLogs(params);
-      dataList.value = data.list || [];
-      pagination.total = data.total || 0;
+      const response = await unwrap(getOperationLogs(params));
+      dataList.value = response.data?.list || [];
+      pagination.total = response.data?.total || 0;
     } catch (error) {
       console.error("获取操作日志列表失败:", error);
       message("获取操作日志列表失败", { type: "error" });

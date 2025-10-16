@@ -1,13 +1,92 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import db from '../config/database';
+import { db } from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 /**
  * 在线用户管理
  */
 
-// 获取在线用户列表
+/**
+ * @swagger
+ * /api/monitor/online-users:
+ *   get:
+ *     summary: 获取在线用户列表
+ *     tags: [Monitor]
+ *     description: 获取当前在线用户列表，支持分页和用户名搜索
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页数量
+ *       - in: query
+ *         name: username
+ *         schema:
+ *           type: string
+ *         description: 用户名（模糊搜索）
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           user_id:
+ *                             type: integer
+ *                           username:
+ *                             type: string
+ *                           ip:
+ *                             type: string
+ *                           address:
+ *                             type: string
+ *                           system:
+ *                             type: string
+ *                           browser:
+ *                             type: string
+ *                           login_time:
+ *                             type: string
+ *                             format: date-time
+ *                           last_active_time:
+ *                             type: string
+ *                             format: date-time
+ *                           expires_at:
+ *                             type: string
+ *                             format: date-time
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -40,7 +119,7 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
         username,
         ip,
         address,
-        system,
+        \`system\`,
         browser,
         login_time,
         last_active_time,
@@ -70,7 +149,43 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-// 强制下线用户
+/**
+ * @swagger
+ * /api/monitor/online-users/{id}:
+ *   delete:
+ *     summary: 强制用户下线
+ *     tags: [Monitor]
+ *     description: 根据在线用户ID强制用户下线
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 在线用户ID
+ *     responses:
+ *       200:
+ *         description: 强制下线成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 强制下线成功
+ *       404:
+ *         description: 在线用户不存在
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const forceOfflineUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -106,7 +221,106 @@ export const forceOfflineUser = async (req: AuthRequest, res: Response): Promise
  * 登录日志管理
  */
 
-// 获取登录日志列表
+/**
+ * @swagger
+ * /api/monitor/login-logs:
+ *   get:
+ *     summary: 获取登录日志列表
+ *     tags: [Monitor]
+ *     description: 获取用户登录日志列表，支持分页和多条件筛选
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页数量
+ *       - in: query
+ *         name: username
+ *         schema:
+ *           type: string
+ *         description: 用户名（模糊搜索）
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: integer
+ *         description: 登录状态（0-失败，1-成功）
+ *       - in: query
+ *         name: startTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: 开始时间
+ *       - in: query
+ *         name: endTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: 结束时间
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           user_id:
+ *                             type: integer
+ *                           username:
+ *                             type: string
+ *                           ip:
+ *                             type: string
+ *                           address:
+ *                             type: string
+ *                           system:
+ *                             type: string
+ *                           browser:
+ *                             type: string
+ *                           status:
+ *                             type: integer
+ *                             description: 登录状态（0-失败，1-成功）
+ *                           behavior:
+ *                             type: string
+ *                             description: 登录行为
+ *                           error_message:
+ *                             type: string
+ *                             description: 错误信息
+ *                           login_time:
+ *                             type: string
+ *                             format: date-time
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const getLoginLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -157,7 +371,7 @@ export const getLoginLogs = async (req: AuthRequest, res: Response): Promise<voi
         username,
         ip,
         address,
-        system,
+        \`system\`,
         browser,
         status,
         behavior,
@@ -188,7 +402,50 @@ export const getLoginLogs = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-// 批量删除登录日志
+/**
+ * @swagger
+ * /api/monitor/login-logs/batch-delete:
+ *   post:
+ *     summary: 批量删除登录日志
+ *     tags: [Monitor]
+ *     description: 根据ID列表批量删除登录日志
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - ids
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: 要删除的日志ID列表
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 成功删除 5 条记录
+ *       400:
+ *         description: 请求参数错误
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const batchDeleteLoginLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { ids } = req.body;
@@ -220,7 +477,34 @@ export const batchDeleteLoginLogs = async (req: AuthRequest, res: Response): Pro
   }
 };
 
-// 清空所有登录日志
+/**
+ * @swagger
+ * /api/monitor/login-logs/clear:
+ *   delete:
+ *     summary: 清空所有登录日志
+ *     tags: [Monitor]
+ *     description: 清空所有登录日志记录
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 清空成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 成功清空 100 条记录
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const clearAllLoginLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const [result] = await db.execute<ResultSetHeader>(
@@ -244,7 +528,122 @@ export const clearAllLoginLogs = async (req: AuthRequest, res: Response): Promis
  * 操作日志管理
  */
 
-// 获取操作日志列表
+/**
+ * @swagger
+ * /api/monitor/operation-logs:
+ *   get:
+ *     summary: 获取操作日志列表
+ *     tags: [Monitor]
+ *     description: 获取用户操作日志列表，支持分页和多条件筛选
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页数量
+ *       - in: query
+ *         name: username
+ *         schema:
+ *           type: string
+ *         description: 用户名（模糊搜索）
+ *       - in: query
+ *         name: module
+ *         schema:
+ *           type: string
+ *         description: 所属模块（模糊搜索）
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: integer
+ *         description: 操作状态（0-失败，1-成功）
+ *       - in: query
+ *         name: startTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: 开始时间
+ *       - in: query
+ *         name: endTime
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: 结束时间
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           user_id:
+ *                             type: integer
+ *                           username:
+ *                             type: string
+ *                           module:
+ *                             type: string
+ *                             description: 所属模块
+ *                           summary:
+ *                             type: string
+ *                             description: 操作概要
+ *                           action:
+ *                             type: string
+ *                             description: 操作动作
+ *                           ip_address:
+ *                             type: string
+ *                             description: 操作IP
+ *                           address:
+ *                             type: string
+ *                             description: 操作地点
+ *                           system:
+ *                             type: string
+ *                             description: 操作系统
+ *                           browser:
+ *                             type: string
+ *                             description: 浏览器类型
+ *                           status:
+ *                             type: integer
+ *                             description: 操作状态（0-失败，1-成功）
+ *                           operating_time:
+ *                             type: string
+ *                             format: date-time
+ *                             description: 操作时间
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const getOperationLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -301,10 +700,10 @@ export const getOperationLogs = async (req: AuthRequest, res: Response): Promise
         username,
         module,
         summary,
-        action,
+        \`action\`,
         ip_address,
         address,
-        system,
+        \`system\`,
         browser,
         status,
         operating_time,
@@ -334,7 +733,50 @@ export const getOperationLogs = async (req: AuthRequest, res: Response): Promise
   }
 };
 
-// 批量删除操作日志
+/**
+ * @swagger
+ * /api/monitor/operation-logs/batch-delete:
+ *   post:
+ *     summary: 批量删除操作日志
+ *     tags: [Monitor]
+ *     description: 根据ID列表批量删除操作日志
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - ids
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: 要删除的日志ID列表
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 成功删除 5 条记录
+ *       400:
+ *         description: 请求参数错误
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const batchDeleteOperationLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { ids } = req.body;
@@ -366,7 +808,34 @@ export const batchDeleteOperationLogs = async (req: AuthRequest, res: Response):
   }
 };
 
-// 清空所有操作日志
+/**
+ * @swagger
+ * /api/monitor/operation-logs/clear:
+ *   delete:
+ *     summary: 清空所有操作日志
+ *     tags: [Monitor]
+ *     description: 清空所有操作日志记录
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 清空成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 成功清空 100 条记录
+ *       401:
+ *         description: 未授权
+ *       500:
+ *         description: 服务器内部错误
+ */
 export const clearAllOperationLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const [result] = await db.execute<ResultSetHeader>(
@@ -385,3 +854,4 @@ export const clearAllOperationLogs = async (req: AuthRequest, res: Response): Pr
     });
   }
 };
+// force reload

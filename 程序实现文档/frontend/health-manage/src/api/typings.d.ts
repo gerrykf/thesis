@@ -96,6 +96,11 @@ declare namespace API {
     id: number;
   };
 
+  type deleteMonitorOnlineUsersIdParams = {
+    /** 在线用户ID */
+    id: number;
+  };
+
   type DietRecord = {
     /** 记录ID */
     id?: number;
@@ -336,6 +341,47 @@ declare namespace API {
     end_date?: string;
   };
 
+  type getMonitorLoginLogsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+    /** 登录状态（0-失败，1-成功） */
+    status?: number;
+    /** 开始时间 */
+    startTime?: string;
+    /** 结束时间 */
+    endTime?: string;
+  };
+
+  type getMonitorOnlineUsersParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+  };
+
+  type getMonitorOperationLogsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+    /** 所属模块（模糊搜索） */
+    module?: string;
+    /** 操作状态（0-失败，1-成功） */
+    status?: number;
+    /** 开始时间 */
+    startTime?: string;
+    /** 结束时间 */
+    endTime?: string;
+  };
+
   type getStatsCaloriesTrendParams = {
     /** 统计天数 */
     days?: number;
@@ -354,6 +400,8 @@ declare namespace API {
   type getStatsOverviewParams = {
     /** 统计天数 */
     days?: number;
+    /** 用户ID（仅管理员可用） */
+    userId?: number;
   };
 
   type getStatsSleepQualityParams = {

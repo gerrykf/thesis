@@ -3,12 +3,34 @@ import { db } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
 
 /**
+ * 获取目标用户ID（支持管理员查看其他用户数据）
+ */
+const getTargetUserId = (req: AuthRequest, res: Response): number | null => {
+  const queryUserId = req.query.userId ? parseInt(req.query.userId as string) : null;
+  const currentUserId = req.user?.userId;
+  const userRole = req.user?.role;
+
+  if (queryUserId) {
+    // 只有管理员或超级管理员可以查看其他用户的数据
+    if (userRole !== 'admin' && userRole !== 'super_admin') {
+      res.status(403).json({
+        success: false,
+        message: '权限不足，无法查看其他用户数据'
+      });
+      return null;
+    }
+    return queryUserId;
+  }
+  return currentUserId!;
+};
+
+/**
  * @swagger
  * /api/stats/overview:
  *   get:
  *     summary: 获取统计概览
  *     tags: [Stats]
- *     description: 获取用户健康数据的统计概览
+ *     description: 获取用户健康数据的统计概览，管理员可以通过userId参数查看其他用户数据
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -18,6 +40,11 @@ import { AuthRequest } from '../middleware/auth';
  *           type: integer
  *           default: 7
  *         description: 统计天数
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         description: 用户ID（仅管理员可用）
  *     responses:
  *       200:
  *         description: 获取成功
@@ -55,12 +82,16 @@ import { AuthRequest } from '../middleware/auth';
  *                       description: 平均每日热量
  *       401:
  *         description: 未授权
+ *       403:
+ *         description: 权限不足
  *       500:
  *         description: 服务器内部错误
  */
 export const getStatsOverview = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
+
     const days = parseInt(req.query.days as string) || 7;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
@@ -75,7 +106,7 @@ export const getStatsOverview = async (req: AuthRequest, res: Response): Promise
         AVG(sleep_hours) as avg_sleep_hours
       FROM health_records
       WHERE user_id = ? AND record_date >= ?`,
-      [userId, startDateStr]
+      [targetUserId, startDateStr]
     );
 
     // 饮食记录统计
@@ -85,7 +116,7 @@ export const getStatsOverview = async (req: AuthRequest, res: Response): Promise
         SUM(calories) as total_calories
       FROM diet_records
       WHERE user_id = ? AND record_date >= ?`,
-      [userId, startDateStr]
+      [targetUserId, startDateStr]
     );
 
     const healthData = (healthStats as any[])[0];
@@ -157,7 +188,9 @@ export const getStatsOverview = async (req: AuthRequest, res: Response): Promise
  */
 export const getWeightTrend = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
+
     let startDateStr: string;
     let endDateStr: string;
 
@@ -178,7 +211,7 @@ export const getWeightTrend = async (req: AuthRequest, res: Response): Promise<v
        FROM health_records
        WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND weight IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr, endDateStr]
+      [targetUserId, startDateStr, endDateStr]
     );
 
     res.json({
@@ -244,7 +277,8 @@ export const getWeightTrend = async (req: AuthRequest, res: Response): Promise<v
  */
 export const getCaloriesTrend = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
     const days = parseInt(req.query.days as string) || 30;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
@@ -261,7 +295,7 @@ export const getCaloriesTrend = async (req: AuthRequest, res: Response): Promise
        WHERE user_id = ? AND record_date >= ?
        GROUP BY record_date
        ORDER BY record_date ASC`,
-      [userId, startDateStr]
+      [targetUserId, startDateStr]
     );
 
     res.json({
@@ -323,7 +357,9 @@ export const getCaloriesTrend = async (req: AuthRequest, res: Response): Promise
  */
 export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
+
     let startDateStr: string;
     let endDateStr: string;
 
@@ -344,7 +380,7 @@ export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise
        FROM health_records
        WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND exercise_duration IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr, endDateStr]
+      [targetUserId, startDateStr, endDateStr]
     );
 
     res.json({
@@ -412,7 +448,9 @@ export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise
  */
 export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
+
     let startDateStr: string;
     let endDateStr: string;
 
@@ -434,7 +472,7 @@ export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<
        FROM health_records
        WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND sleep_hours IS NOT NULL
        ORDER BY record_date ASC`,
-      [userId, startDateStr, endDateStr]
+      [targetUserId, startDateStr, endDateStr]
     );
 
     // 获取睡眠质量分布
@@ -443,7 +481,7 @@ export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<
        FROM health_records
        WHERE user_id = ? AND record_date >= ? AND record_date <= ? AND sleep_quality IS NOT NULL
        GROUP BY sleep_quality`,
-      [userId, startDateStr, endDateStr]
+      [targetUserId, startDateStr, endDateStr]
     );
 
     // 转换为对象格式
@@ -526,7 +564,9 @@ export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<
  */
 export const getNutritionAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const targetUserId = getTargetUserId(req, res);
+    if (targetUserId === null) return;
+
     let startDateStr: string;
     let endDateStr: string;
     let days: number;
@@ -555,7 +595,7 @@ export const getNutritionAnalysis = async (req: AuthRequest, res: Response): Pro
         SUM(carbs) as total_carbs
        FROM diet_records
        WHERE user_id = ? AND record_date >= ? AND record_date <= ?`,
-      [userId, startDateStr, endDateStr]
+      [targetUserId, startDateStr, endDateStr]
     );
 
     const data = (rows as any[])[0];

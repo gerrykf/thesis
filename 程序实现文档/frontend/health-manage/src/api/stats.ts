@@ -80,7 +80,7 @@ export async function getStatsNutritionAnalysis(
   });
 }
 
-/** 获取统计概览 获取用户健康数据的统计概览 GET /api/stats/overview */
+/** 获取统计概览 获取用户健康数据的统计概览，管理员可以通过userId参数查看其他用户数据 GET /api/stats/overview */
 export async function getStatsOverview(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getStatsOverviewParams,

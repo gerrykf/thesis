@@ -29,7 +29,17 @@
       "Bash(pnpm approve-builds:*)",
       "Bash(npx vue-tsc:*)",
       "Bash(kill:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJ1c2VybmFtZSI6InRlc3Rtb25pdG9yIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NjA2MzMyMDIsImV4cCI6MTc2MTIzODAwMn0.xloUpqNrDwcGCukbrD0kONtPHypuiUq7bRwNECeReBo\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJ1c2VybmFtZSI6Im1vbml0b3JhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MDYzMzcwOCwiZXhwIjoxNzYxMjM4NTA4fQ.i0kQWZGdz-EDRe6oHj8mnRRh0M-2wN7Wa0VPBVIzBII\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJ1c2VybmFtZSI6Im1vbml0b3JhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MDYzMzc3NywiZXhwIjoxNzYxMjM4NTc3fQ.rcYKAf3dlxleMxcBB48a5wRmtddvqJ2phFLqgw2u_0I\")",
+      "Bash(__NEW_LINE__ echo \"=== 测试1: 在线用户列表 ===\")",
+      "Bash(__NEW_LINE__ echo -e \"\\n\\n=== 测试2: 登录日志列表 ===\")",
+      "Bash(__NEW_LINE__ echo -e \"\\n\\n=== 测试3: 操作日志列表 ===\")",
+      "Bash(tee:*)",
+      "Bash(echo \"=== 测试1: 在线用户列表 ===\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(echo -e \"\\n\\n=== 测试2: 登录日志列表 ===\" curl -s \"http://localhost:3000/api/monitor/login-logs?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(echo -e \"\\n\\n=== 测试3: 操作日志列表 ===\" curl -s \"http://localhost:3000/api/monitor/operation-logs?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")"
     ],
     "deny": [],
     "ask": []

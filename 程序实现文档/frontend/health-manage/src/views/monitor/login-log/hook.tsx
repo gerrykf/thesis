@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
+import { unwrap } from "@/utils/api";
 import { getKeyList } from "@pureadmin/utils";
 import {
   getLoginLogs,
@@ -163,9 +164,9 @@ export function useLoginLogs(tableRef: Ref) {
         params.endTime = dayjs(form.loginTime[1]).format("YYYY-MM-DD HH:mm:ss");
       }
 
-      const { data } = await getLoginLogs(params);
-      dataList.value = data.list || [];
-      pagination.total = data.total || 0;
+      const response = await unwrap(getLoginLogs(params));
+      dataList.value = response.data?.list || [];
+      pagination.total = response.data?.total || 0;
     } catch (error) {
       console.error("获取登录日志列表失败:", error);
       message("获取登录日志列表失败", { type: "error" });

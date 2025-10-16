@@ -165,8 +165,14 @@
         <el-table-column label="头像" width="80">
           <template #default="{ row }">
             <el-avatar
+              v-if="row.avatar"
               :size="40"
               :src="row.avatar"
+              class="user-avatar"
+            />
+            <el-avatar
+              v-else
+              :size="40"
               :icon="UserFilled"
               class="user-avatar"
             />
@@ -212,7 +218,7 @@
             {{ formatDate(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <el-button
               type="primary"
@@ -221,6 +227,14 @@
               @click="viewUserDetail(row.id)"
             >
               查看
+            </el-button>
+            <el-button
+              v-if="isAdmin || isSuperAdmin"
+              type="success"
+              size="small"
+              @click="viewUserAnalysis(row.id)"
+            >
+              分析
             </el-button>
             <el-button
               :type="row.is_active ? 'warning' : 'success'"
@@ -566,6 +580,14 @@ const handleAddUser = async () => {
 // 查看用户详情
 const viewUserDetail = (userId: number) => {
   router.push(`/users/detail/${userId}`);
+};
+
+// 查看用户分析数据
+const viewUserAnalysis = (userId: number) => {
+  router.push({
+    path: "/dashboard",
+    query: { userId: userId.toString() }
+  });
 };
 
 // 处理用户状态切换

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart, PieChart, GaugeChart } from "echarts/charts";
@@ -19,7 +20,13 @@ import {
 } from "@/api/stats";
 import { unwrap } from "@/utils/api";
 import { ElMessage } from "element-plus";
-import { Notebook, Food, TrophyBase, MoonNight } from "@element-plus/icons-vue";
+import {
+  Notebook,
+  Food,
+  TrophyBase,
+  MoonNight,
+  ArrowLeft
+} from "@element-plus/icons-vue";
 
 // 注册 ECharts 组件
 use([
@@ -36,6 +43,18 @@ use([
 defineOptions({
   name: "UserDashboard"
 });
+
+const route = useRoute();
+const router = useRouter();
+
+// 从路由获取userId参数
+const queryUserId = computed(() => {
+  const userId = route.query.userId;
+  return userId ? parseInt(userId as string) : null;
+});
+
+// 是否在查看其他用户数据
+const isViewingOtherUser = computed(() => queryUserId.value !== null);
 
 // 概览数据
 const overview = ref({
@@ -63,10 +82,19 @@ const exerciseTrendOption = ref({});
 const sleepQualityOption = ref({});
 const nutritionOption = ref({});
 
+// 返回用户列表
+const handleGoBack = () => {
+  router.push("/users/list");
+};
+
 // 加载概览数据
 const loadOverview = async () => {
   try {
-    const res = await unwrap(getStatsOverview({ days: 7 }));
+    const params: any = { days: 7 };
+    if (queryUserId.value) {
+      params.userId = queryUserId.value;
+    }
+    const res = await unwrap(getStatsOverview(params));
     if (res?.data) {
       const data = res.data;
       overview.value = {
@@ -98,10 +126,13 @@ const formatDate = (dateStr: string) => {
 const loadWeightTrend = async () => {
   try {
     loading.value = true;
-    const params =
+    const params: any =
       useCustomDate.value && dateRange.value
         ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
         : { days: days.value };
+    if (queryUserId.value) {
+      params.userId = queryUserId.value;
+    }
     console.log("加载体重趋势 - 参数:", params);
     const res = await unwrap(getStatsWeightTrend(params));
 
@@ -152,10 +183,13 @@ const loadWeightTrend = async () => {
 // 加载运动趋势
 const loadExerciseTrend = async () => {
   try {
-    const params =
+    const params: any =
       useCustomDate.value && dateRange.value
         ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
         : { days: days.value };
+    if (queryUserId.value) {
+      params.userId = queryUserId.value;
+    }
     const res = await unwrap(getStatsExerciseTrend(params));
 
     if (res?.data && Array.isArray(res.data)) {
@@ -216,10 +250,13 @@ const loadExerciseTrend = async () => {
 // 加载睡眠质量
 const loadSleepQuality = async () => {
   try {
-    const params =
+    const params: any =
       useCustomDate.value && dateRange.value
         ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
         : { days: days.value };
+    if (queryUserId.value) {
+      params.userId = queryUserId.value;
+    }
     const res = await unwrap(getStatsSleepQuality(params));
 
     if (res?.data) {
@@ -274,10 +311,13 @@ const loadSleepQuality = async () => {
 // 加载营养分析
 const loadNutritionAnalysis = async () => {
   try {
-    const params =
+    const params: any =
       useCustomDate.value && dateRange.value
         ? { startDate: dateRange.value[0], endDate: dateRange.value[1] }
         : { days: days.value };
+    if (queryUserId.value) {
+      params.userId = queryUserId.value;
+    }
     const res = await unwrap(getStatsNutritionAnalysis(params));
 
     if (res?.data) {
@@ -367,6 +407,14 @@ onMounted(() => {
 
 <template>
   <div class="user-dashboard">
+    <!-- 返回按钮 (仅在查看其他用户数据时显示) -->
+    <div v-if="isViewingOtherUser" class="back-button-container">
+      <el-button type="primary" @click="handleGoBack">
+        <el-icon style="margin-right: 4px"><ArrowLeft /></el-icon>
+        返回用户列表
+      </el-button>
+    </div>
+
     <!-- 概览卡片 -->
     <div class="overview-cards">
       <el-card class="overview-card">
@@ -499,6 +547,12 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .user-dashboard {
+  .back-button-container {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
   .overview-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
+import { unwrap } from "@/utils/api";
 import { getOnlineUsers, forceOfflineUser } from "@/api/monitor";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
@@ -95,9 +96,9 @@ export function useOnlineUsers() {
         pageSize: pagination.pageSize,
         ...toRaw(form)
       };
-      const { data } = await getOnlineUsers(params);
-      dataList.value = data.list || [];
-      pagination.total = data.total || 0;
+      const response = await unwrap(getOnlineUsers(params));
+      dataList.value = response.data?.list || [];
+      pagination.total = response.data?.total || 0;
     } catch (error) {
       console.error("获取在线用户列表失败:", error);
       message("获取在线用户列表失败", { type: "error" });
