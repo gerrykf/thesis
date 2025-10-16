@@ -12,6 +12,10 @@ import {
   getUserStats,
   getUserHealthStats,
   getUserHealthRecords,
+  getUserRegistrationTrend,
+  getUserActiveTrend,
+  getHealthCheckinRate,
+  getDietCheckinRate,
   getAdminFoods,
   getAdminFoodCategories,
   getAdminFoodById,
@@ -66,6 +70,10 @@ router.get('/users/:id/health-records', requireRole('admin', 'super_admin'), get
 // 系统统计 - 需要管理员或超级管理员权限
 router.get('/stats/system', requireRole('admin', 'super_admin'), getSystemStats);
 router.get('/stats/users', requireRole('admin', 'super_admin'), getUserStats);
+router.get('/stats/user-registration-trend', requireRole('admin', 'super_admin'), getUserRegistrationTrend);
+router.get('/stats/user-active-trend', requireRole('admin', 'super_admin'), getUserActiveTrend);
+router.get('/stats/health-checkin-rate', requireRole('admin', 'super_admin'), getHealthCheckinRate);
+router.get('/stats/diet-checkin-rate', requireRole('admin', 'super_admin'), getDietCheckinRate);
 
 // 系统日志 - 需要管理员或超级管理员权限
 router.get('/logs', requireRole('admin', 'super_admin'), getSystemLogs);

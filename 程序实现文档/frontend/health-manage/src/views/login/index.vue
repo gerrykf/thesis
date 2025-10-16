@@ -62,15 +62,15 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               .getUserPermissions()
               .then(permissionData => {
                 console.log("用户权限已加载:", permissionData);
-                // 初始化路由后跳转到首页
+                // 初始化路由后跳转到 dashboard
                 return initRouter().then(() => {
                   disabled.value = true;
-                  // 直接跳转到首页/welcome，如果不存在则跳转到根路径
-                  const targetPath = "/welcome";
+                  // 跳转到 dashboard 页面
+                  const targetPath = "/dashboard";
                   router
                     .push(targetPath)
                     .catch(() => {
-                      // 如果welcome路由不存在，跳转到根路径
+                      // 如果 dashboard 路由不存在，跳转到根路径
                       router.push("/");
                     })
                     .finally(() => (disabled.value = false));
@@ -82,7 +82,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
                 return initRouter().then(() => {
                   disabled.value = true;
                   router
-                    .push("/welcome")
+                    .push("/dashboard")
                     .catch(() => router.push("/"))
                     .finally(() => (disabled.value = false));
                 });

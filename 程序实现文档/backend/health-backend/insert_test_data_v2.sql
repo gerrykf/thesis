@@ -1,0 +1,206 @@
+-- 插入健康打卡测试数据（根据实际表结构）
+
+-- 用户1 - 打卡频率高（几乎每天）
+INSERT INTO health_records (user_id, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes, created_at, updated_at)
+SELECT 
+    1,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    ROUND(70 + (RAND() * 2 - 1), 1),
+    FLOOR(30 + RAND() * 60),
+    CASE FLOOR(RAND() * 4)
+        WHEN 0 THEN '跑步'
+        WHEN 1 THEN '游泳'
+        WHEN 2 THEN '健身'
+        ELSE '瑜伽'
+    END,
+    ROUND(7 + RAND() * 2, 1),
+    CASE FLOOR(RAND() * 4)
+        WHEN 0 THEN 'excellent'
+        WHEN 1 THEN 'good'
+        WHEN 2 THEN 'fair'
+        ELSE 'good'
+    END,
+    CASE FLOOR(RAND() * 4)
+        WHEN 0 THEN 'excellent'
+        WHEN 1 THEN 'good'
+        WHEN 2 THEN 'fair'
+        ELSE 'good'
+    END,
+    '每日健康记录',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
+    UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14
+    UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19
+    UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24
+    UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
+) numbers;
+
+-- 用户2 - 打卡频率中等（每2-3天）
+INSERT INTO health_records (user_id, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes, created_at, updated_at)
+SELECT 
+    2,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    ROUND(65 + (RAND() * 2 - 1), 1),
+    FLOOR(20 + RAND() * 40),
+    '跑步',
+    ROUND(6.5 + RAND() * 2, 1),
+    'good',
+    'good',
+    '健康打卡',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 2 UNION SELECT 4 UNION SELECT 6 UNION SELECT 8
+    UNION SELECT 10 UNION SELECT 12 UNION SELECT 14 UNION SELECT 16 UNION SELECT 18
+    UNION SELECT 20 UNION SELECT 22 UNION SELECT 24 UNION SELECT 26 UNION SELECT 28
+) numbers;
+
+-- 用户3 - 打卡频率低（每周1-2次）
+INSERT INTO health_records (user_id, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes, created_at, updated_at)
+SELECT 
+    3,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    ROUND(75 + (RAND() * 2 - 1), 1),
+    FLOOR(15 + RAND() * 30),
+    '健身',
+    ROUND(7 + RAND() * 1.5, 1),
+    'fair',
+    'good',
+    '周末打卡',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 7 UNION SELECT 14 UNION SELECT 21 UNION SELECT 28
+) numbers;
+
+-- 更多用户的健康打卡数据
+INSERT INTO health_records (user_id, record_date, weight, exercise_duration, exercise_type, sleep_hours, sleep_quality, mood, notes, created_at, updated_at)
+SELECT 
+    4 + (n % 6) as user_id,
+    DATE_SUB(CURDATE(), INTERVAL n DIV 6 DAY),
+    ROUND(60 + RAND() * 20, 1),
+    FLOOR(20 + RAND() * 60),
+    CASE FLOOR(RAND() * 3) WHEN 0 THEN '跑步' WHEN 1 THEN '健身' ELSE '瑜伽' END,
+    ROUND(6 + RAND() * 3, 1),
+    CASE FLOOR(RAND() * 3) WHEN 0 THEN 'excellent' WHEN 1 THEN 'good' ELSE 'fair' END,
+    CASE FLOOR(RAND() * 3) WHEN 0 THEN 'excellent' WHEN 1 THEN 'good' ELSE 'fair' END,
+    '日常打卡',
+    NOW(),
+    NOW()
+FROM (
+    SELECT n FROM (
+        SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+        UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11
+        UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17
+        UNION SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23
+        UNION SELECT 24 UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
+        UNION SELECT 30 UNION SELECT 31 UNION SELECT 32 UNION SELECT 33 UNION SELECT 34 UNION SELECT 35
+        UNION SELECT 36 UNION SELECT 37 UNION SELECT 38 UNION SELECT 39 UNION SELECT 40 UNION SELECT 41
+        UNION SELECT 42 UNION SELECT 43 UNION SELECT 44 UNION SELECT 45 UNION SELECT 46 UNION SELECT 47
+    ) t
+) numbers;
+
+-- 插入饮食打卡测试数据
+-- 用户1 - 每天多餐打卡
+INSERT INTO diet_records (user_id, record_date, meal_type, food_items, total_calories, protein, fat, carbs, notes, created_at, updated_at)
+SELECT 
+    1,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    CASE meal WHEN 0 THEN '早餐' WHEN 1 THEN '午餐' WHEN 2 THEN '晚餐' END,
+    CASE meal 
+        WHEN 0 THEN '牛奶,面包,鸡蛋'
+        WHEN 1 THEN '米饭,鸡肉,蔬菜'
+        WHEN 2 THEN '面条,青菜,豆腐'
+    END,
+    CASE meal WHEN 0 THEN 350 WHEN 1 THEN 650 WHEN 2 THEN 500 END + FLOOR(RAND() * 100),
+    CASE meal WHEN 0 THEN 15 WHEN 1 THEN 35 WHEN 2 THEN 20 END + FLOOR(RAND() * 5),
+    CASE meal WHEN 0 THEN 10 WHEN 1 THEN 20 WHEN 2 THEN 12 END + FLOOR(RAND() * 3),
+    CASE meal WHEN 0 THEN 45 WHEN 1 THEN 75 WHEN 2 THEN 60 END + FLOOR(RAND() * 10),
+    '正常饮食',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
+    UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14
+    UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19
+    UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24
+    UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
+) days
+CROSS JOIN (SELECT 0 meal UNION SELECT 1 UNION SELECT 2) meals;
+
+-- 用户2 - 每天1-2餐打卡
+INSERT INTO diet_records (user_id, record_date, meal_type, food_items, total_calories, protein, fat, carbs, notes, created_at, updated_at)
+SELECT 
+    2,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    CASE meal WHEN 0 THEN '午餐' ELSE '晚餐' END,
+    CASE meal 
+        WHEN 0 THEN '沙拉,鸡胸肉'
+        ELSE '蔬菜,鱼肉,米饭'
+    END,
+    CASE meal WHEN 0 THEN 400 ELSE 550 END + FLOOR(RAND() * 100),
+    CASE meal WHEN 0 THEN 25 ELSE 30 END + FLOOR(RAND() * 5),
+    CASE meal WHEN 0 THEN 12 ELSE 18 END + FLOOR(RAND() * 3),
+    CASE meal WHEN 0 THEN 40 ELSE 65 END + FLOOR(RAND() * 10),
+    '健康饮食',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
+    UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14
+    UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19
+    UNION SELECT 20 UNION SELECT 22 UNION SELECT 24 UNION SELECT 26 UNION SELECT 28
+) days
+CROSS JOIN (SELECT 0 meal UNION SELECT 1) meals;
+
+-- 用户3 - 不定期打卡
+INSERT INTO diet_records (user_id, record_date, meal_type, food_items, total_calories, protein, fat, carbs, notes, created_at, updated_at)
+SELECT 
+    3,
+    DATE_SUB(CURDATE(), INTERVAL n DAY),
+    '午餐',
+    '快餐',
+    600 + FLOOR(RAND() * 200),
+    20 + FLOOR(RAND() * 10),
+    25 + FLOOR(RAND() * 10),
+    80 + FLOOR(RAND() * 20),
+    '随意记录',
+    NOW(),
+    NOW()
+FROM (
+    SELECT 0 n UNION SELECT 5 UNION SELECT 10 UNION SELECT 15 UNION SELECT 20 UNION SELECT 25
+) days;
+
+-- 更多用户的饮食打卡数据
+INSERT INTO diet_records (user_id, record_date, meal_type, food_items, total_calories, protein, fat, carbs, notes, created_at, updated_at)
+SELECT 
+    4 + (n % 6) as user_id,
+    DATE_SUB(CURDATE(), INTERVAL n DIV 12 DAY),
+    CASE (n % 3) WHEN 0 THEN '早餐' WHEN 1 THEN '午餐' ELSE '晚餐' END,
+    '食物记录',
+    400 + FLOOR(RAND() * 300),
+    20 + FLOOR(RAND() * 15),
+    15 + FLOOR(RAND() * 10),
+    50 + FLOOR(RAND() * 30),
+    '饮食打卡',
+    NOW(),
+    NOW()
+FROM (
+    SELECT n FROM (
+        SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+        UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11
+        UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17
+        UNION SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23
+        UNION SELECT 24 UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
+        UNION SELECT 30 UNION SELECT 31 UNION SELECT 32 UNION SELECT 33 UNION SELECT 34 UNION SELECT 35
+        UNION SELECT 36 UNION SELECT 37 UNION SELECT 38 UNION SELECT 39 UNION SELECT 40 UNION SELECT 41
+        UNION SELECT 42 UNION SELECT 43 UNION SELECT 44 UNION SELECT 45 UNION SELECT 46 UNION SELECT 47
+        UNION SELECT 48 UNION SELECT 49 UNION SELECT 50 UNION SELECT 51 UNION SELECT 52 UNION SELECT 53
+        UNION SELECT 54 UNION SELECT 55 UNION SELECT 56 UNION SELECT 57 UNION SELECT 58 UNION SELECT 59
+    ) t
+) numbers;

@@ -1429,6 +1429,317 @@ export const getUserHealthRecords = async (
   }
 };
 
+/**
+ * @swagger
+ * /api/admin/stats/user-registration-trend:
+ *   get:
+ *     summary: 获取用户注册趋势
+ *     tags: [Admin]
+ *     description: 获取用户注册数量趋势(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: 统计天数
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, quarter, year]
+ *           default: day
+ *         description: 时间维度
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getUserRegistrationTrend = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const period = (req.query.period as string) || "day";
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const startDateStr = startDate.toISOString().split("T")[0];
+
+    let dateFormat = "%Y-%m-%d";
+    if (period === "week") {
+      dateFormat = "%Y-%u";
+    } else if (period === "month") {
+      dateFormat = "%Y-%m";
+    } else if (period === "quarter") {
+      dateFormat = "%Y-Q%q";
+    } else if (period === "year") {
+      dateFormat = "%Y";
+    }
+
+    const [rows] = await db.execute(
+      `SELECT
+        DATE_FORMAT(created_at, ?) as period,
+        COUNT(*) as count
+       FROM users
+       WHERE DATE(created_at) >= ?
+       GROUP BY period
+       ORDER BY period ASC`,
+      [dateFormat, startDateStr]
+    );
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("获取用户注册趋势错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/stats/user-active-trend:
+ *   get:
+ *     summary: 获取用户活跃趋势
+ *     tags: [Admin]
+ *     description: 获取用户活跃数量趋势(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: 统计天数
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, quarter, year]
+ *           default: day
+ *         description: 时间维度
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getUserActiveTrend = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const period = (req.query.period as string) || "day";
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const startDateStr = startDate.toISOString().split("T")[0];
+
+    let dateFormat = "%Y-%m-%d";
+    if (period === "week") {
+      dateFormat = "%Y-%u";
+    } else if (period === "month") {
+      dateFormat = "%Y-%m";
+    } else if (period === "quarter") {
+      dateFormat = "%Y-Q%q";
+    } else if (period === "year") {
+      dateFormat = "%Y";
+    }
+
+    // 根据最后登录时间统计活跃用户
+    const [rows] = await db.execute(
+      `SELECT
+        DATE_FORMAT(last_login_at, ?) as period,
+        COUNT(DISTINCT id) as count
+       FROM users
+       WHERE DATE(last_login_at) >= ?
+       GROUP BY period
+       ORDER BY period ASC`,
+      [dateFormat, startDateStr]
+    );
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("获取用户活跃趋势错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/stats/health-checkin-rate:
+ *   get:
+ *     summary: 获取健康打卡率
+ *     tags: [Admin]
+ *     description: 获取所有用户健康打卡率趋势(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: 统计天数
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, quarter, year]
+ *           default: day
+ *         description: 时间维度
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getHealthCheckinRate = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const period = (req.query.period as string) || "day";
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const startDateStr = startDate.toISOString().split("T")[0];
+
+    let dateFormat = "%Y-%m-%d";
+    if (period === "week") {
+      dateFormat = "%Y-%u";
+    } else if (period === "month") {
+      dateFormat = "%Y-%m";
+    } else if (period === "quarter") {
+      dateFormat = "%Y-Q%q";
+    } else if (period === "year") {
+      dateFormat = "%Y";
+    }
+
+    // 获取活跃用户总数
+    const [activeUsers] = await db.execute(
+      `SELECT COUNT(DISTINCT id) as total FROM users WHERE is_active = 1`
+    );
+    const totalUsers = (activeUsers as any[])[0].total;
+
+    // 获取每个时间段打卡的用户数
+    const [rows] = await db.execute(
+      `SELECT
+        DATE_FORMAT(record_date, ?) as period,
+        COUNT(DISTINCT user_id) as checkin_users,
+        ? as total_users,
+        ROUND(COUNT(DISTINCT user_id) * 100.0 / ?, 2) as checkin_rate
+       FROM health_records
+       WHERE DATE(record_date) >= ?
+       GROUP BY period
+       ORDER BY period ASC`,
+      [dateFormat, totalUsers, totalUsers, startDateStr]
+    );
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("获取健康打卡率错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/stats/diet-checkin-rate:
+ *   get:
+ *     summary: 获取饮食打卡率
+ *     tags: [Admin]
+ *     description: 获取所有用户饮食打卡率趋势(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: 统计天数
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, quarter, year]
+ *           default: day
+ *         description: 时间维度
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ */
+export const getDietCheckinRate = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const period = (req.query.period as string) || "day";
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const startDateStr = startDate.toISOString().split("T")[0];
+
+    let dateFormat = "%Y-%m-%d";
+    if (period === "week") {
+      dateFormat = "%Y-%u";
+    } else if (period === "month") {
+      dateFormat = "%Y-%m";
+    } else if (period === "quarter") {
+      dateFormat = "%Y-Q%q";
+    } else if (period === "year") {
+      dateFormat = "%Y";
+    }
+
+    // 获取活跃用户总数
+    const [activeUsers] = await db.execute(
+      `SELECT COUNT(DISTINCT id) as total FROM users WHERE is_active = 1`
+    );
+    const totalUsers = (activeUsers as any[])[0].total;
+
+    // 获取每个时间段打卡的用户数
+    const [rows] = await db.execute(
+      `SELECT
+        DATE_FORMAT(record_date, ?) as period,
+        COUNT(DISTINCT user_id) as checkin_users,
+        ? as total_users,
+        ROUND(COUNT(DISTINCT user_id) * 100.0 / ?, 2) as checkin_rate
+       FROM diet_records
+       WHERE DATE(record_date) >= ?
+       GROUP BY period
+       ORDER BY period ASC`,
+      [dateFormat, totalUsers, totalUsers, startDateStr]
+    );
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("获取饮食打卡率错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
 // ==================== 食物管理相关接口 ====================
 
 /**
