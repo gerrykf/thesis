@@ -147,9 +147,19 @@
       <template #header>
         <div class="card-header">
           <span>用户列表</span>
-          <el-button type="primary" :icon="Refresh" @click="loadUserList">
-            刷新
-          </el-button>
+          <div class="card-header-actions">
+            <el-button
+              v-perms="['user:add']"
+              type="success"
+              :icon="Plus"
+              @click="showAddUserDialog"
+            >
+              添加用户
+            </el-button>
+            <el-button type="primary" :icon="Refresh" @click="loadUserList">
+              刷新
+            </el-button>
+          </div>
         </div>
       </template>
 
@@ -246,11 +256,145 @@
         />
       </div>
     </el-card>
+
+    <!-- 添加用户对话框 -->
+    <el-dialog
+      v-model="addUserDialog.visible"
+      title="添加用户"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        ref="addUserFormRef"
+        :model="addUserDialog.form"
+        :rules="addUserDialog.rules"
+        label-width="120px"
+        :disabled="addUserDialog.loading"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input
+            v-model="addUserDialog.form.username"
+            placeholder="请输入用户名"
+            maxlength="50"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input
+            v-model="addUserDialog.form.password"
+            type="password"
+            placeholder="请输入密码"
+            show-password
+            maxlength="50"
+          />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input
+            v-model="addUserDialog.form.nickname"
+            placeholder="请输入昵称"
+            maxlength="50"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input
+            v-model="addUserDialog.form.email"
+            placeholder="请输入邮箱"
+            type="email"
+          />
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input
+            v-model="addUserDialog.form.phone"
+            placeholder="请输入手机号"
+            maxlength="11"
+          />
+        </el-form-item>
+        <el-form-item v-if="isAdmin || isSuperAdmin" label="用户角色">
+          <el-select
+            v-model="addUserDialog.form.role_id"
+            placeholder="请选择角色"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="role in filteredRoleOptions"
+              :key="role.id"
+              :label="role.name"
+              :value="role.id"
+              :disabled="role.id === 3 && !isSuperAdmin"
+            >
+              <span>{{ role.name }}</span>
+              <el-tag
+                v-if="role.code"
+                size="small"
+                type="info"
+                style="margin-left: 8px"
+              >
+                {{ role.code }}
+              </el-tag>
+            </el-option>
+          </el-select>
+          <div style="margin-top: 4px; font-size: 12px; color: #909399">
+            <span v-if="!isSuperAdmin">
+              只有超级管理员可以分配超级管理员角色
+            </span>
+          </div>
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-radio-group v-model="addUserDialog.form.gender">
+            <el-radio label="male">男</el-radio>
+            <el-radio label="female">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="生日">
+          <el-date-picker
+            v-model="addUserDialog.form.birth_date"
+            type="date"
+            placeholder="选择日期"
+            style="width: 100%"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="身高(cm)">
+          <el-input-number
+            v-model="addUserDialog.form.height"
+            :min="0"
+            :max="300"
+            :step="1"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="目标体重(kg)">
+          <el-input-number
+            v-model="addUserDialog.form.target_weight"
+            :min="0"
+            :max="500"
+            :step="0.1"
+            :precision="1"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="addUserDialog.visible = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="addUserDialog.loading"
+            @click="handleAddUser"
+          >
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
 import {
   Search,
@@ -261,6 +405,7 @@ import {
   Plus,
   Setting
 } from "@element-plus/icons-vue";
+import { ElMessage, type FormInstance } from "element-plus";
 import { useUserStoreHook } from "@/store/modules/user";
 import {
   useUserList,
@@ -272,6 +417,8 @@ import {
   getUserStatusText,
   getUserStatusType
 } from "../utils";
+import { postAdminUsers, getAdminRoles } from "@/api/admin";
+import { unwrap } from "@/utils/api";
 
 defineOptions({
   name: "UserList"
@@ -294,8 +441,136 @@ const {
 const { userStats, loadUserStats } = useUserStats();
 const { toggleUserStatus } = useUserActions();
 
-// 当前登录用户ID
-const currentUserId = 1; // TODO: 从store获取
+// 当前登录用户ID和角色
+const currentUserId = ref((userStore as any).userId || 0);
+const currentUserRoles = ref((userStore as any).roles || []);
+const isSuperAdmin = ref(currentUserRoles.value.includes("super_admin"));
+const isAdmin = ref(currentUserRoles.value.includes("admin"));
+
+// 角色选项列表
+const roleOptions = ref<Array<{ id: number; name: string; code: string }>>([]);
+
+// 过滤后的角色选项 - 管理员无法看到超级管理员角色
+const filteredRoleOptions = computed(() => {
+  if (isSuperAdmin.value) {
+    return roleOptions.value;
+  } else if (isAdmin.value) {
+    return roleOptions.value.filter(role => role.id !== 3);
+  } else {
+    return [];
+  }
+});
+
+// 表单引用
+const addUserFormRef = ref<FormInstance>();
+
+// 添加用户对话框
+const addUserDialog = reactive({
+  visible: false,
+  loading: false,
+  form: {
+    username: "",
+    password: "",
+    nickname: "",
+    email: "",
+    phone: "",
+    role_id: 1,
+    gender: undefined as "male" | "female" | "other" | undefined,
+    birth_date: "",
+    height: null as number | null,
+    target_weight: null as number | null
+  },
+  rules: {
+    username: [
+      { required: true, message: "请输入用户名", trigger: "blur" },
+      {
+        min: 3,
+        max: 50,
+        message: "用户名长度在 3 到 50 个字符",
+        trigger: "blur"
+      }
+    ],
+    password: [
+      { required: true, message: "请输入密码", trigger: "blur" },
+      {
+        min: 6,
+        max: 50,
+        message: "密码长度在 6 到 50 个字符",
+        trigger: "blur"
+      }
+    ],
+    email: [
+      {
+        type: "email",
+        message: "请输入正确的邮箱地址",
+        trigger: ["blur", "change"]
+      }
+    ]
+  }
+});
+
+// 加载角色列表
+const loadRoles = async () => {
+  try {
+    const response = await unwrap(getAdminRoles({ page: 1, limit: 100 }));
+    if (response?.success && response.data?.roles) {
+      roleOptions.value = response.data.roles.map((role: any) => ({
+        id: role.id,
+        name: role.name,
+        code: role.code
+      }));
+    }
+  } catch (error) {
+    console.error("获取角色列表失败:", error);
+  }
+};
+
+// 显示添加用户对话框
+const showAddUserDialog = () => {
+  // 重置表单
+  addUserDialog.form = {
+    username: "",
+    password: "",
+    nickname: "",
+    email: "",
+    phone: "",
+    role_id: 1,
+    gender: undefined,
+    birth_date: "",
+    height: null,
+    target_weight: null
+  };
+  addUserFormRef.value?.resetFields();
+  addUserDialog.visible = true;
+};
+
+// 添加用户
+const handleAddUser = async () => {
+  if (!addUserFormRef.value) return;
+
+  await addUserFormRef.value.validate(async valid => {
+    if (!valid) return;
+
+    addUserDialog.loading = true;
+    try {
+      const response = await unwrap(postAdminUsers(addUserDialog.form));
+
+      if (response?.success) {
+        ElMessage.success("用户创建成功");
+        addUserDialog.visible = false;
+        // 重新加载用户列表和统计数据
+        await Promise.all([loadUserList(), loadUserStats()]);
+      } else {
+        ElMessage.error(response?.message || "创建用户失败");
+      }
+    } catch (error: any) {
+      console.error("创建用户失败:", error);
+      ElMessage.error(error?.message || "创建用户失败");
+    } finally {
+      addUserDialog.loading = false;
+    }
+  });
+};
 
 // 查看用户详情
 const viewUserDetail = (userId: number) => {
@@ -312,6 +587,7 @@ const handleToggleUserStatus = async (user: any) => {
 
 // 页面初始化
 onMounted(() => {
+  loadRoles();
   loadUserStats();
   loadUserList();
 });
@@ -406,6 +682,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.card-header-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .user-avatar {

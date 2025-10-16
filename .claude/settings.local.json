@@ -23,7 +23,10 @@
       "Bash(xargs kill:*)",
       "Bash(python3:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDUxOTc4OSwiZXhwIjoxNzYxMTI0NTg5fQ.TfusUdXp__UHpDaY6ELENEgFaikTI_wJAW20FfcwzEY\")",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYzLCJ1c2VybmFtZSI6InRlc3QwMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwNTgzMTYxLCJleHAiOjE3NjExODc5NjF9.7ul8AfXgH4IZfBENlwiBVKU3jZZJAmXJeuKtx_29Quk\")",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm approve-builds:*)"
     ],
     "deny": [],
     "ask": []

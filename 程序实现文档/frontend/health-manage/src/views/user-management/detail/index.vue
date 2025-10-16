@@ -426,6 +426,41 @@
             placeholder="请输入手机号"
           />
         </el-form-item>
+        <!-- 只有管理员和超级管理员才能看到角色选择框 -->
+        <el-form-item v-if="isAdmin || isSuperAdmin" label="用户角色">
+          <el-select
+            v-model="editDialog.form.role_id"
+            placeholder="请选择角色"
+            style="width: 100%"
+            :disabled="isEditingUserSuperAdmin"
+          >
+            <el-option
+              v-for="role in filteredRoleOptions"
+              :key="role.id"
+              :label="role.name"
+              :value="role.id"
+              :disabled="role.id === 3 && !isSuperAdmin"
+            >
+              <span>{{ role.name }}</span>
+              <el-tag
+                v-if="role.code"
+                size="small"
+                type="info"
+                style="margin-left: 8px"
+              >
+                {{ role.code }}
+              </el-tag>
+            </el-option>
+          </el-select>
+          <div style="margin-top: 4px; font-size: 12px; color: #909399">
+            <span v-if="isEditingUserSuperAdmin">
+              超级管理员角色不允许修改
+            </span>
+            <span v-else-if="!isSuperAdmin">
+              只有超级管理员可以分配超级管理员角色
+            </span>
+          </div>
+        </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="editDialog.form.gender">
             <el-radio label="male">男</el-radio>
@@ -480,7 +515,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -499,7 +534,9 @@ import {
   getAdminUsersIdHealthRecords,
   putAdminUsersId,
   patchAdminUsersIdToggleStatus,
-  deleteAdminUsersId
+  deleteAdminUsersId,
+  getAdminRoles,
+  putAdminUsersIdRole
 } from "@/api/admin";
 import { unwrap } from "@/utils/api";
 import { useUserStoreHook } from "@/store/modules/user";
@@ -512,11 +549,38 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStoreHook();
 
-// 当前登录用户ID
-const currentUserId = ref((userStore as any).id || 1);
+// 当前登录用户ID和角色
+const currentUserId = ref((userStore as any).userId || 0);
+// 从 userStore.roles 数组中获取角色
+const currentUserRoles = ref((userStore as any).roles || []);
+const currentUserRole = ref(currentUserRoles.value[0] || "user");
+const isSuperAdmin = ref(currentUserRoles.value.includes("super_admin"));
+const isAdmin = ref(currentUserRoles.value.includes("admin"));
 
 // 加载状态
 const loading = ref(false);
+
+// 角色选项列表
+const roleOptions = ref<Array<{ id: number; name: string; code: string }>>([]);
+
+// 过滤后的角色选项 - 管理员无法看到超级管理员角色
+const filteredRoleOptions = computed(() => {
+  if (isSuperAdmin.value) {
+    // 超级管理员可以看到所有角色
+    return roleOptions.value;
+  } else if (isAdmin.value) {
+    // 普通管理员无法看到超级管理员角色 (id=3)
+    return roleOptions.value.filter(role => role.id !== 3);
+  } else {
+    // 普通用户看不到角色选项 (通过 v-if 控制，这里返回空数组)
+    return [];
+  }
+});
+
+// 检查被编辑的用户是否是超级管理员
+const isEditingUserSuperAdmin = computed(() => {
+  return userInfo.role === "super_admin";
+});
 
 // 用户信息
 const userInfo = reactive({
@@ -583,7 +647,8 @@ const editDialog = reactive({
     gender: "",
     birth_date: "",
     height: null,
-    target_weight: null
+    target_weight: null,
+    role_id: null as number | null
   }
 });
 
@@ -655,6 +720,29 @@ const getMoodText = (mood: string) => {
     poor: "较差"
   };
   return map[mood] || mood;
+};
+
+// 加载角色列表
+const loadRoles = async () => {
+  try {
+    const response = await unwrap(getAdminRoles({ page: 1, limit: 100 }));
+    if (response?.success && response.data?.roles) {
+      roleOptions.value = response.data.roles.map((role: any) => ({
+        id: role.id,
+        name: role.name,
+        code: role.code
+      }));
+    }
+  } catch (error) {
+    console.error("获取角色列表失败:", error);
+    // 不影响页面加载
+  }
+};
+
+// 根据角色code获取角色ID
+const getRoleIdByCode = (code: string): number | null => {
+  const role = roleOptions.value.find(r => r.code === code);
+  return role ? role.id : null;
 };
 
 // 加载用户详情
@@ -758,7 +846,8 @@ const editUser = () => {
     gender: (userInfo.gender || "") as "male" | "female" | "",
     birth_date: userInfo.birth_date || "",
     height: userInfo.height || null,
-    target_weight: userInfo.target_weight || null
+    target_weight: userInfo.target_weight || null,
+    role_id: getRoleIdByCode(userInfo.role) || null
   };
   editDialog.visible = true;
 };
@@ -767,18 +856,58 @@ const editUser = () => {
 const saveUserEdit = async () => {
   editDialog.loading = true;
   try {
+    // 检查角色是否变更
+    const currentRoleId = getRoleIdByCode(userInfo.role);
+    const roleChanged = editDialog.form.role_id !== currentRoleId;
+
+    // 构建更新数据（不包含role_id，角色通过单独的API更新）
+    const updateData: any = {
+      nickname: editDialog.form.nickname,
+      email: editDialog.form.email,
+      phone: editDialog.form.phone,
+      gender: editDialog.form.gender,
+      birth_date: editDialog.form.birth_date,
+      height: editDialog.form.height,
+      target_weight: editDialog.form.target_weight
+    };
+
+    // 更新用户基本信息
     const response = await unwrap(
-      putAdminUsersId({ id: userInfo.id }, editDialog.form as any)
+      putAdminUsersId({ id: userInfo.id }, updateData)
     );
 
-    if (response?.success) {
-      ElMessage.success("保存成功");
-      editDialog.visible = false;
-      // 重新加载用户数据
-      await loadUserDetail();
-    } else {
+    if (!response?.success) {
       ElMessage.error(response?.message || "保存失败");
+      return;
     }
+
+    // 如果角色发生变更，调用角色更新API
+    if (roleChanged && editDialog.form.role_id !== null) {
+      try {
+        const roleResponse = await unwrap(
+          putAdminUsersIdRole(
+            { id: userInfo.id },
+            { roleId: editDialog.form.role_id }
+          )
+        );
+
+        if (!roleResponse?.success) {
+          ElMessage.warning("基本信息已更新，但角色更新失败");
+          await loadUserDetail();
+          return;
+        }
+      } catch (error) {
+        console.error("更新用户角色失败:", error);
+        ElMessage.warning("基本信息已更新，但角色更新失败");
+        await loadUserDetail();
+        return;
+      }
+    }
+
+    ElMessage.success("保存成功");
+    editDialog.visible = false;
+    // 重新加载用户数据
+    await loadUserDetail();
   } catch (error) {
     console.error("保存用户信息失败:", error);
     ElMessage.error("保存用户信息失败");
@@ -869,8 +998,9 @@ const viewActiveDays = () => {
 };
 
 // 页面初始化
-onMounted(() => {
-  loadUserDetail();
+onMounted(async () => {
+  // 并行加载角色列表和用户详情
+  await Promise.all([loadRoles(), loadUserDetail()]);
 });
 </script>
 

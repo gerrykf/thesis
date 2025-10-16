@@ -15,7 +15,6 @@ import {
 import { addDialog } from "@/components/ReDialog";
 import { deviceDetection, getKeyList } from "@pureadmin/utils";
 import RoleForm from "../components/RoleForm.vue";
-import { handleTree } from "@/utils/tree";
 
 export function useRole(treeRef: Ref) {
   // 搜索表单
@@ -274,19 +273,19 @@ export function useRole(treeRef: Ref) {
   }
 
   // 获取所有菜单ID（用于全选）
-  function getAllMenuIds(menus: Menu[]): number[] {
-    const ids: number[] = [];
-    function traverse(items: Menu[]) {
-      items.forEach(item => {
-        ids.push(item.id);
-        if (item.children) {
-          traverse(item.children);
-        }
-      });
-    }
-    traverse(menus);
-    return ids;
-  }
+  // function getAllMenuIds(menus: Menu[]): number[] {
+  //   const ids: number[] = [];
+  //   function traverse(items: Menu[]) {
+  //     items.forEach(item => {
+  //       ids.push(item.id);
+  //       if (item.children) {
+  //         traverse(item.children);
+  //       }
+  //     });
+  //   }
+  //   traverse(menus);
+  //   return ids;
+  // }
 
   // 保存菜单权限
   async function handleSave() {
@@ -381,14 +380,14 @@ export function useRole(treeRef: Ref) {
       const { data } = await getAdminMenus();
 
       if (data && Array.isArray(data)) {
+        // API返回的已经是树形结构，直接使用
         treeData.value = data;
-        treeIds.value = getAllMenuIds(data);
 
-        // 监听展开/折叠所有
-        console.log("menu data", data);
+        // 使用 getKeyList 获取所有节点ID（包括子节点）
         treeIds.value = getKeyList(data, "id");
+
+        console.log("menu data", data);
         console.log("treeIds", treeIds.value);
-        treeData.value = handleTree(data);
       }
     } catch (error: any) {
       ElMessage.error(error.message || "获取菜单列表失败");

@@ -1,6 +1,7 @@
 import { Router, type Router as RouterType } from 'express';
 import { authenticateToken, requireRole, requireAdminClient } from '../middleware/auth';
 import {
+  createUser,
   getUsers,
   getUserById,
   toggleUserStatus,
@@ -42,48 +43,48 @@ router.use((req, res, next) => {
 // 管理员认证中间件 - 应用到所有admin路由
 router.use(authenticateToken);
 router.use(requireAdminClient); // 要求必须是管理端客户端
-router.use(requireRole('admin', 'super_admin')); // 要求管理员角色
+// 移除全局角色检查,改为在具体路由上应用,允许普通用户访问查看接口
+// router.use(requireRole('admin', 'super_admin'));
 
-// 用户管理路由
-router.get('/users', getUsers);
-router.get('/users/:id', getUserById);
-router.patch('/users/:id/toggle-status', toggleUserStatus);
-router.put('/users/:id', updateUserById);
-router.delete('/users/:id', deleteUser);
+// 菜单管理路由 - 所有登录用户均可访问(用于前端菜单渲染)
+router.get('/menus', getMenus);                          // 普通用户可以查看菜单
+router.get('/roles/:id/menus', getRoleMenus);            // 普通用户可以查看角色菜单
 
-// 用户健康数据管理
-router.get('/users/:id/health-stats', getUserHealthStats);
-router.get('/users/:id/health-records', getUserHealthRecords);
+// 用户管理路由 - 需要管理员或超级管理员权限
+router.post('/users', requireRole('admin', 'super_admin'), createUser);
+router.get('/users', requireRole('admin', 'super_admin'), getUsers);
+router.get('/users/:id', requireRole('admin', 'super_admin'), getUserById);
+router.patch('/users/:id/toggle-status', requireRole('admin', 'super_admin'), toggleUserStatus);
+router.put('/users/:id', requireRole('admin', 'super_admin'), updateUserById);
+router.delete('/users/:id', requireRole('admin', 'super_admin'), deleteUser);
+router.put('/users/:id/role', requireRole('admin', 'super_admin'), updateUserRole);
 
-// 系统统计
-router.get('/stats/system', getSystemStats);
-router.get('/stats/users', getUserStats);
+// 用户健康数据管理 - 需要管理员或超级管理员权限
+router.get('/users/:id/health-stats', requireRole('admin', 'super_admin'), getUserHealthStats);
+router.get('/users/:id/health-records', requireRole('admin', 'super_admin'), getUserHealthRecords);
 
-// 系统日志
-router.get('/logs', getSystemLogs);
+// 系统统计 - 需要管理员或超级管理员权限
+router.get('/stats/system', requireRole('admin', 'super_admin'), getSystemStats);
+router.get('/stats/users', requireRole('admin', 'super_admin'), getUserStats);
 
-// 食物管理路由
-router.get('/foods', getAdminFoods);
-router.get('/foods/categories', getAdminFoodCategories);
-router.get('/foods/:id', getAdminFoodById);
-router.post('/foods', createAdminFood);
-router.put('/foods/:id', updateAdminFood);
-router.delete('/foods/:id', deleteAdminFood);
+// 系统日志 - 需要管理员或超级管理员权限
+router.get('/logs', requireRole('admin', 'super_admin'), getSystemLogs);
 
-// 角色管理路由（只有超级管理员可以访问）
-router.get('/roles', requireRole('super_admin'), getRoles);
-router.post('/roles', requireRole('super_admin'), createRole);
-router.put('/roles/:id', requireRole('super_admin'), updateRole);
-router.delete('/roles/:id', requireRole('super_admin'), deleteRole);
-router.patch('/roles/:id/status', requireRole('super_admin'), toggleRoleStatus);
+// 食物管理路由 - 查看需要登录,编辑需要管理员权限
+router.get('/foods', getAdminFoods);                                        // 所有用户可查看
+router.get('/foods/categories', getAdminFoodCategories);                    // 所有用户可查看
+router.get('/foods/:id', getAdminFoodById);                                 // 所有用户可查看
+router.post('/foods', requireRole('admin', 'super_admin'), createAdminFood);         // 需要管理员
+router.put('/foods/:id', requireRole('admin', 'super_admin'), updateAdminFood);      // 需要管理员
+router.delete('/foods/:id', requireRole('admin', 'super_admin'), deleteAdminFood);   // 需要管理员
 
-// 菜单管理路由（只有超级管理员可以访问）
-router.get('/menus', requireRole('super_admin'), getMenus);
-router.get('/roles/:id/menus', requireRole('super_admin'), getRoleMenus);
-router.put('/roles/:id/menus', requireRole('super_admin'), updateRoleMenus);
-
-// 用户角色管理路由（管理员和超级管理员都可以访问）
-router.put('/users/:id/role', updateUserRole);
+// 角色管理路由
+router.get('/roles', requireRole('admin', 'super_admin'), getRoles);              // 管理员可以查看角色列表
+router.post('/roles', requireRole('super_admin'), createRole);                    // 只有超级管理员可以创建
+router.put('/roles/:id', requireRole('super_admin'), updateRole);                 // 只有超级管理员可以修改
+router.delete('/roles/:id', requireRole('super_admin'), deleteRole);              // 只有超级管理员可以删除
+router.patch('/roles/:id/status', requireRole('super_admin'), toggleRoleStatus);  // 只有超级管理员可以切换状态
+router.put('/roles/:id/menus', requireRole('super_admin'), updateRoleMenus);      // 只有超级管理员可以配置权限
 
 // 测试路由（保留用于调试）
 router.get('/test', (req: any, res) => {

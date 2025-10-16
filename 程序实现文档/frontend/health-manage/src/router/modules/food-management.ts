@@ -1,4 +1,4 @@
-import { FoodPermission, RoleCode } from "@/utils/rbac";
+import { FoodPermission } from "@/utils/rbac";
 
 const Layout = () => import("@/layout/index.vue");
 
@@ -10,8 +10,7 @@ export default {
   meta: {
     icon: "ep:food",
     title: "食物管理",
-    rank: 3,
-    roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN]
+    rank: 3
   },
   children: [
     {
@@ -21,7 +20,6 @@ export default {
       meta: {
         title: "食物列表",
         showLink: true,
-        roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN],
         auths: [FoodPermission.LIST]
       }
     }

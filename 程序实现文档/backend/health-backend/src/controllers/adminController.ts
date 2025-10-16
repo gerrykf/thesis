@@ -1,6 +1,185 @@
 import { Response } from "express";
 import { db } from "../config/database";
 import { AuthRequest } from "../middleware/auth";
+import bcrypt from "bcrypt";
+
+/**
+ * @swagger
+ * /api/admin/users:
+ *   post:
+ *     summary: 创建用户
+ *     tags: [Admin]
+ *     description: 创建新用户(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: 用户名
+ *               password:
+ *                 type: string
+ *                 description: 密码
+ *               nickname:
+ *                 type: string
+ *                 description: 昵称
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: 邮箱
+ *               phone:
+ *                 type: string
+ *                 description: 手机号
+ *               role_id:
+ *                 type: integer
+ *                 description: 角色ID (1:普通用户, 2:管理员, 3:超级管理员)
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 description: 性别
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 description: 出生日期
+ *               height:
+ *                 type: number
+ *                 description: 身高(cm)
+ *               target_weight:
+ *                 type: number
+ *                 description: 目标体重(kg)
+ *     responses:
+ *       201:
+ *         description: 创建成功
+ *       400:
+ *         description: 参数错误
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       409:
+ *         description: 用户名或邮箱已存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const createUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      username,
+      password,
+      nickname,
+      email,
+      phone,
+      role_id,
+      gender,
+      birth_date,
+      height,
+      target_weight
+    } = req.body;
+
+    const currentUserRole = req.user?.role;
+
+    // 验证必填字段
+    if (!username || !password) {
+      res.status(400).json({
+        success: false,
+        message: "用户名和密码为必填项"
+      });
+      return;
+    }
+
+    // 检查用户名是否已存在
+    const [existingUsers] = await db.execute(
+      "SELECT id FROM users WHERE username = ? OR (email IS NOT NULL AND email = ?)",
+      [username, email || null]
+    );
+
+    if ((existingUsers as any[]).length > 0) {
+      res.status(409).json({
+        success: false,
+        message: "用户名或邮箱已存在"
+      });
+      return;
+    }
+
+    // 处理角色ID,默认为1(普通用户)
+    let targetRoleId = role_id || 1;
+
+    // 权限检查:只有超级管理员可以创建超级管理员
+    if (targetRoleId === 3 && currentUserRole !== 'super_admin') {
+      res.status(403).json({
+        success: false,
+        message: "只有超级管理员可以创建超级管理员账号"
+      });
+      return;
+    }
+
+    // 验证角色是否存在
+    const [roleCheck] = await db.execute(
+      "SELECT id FROM roles WHERE id = ?",
+      [targetRoleId]
+    );
+
+    if ((roleCheck as any[]).length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "角色不存在"
+      });
+      return;
+    }
+
+    // 密码加密
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // 创建用户
+    const [result] = await db.execute(
+      `INSERT INTO users
+       (username, password, nickname, email, phone, role_id, gender, birth_date, height, target_weight)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        username,
+        hashedPassword,
+        nickname || null,
+        email || null,
+        phone || null,
+        targetRoleId,
+        gender || null,
+        birth_date || null,
+        height || null,
+        target_weight || null
+      ]
+    );
+
+    const userId = (result as any).insertId;
+
+    res.status(201).json({
+      success: true,
+      message: "用户创建成功",
+      data: { userId }
+    });
+  } catch (error) {
+    console.error("创建用户错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+      error:
+        process.env.NODE_ENV === "development"
+          ? (error as Error)?.message
+          : undefined
+    });
+  }
+};
 
 /**
  * @swagger
@@ -122,44 +301,44 @@ export const getUsers = async (
 
     if (search) {
       conditions.push(
-        `(username LIKE '%${search}%' OR nickname LIKE '%${search}%' OR email LIKE '%${search}%')`
+        `(u.username LIKE '%${search}%' OR u.nickname LIKE '%${search}%' OR u.email LIKE '%${search}%')`
       );
     }
 
     if (username) {
-      conditions.push(`username LIKE '%${username}%'`);
+      conditions.push(`u.username LIKE '%${username}%'`);
     }
 
     if (nickname) {
-      conditions.push(`nickname LIKE '%${nickname}%'`);
+      conditions.push(`u.nickname LIKE '%${nickname}%'`);
     }
 
     if (role) {
-      conditions.push(`role = '${role}'`);
+      conditions.push(`r.code = '${role}'`);
     }
 
     if (is_active !== undefined && is_active !== null && is_active !== '') {
       // 处理布尔值：'true', 'false', true, false, 1, 0
       const activeValue = is_active === 'true' || is_active === '1' || (is_active as any) === true;
-      conditions.push(`is_active = ${activeValue ? 1 : 0}`);
+      conditions.push(`u.is_active = ${activeValue ? 1 : 0}`);
     }
 
     // 创建时间筛选
     if (createdStartDate) {
-      conditions.push(`DATE(created_at) >= '${createdStartDate}'`);
+      conditions.push(`DATE(u.created_at) >= '${createdStartDate}'`);
     }
 
     if (createdEndDate) {
-      conditions.push(`DATE(created_at) <= '${createdEndDate}'`);
+      conditions.push(`DATE(u.created_at) <= '${createdEndDate}'`);
     }
 
     // 最后登录时间筛选 (last_login_at 可能为 NULL，需要处理)
     if (loginStartDate) {
-      conditions.push(`(last_login_at IS NOT NULL AND DATE(last_login_at) >= '${loginStartDate}')`);
+      conditions.push(`(u.last_login_at IS NOT NULL AND DATE(u.last_login_at) >= '${loginStartDate}')`);
     }
 
     if (loginEndDate) {
-      conditions.push(`(last_login_at IS NOT NULL AND DATE(last_login_at) <= '${loginEndDate}')`);
+      conditions.push(`(u.last_login_at IS NOT NULL AND DATE(u.last_login_at) <= '${loginEndDate}')`);
     }
 
     if (conditions.length > 0) {
@@ -181,14 +360,20 @@ export const getUsers = async (
     });
 
     const [users] = await db.execute(
-      `SELECT id, username, nickname, email, phone, gender, role, is_active, created_at, last_login_at
-       FROM users${whereConditions}
-       ORDER BY last_login_at DESC, created_at DESC
+      `SELECT u.id, u.username, u.nickname, u.email, u.phone, u.gender, u.is_active, u.created_at, u.last_login_at,
+              r.code as role, r.id as role_id, r.name as role_name
+       FROM users u
+       LEFT JOIN roles r ON u.role_id = r.id
+       ${whereConditions}
+       ORDER BY u.last_login_at DESC, u.created_at DESC
        LIMIT ${limit} OFFSET ${offset}`
     );
 
     const [countResult] = await db.execute(
-      `SELECT COUNT(*) as total FROM users${whereConditions}`
+      `SELECT COUNT(*) as total
+       FROM users u
+       LEFT JOIN roles r ON u.role_id = r.id
+       ${whereConditions}`
     );
     const total = (countResult as any[])[0].total;
 
@@ -263,9 +448,12 @@ export const getUserById = async (
     const userId = req.params.id;
 
     const [rows] = await db.execute(
-      `SELECT id, username, nickname, email, phone, gender, birth_date,
-              height, target_weight, avatar, role, is_active, created_at, last_login_at
-       FROM users WHERE id = ?`,
+      `SELECT u.id, u.username, u.nickname, u.email, u.phone, u.gender, u.birth_date,
+              u.height, u.target_weight, u.avatar, u.is_active, u.created_at, u.last_login_at,
+              r.code as role, r.id as role_id, r.name as role_name
+       FROM users u
+       LEFT JOIN roles r ON u.role_id = r.id
+       WHERE u.id = ?`,
       [userId]
     );
 
@@ -2159,23 +2347,92 @@ export const getMenus = async (
   res: Response
 ): Promise<void> => {
   try {
-    // 获取所有菜单
+    const userRole = req.user?.role || 'user';
+
+    // 获取用户角色对应的 role_id
+    const [roleResult] = await db.execute(
+      "SELECT id FROM roles WHERE code = ?",
+      [userRole]
+    );
+
+    const roleId = (roleResult as any[])[0]?.id;
+
+    if (!roleId) {
+      res.status(400).json({
+        success: false,
+        message: "用户角色不存在",
+      });
+      return;
+    }
+
+    // 获取该角色授权的菜单ID列表
+    const [roleMenus] = await db.execute(
+      "SELECT menu_id FROM role_menus WHERE role_id = ?",
+      [roleId]
+    );
+
+    const authorizedMenuIds = (roleMenus as any[]).map((rm) => rm.menu_id);
+
+    if (authorizedMenuIds.length === 0) {
+      // 如果没有授权菜单，返回空数组
+      res.json({
+        success: true,
+        data: [],
+      });
+      return;
+    }
+
+    // 获取授权的菜单
     const [menus] = await db.execute(
       `SELECT id, parent_id, title, path, component, icon, sort, type, permission, status
        FROM menus
-       WHERE status = 1
+       WHERE status = 1 AND id IN (${authorizedMenuIds.join(',')})
        ORDER BY sort ASC, id ASC`
     );
 
-    // 构建树形结构
     const menuList = menus as any[];
+
+    // 递归获取父级菜单(即使父菜单不在授权列表中，也要显示以保持树形结构)
+    const parentIds = new Set<number>();
+    menuList.forEach(menu => {
+      if (menu.parent_id && menu.parent_id !== 0) {
+        parentIds.add(menu.parent_id);
+      }
+    });
+
+    // 获取父级菜单
+    if (parentIds.size > 0) {
+      const [parentMenus] = await db.execute(
+        `SELECT id, parent_id, title, path, component, icon, sort, type, permission, status
+         FROM menus
+         WHERE status = 1 AND id IN (${Array.from(parentIds).join(',')})
+         ORDER BY sort ASC, id ASC`
+      );
+
+      // 合并菜单列表，去重
+      const allMenuIds = new Set(menuList.map(m => m.id));
+      (parentMenus as any[]).forEach(pm => {
+        if (!allMenuIds.has(pm.id)) {
+          menuList.push(pm);
+        }
+      });
+    }
+
+    // 构建树形结构
     const buildTree = (parentId: number = 0): any[] => {
       return menuList
         .filter((menu) => menu.parent_id === parentId)
         .map((menu) => ({
           ...menu,
           children: buildTree(menu.id),
-        }));
+        }))
+        .filter(menu => {
+          // 过滤掉没有子节点且不在授权列表中的父菜单
+          if (menu.children && menu.children.length > 0) {
+            return true;
+          }
+          return authorizedMenuIds.includes(menu.id);
+        });
     };
 
     const menuTree = buildTree(0);

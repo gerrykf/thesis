@@ -31,6 +31,8 @@ import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 
 export const useUserStore = defineStore("pure-user", {
   state: (): userType => ({
+    // 用户ID
+    userId: storageLocal().getItem<DataInfo<number>>(userKey)?.userId ?? 0,
     // 头像
     avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
     // 用户名
@@ -50,6 +52,10 @@ export const useUserStore = defineStore("pure-user", {
     loginDay: 7
   }),
   actions: {
+    /** 存储用户ID */
+    SET_USERID(userId: number) {
+      this.userId = userId;
+    },
     /** 存储头像 */
     SET_AVATAR(avatar: string) {
       this.avatar = avatar;
@@ -96,6 +102,7 @@ export const useUserStore = defineStore("pure-user", {
                 accessToken: response.data.token || "",
                 refreshToken: response.data.token || "", // 暂时使用同一个token
                 expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7天后过期
+                userId: response.data.user?.id || 0,
                 avatar: response.data.user?.avatar || "",
                 username: response.data.user?.username || "",
                 nickname: response.data.user?.nickname || "",

@@ -375,17 +375,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // 检查客户端类型和用户角色匹配
-    const clientType = req.headers['x-client-type'] as string;
-    if (clientType === 'admin') {
-      // 管理后台登录：只允许管理员和超级管理员
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        res.status(403).json({
-          success: false,
-          message: "该账号无权访问管理后台",
-        });
-        return;
-      }
-    }
+    // 注释: 允许所有用户登录管理后台,具体权限由角色控制
+    // const clientType = req.headers['x-client-type'] as string;
+    // if (clientType === 'admin') {
+    //   // 管理后台登录：只允许管理员和超级管理员
+    //   if (user.role !== 'admin' && user.role !== 'super_admin') {
+    //     res.status(403).json({
+    //       success: false,
+    //       message: "该账号无权访问管理后台",
+    //     });
+    //     return;
+    //   }
+    // }
 
     // 更新最后登录时间
     await db.execute(

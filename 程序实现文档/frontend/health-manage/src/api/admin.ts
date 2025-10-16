@@ -336,6 +336,42 @@ export async function getAdminUsers(
   });
 }
 
+/** 创建用户 创建新用户(需要管理员权限) POST /api/admin/users */
+export async function postAdminUsers(
+  body: {
+    /** 用户名 */
+    username: string;
+    /** 密码 */
+    password: string;
+    /** 昵称 */
+    nickname?: string;
+    /** 邮箱 */
+    email?: string;
+    /** 手机号 */
+    phone?: string;
+    /** 角色ID (1:普通用户, 2:管理员, 3:超级管理员) */
+    role_id?: number;
+    /** 性别 */
+    gender?: "male" | "female" | "other";
+    /** 出生日期 */
+    birth_date?: string;
+    /** 身高(cm) */
+    height?: number;
+    /** 目标体重(kg) */
+    target_weight?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 获取用户详情 获取指定用户的详细信息(需要管理员权限) GET /api/admin/users/${param0} */
 export async function getAdminUsersId(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
