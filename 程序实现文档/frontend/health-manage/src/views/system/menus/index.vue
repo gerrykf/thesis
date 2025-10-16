@@ -1,10 +1,5 @@
 <template>
   <div class="menu-management-container">
-    <div class="page-header">
-      <h2>菜单管理</h2>
-      <p>管理系统菜单结构和权限配置</p>
-    </div>
-
     <!-- 菜单列表表格 -->
     <el-card shadow="never">
       <template #header>
@@ -129,7 +124,11 @@
             <el-radio label="button">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="menuDialog.form.type === 'menu'" label="路径" prop="path">
+        <el-form-item
+          v-if="menuDialog.form.type === 'menu'"
+          label="路径"
+          prop="path"
+        >
           <el-input v-model="menuDialog.form.path" placeholder="请输入路径" />
         </el-form-item>
         <el-form-item
@@ -195,12 +194,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, reactive, computed } from "vue";
-import {
-  Plus,
-  Refresh,
-  Edit,
-  Delete
-} from "@element-plus/icons-vue";
+import { Plus, Refresh, Edit, Delete } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox, type FormInstance } from "element-plus";
 import { getAdminMenus } from "@/api/admin";
 import { unwrap } from "@/utils/api";
@@ -268,9 +262,7 @@ const menuTreeOptions = computed(() => {
   };
 
   const flatMenuList = flattenMenus(menuList.value);
-  return [
-    { value: 0, label: "顶级菜单", children: buildTree(flatMenuList) }
-  ];
+  return [{ value: 0, label: "顶级菜单", children: buildTree(flatMenuList) }];
 });
 
 // 展平菜单树
@@ -429,10 +421,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.menu-management-container {
-  padding: 20px;
-}
-
 .page-header {
   margin-bottom: 20px;
 }

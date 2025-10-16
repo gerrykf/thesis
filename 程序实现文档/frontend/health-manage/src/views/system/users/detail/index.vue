@@ -760,7 +760,7 @@ const loadUserDetail = async () => {
     } catch (error) {
       console.error("获取用户详情失败:", error);
       ElMessage.error("获取用户详情失败");
-      router.push("/user-management/list");
+      router.push("/users/list");
       return;
     }
 
@@ -934,7 +934,7 @@ const deleteUser = async () => {
 
     if (response?.success) {
       ElMessage.success("删除成功");
-      router.push("/user-management/list");
+      router.push("/users/list");
     } else {
       ElMessage.error(response?.message || "删除失败");
     }

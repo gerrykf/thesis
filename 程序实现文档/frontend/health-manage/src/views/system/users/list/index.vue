@@ -1,10 +1,5 @@
 <template>
   <div class="user-management-container">
-    <div class="page-header">
-      <h2>用户管理</h2>
-      <p>管理系统中的所有用户信息</p>
-    </div>
-
     <!-- 搜索和筛选区域 -->
     <el-card class="search-card" shadow="never">
       <el-form :model="searchForm" inline>
@@ -148,12 +143,8 @@
         <div class="card-header">
           <span>用户列表</span>
           <div class="card-header-actions">
-            <el-button
-              v-perms="['user:add']"
-              type="success"
-              :icon="Plus"
-              @click="showAddUserDialog"
-            >
+            <!-- v-perms="['user:add']" -->
+            <el-button type="success" :icon="Plus" @click="showAddUserDialog">
               添加用户
             </el-button>
             <el-button type="primary" :icon="Refresh" @click="loadUserList">
@@ -574,7 +565,7 @@ const handleAddUser = async () => {
 
 // 查看用户详情
 const viewUserDetail = (userId: number) => {
-  router.push(`/user-management/detail/${userId}`);
+  router.push(`/users/detail/${userId}`);
 };
 
 // 处理用户状态切换
@@ -594,10 +585,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.user-management-container {
-  padding: 20px;
-}
-
 .page-header {
   margin-bottom: 20px;
 }
@@ -706,10 +693,5 @@ onMounted(() => {
 
 :deep(.el-card__body) {
   padding: 20px;
-}
-
-:deep(.el-form--inline .el-form-item) {
-  margin-right: 20px;
-  margin-bottom: 16px;
 }
 </style>

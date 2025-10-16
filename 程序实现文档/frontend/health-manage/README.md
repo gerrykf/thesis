@@ -258,9 +258,9 @@ chore: 构建/工具
 
 ### 下一步任务：食物数据管理模块
 1. **创建食物管理路由和页面**
-   - 食物列表页面 (`/food-management/list`)
-   - 食物详情/编辑页面 (`/food-management/detail/:id`)
-   - 食物分类管理页面 (`/food-management/categories`)
+   - 食物列表页面 (`/foods/list`)
+   - 食物详情/编辑页面 (`/foods/detail/:id`)
+   - 食物分类管理页面 (`/foods/categories`)
 
 2. **实现食物管理功能**
    - 食物列表展示和搜索

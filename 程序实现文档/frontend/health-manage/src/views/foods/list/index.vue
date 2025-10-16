@@ -1,10 +1,5 @@
 <template>
   <div class="food-management-container">
-    <div class="page-header">
-      <h2>食物管理</h2>
-      <p>管理系统中的所有食物信息</p>
-    </div>
-
     <!-- 搜索和筛选区域 -->
     <el-card class="search-card" shadow="never">
       <el-form :model="searchForm" inline>
@@ -478,10 +473,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.food-management-container {
-  padding: 20px;
-}
-
 .page-header {
   margin-bottom: 20px;
 }
@@ -528,10 +519,5 @@ onMounted(() => {
 
 :deep(.el-card__body) {
   padding: 20px;
-}
-
-:deep(.el-form--inline .el-form-item) {
-  margin-right: 20px;
-  margin-bottom: 16px;
 }
 </style>
