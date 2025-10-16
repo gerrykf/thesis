@@ -20,6 +20,7 @@ import dietRoutes from './routes/dietRoutes';
 import statsRoutes from './routes/statsRoutes';
 import adminRoutes from './routes/adminRoutes';
 import goalsRoutes from './routes/goalsRoutes';
+import monitorRoutes from './routes/monitorRoutes';
 
 // 加载环境变量
 dotenv.config();
@@ -98,6 +99,10 @@ const swaggerOptions = {
       {
         name: 'Admin',
         description: '系统管理 - 管理员功能'
+      },
+      {
+        name: 'Monitor',
+        description: '系统监控 - 在线用户、登录日志、操作日志'
       }
     ]
   },
@@ -169,6 +174,7 @@ app.use('/api/foods', foodRoutes);
 app.use('/api/diet', dietRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/monitor', monitorRoutes);
 
 // API根路径
 app.get('/api', (req: Request, res: Response) => {
@@ -183,7 +189,8 @@ app.get('/api', (req: Request, res: Response) => {
       foods: '/api/foods',
       diet: '/api/diet',
       stats: '/api/stats',
-      admin: '/api/admin'
+      admin: '/api/admin',
+      monitor: '/api/monitor'
     }
   });
 });

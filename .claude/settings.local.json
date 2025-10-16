@@ -28,7 +28,8 @@
       "Bash(pnpm add:*)",
       "Bash(pnpm approve-builds:*)",
       "Bash(npx vue-tsc:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

@@ -21,6 +21,8 @@ USE health_management;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 删除表（按依赖关系倒序删除）
+DROP TABLE IF EXISTS login_logs;
+DROP TABLE IF EXISTS online_users;
 DROP TABLE IF EXISTS system_logs;
 DROP TABLE IF EXISTS user_goals;
 DROP TABLE IF EXISTS diet_records;
@@ -295,6 +297,7 @@ CREATE TABLE IF NOT EXISTS user_goals (
 CREATE TABLE IF NOT EXISTS system_logs (
     id INT PRIMARY KEY AUTO_INCREMENT COMMENT '日志ID',
     user_id INT COMMENT '用户ID',
+    username VARCHAR(50) COMMENT '用户名',
     action VARCHAR(100) NOT NULL COMMENT '操作类型',
     resource VARCHAR(100) COMMENT '操作资源',
     resource_id INT COMMENT '资源ID',
@@ -306,19 +309,76 @@ CREATE TABLE IF NOT EXISTS system_logs (
     response_status INT COMMENT '响应状态码',
     response_time INT COMMENT '响应时间(ms)',
     error_message TEXT COMMENT '错误信息',
+    module VARCHAR(100) COMMENT '所属模块',
+    summary VARCHAR(500) COMMENT '操作概要',
+    address VARCHAR(200) COMMENT 'IP地点',
+    system VARCHAR(100) COMMENT '操作系统',
+    browser VARCHAR(100) COMMENT '浏览器类型',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '操作状态：1=成功，0=失败',
+    operating_time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 
     INDEX idx_user_id (user_id),
+    INDEX idx_username (username),
     INDEX idx_action (action),
     INDEX idx_resource (resource),
     INDEX idx_ip_address (ip_address),
     INDEX idx_created_at (created_at),
     INDEX idx_response_status (response_status),
+    INDEX idx_module (module),
+    INDEX idx_status (status),
+    INDEX idx_operating_time (operating_time),
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) COMMENT '系统日志表';
+
 -- ================================
--- 11. 初始化菜单权限数据
+-- 11. 创建登录日志表 (login_logs)
+-- ================================
+CREATE TABLE IF NOT EXISTS login_logs (
+    id INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    user_id INT NULL COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL COMMENT '用户名',
+    ip VARCHAR(45) NOT NULL COMMENT '登录IP地址',
+    address VARCHAR(200) NULL COMMENT '登录地点',
+    system VARCHAR(100) NULL COMMENT '操作系统',
+    browser VARCHAR(100) NULL COMMENT '浏览器类型',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '登录状态：1=成功，0=失败',
+    behavior VARCHAR(100) NULL COMMENT '登录行为描述',
+    error_message TEXT NULL COMMENT '失败原因',
+    login_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+    PRIMARY KEY (id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_username (username),
+    INDEX idx_ip (ip),
+    INDEX idx_status (status),
+    INDEX idx_login_time (login_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='登录日志表';
+
+-- ================================
+-- 12. 创建在线用户表 (online_users)
+-- ================================
+CREATE TABLE IF NOT EXISTS online_users (
+    id INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    user_id INT NOT NULL COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL COMMENT '用户名',
+    token VARCHAR(500) NOT NULL COMMENT 'JWT Token',
+    ip VARCHAR(45) NOT NULL COMMENT '登录IP地址',
+    address VARCHAR(200) NULL COMMENT '登录地点',
+    system VARCHAR(100) NULL COMMENT '操作系统',
+    browser VARCHAR(100) NULL COMMENT '浏览器类型',
+    login_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+    last_active_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后活跃时间',
+    expires_at TIMESTAMP NOT NULL COMMENT 'Token过期时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_token (token(255)),
+    INDEX idx_user_id (user_id),
+    INDEX idx_username (username),
+    INDEX idx_ip (ip),
+    INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='在线用户表';
+-- ================================
+-- 13. 初始化菜单权限数据
 -- ================================
 
 -- 一级菜单
@@ -392,7 +452,7 @@ INSERT INTO menus (id, parent_id, title, path, component, icon, sort, type, perm
 (425, 42, '权限配置', NULL, NULL, NULL, 5, 2, 'role.permission', 1);
 
 -- ================================
--- 12. 初始化角色-菜单关联数据
+-- 14. 初始化角色-菜单关联数据
 -- ================================
 
 -- 普通用户权限 (role_id = 1)

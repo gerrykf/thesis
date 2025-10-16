@@ -208,6 +208,34 @@ declare namespace API {
     status?: 0 | 1;
   };
 
+  type getAdminStatsDietCheckinRateParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsHealthCheckinRateParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsUserActiveTrendParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsUserRegistrationTrendParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
   type getAdminUsersIdHealthRecordsParams = {
     /** 用户ID */
     id: number;

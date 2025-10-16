@@ -272,6 +272,44 @@ export async function patchAdminRolesIdStatus(
   });
 }
 
+/** 获取饮食打卡率 获取所有用户饮食打卡率趋势(需要管理员权限) GET /api/admin/stats/diet-checkin-rate */
+export async function getAdminStatsDietCheckinRate(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminStatsDietCheckinRateParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/stats/diet-checkin-rate", {
+    method: "GET",
+    params: {
+      // days has a default value: 30
+      days: "30",
+      // period has a default value: day
+      period: "day",
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取健康打卡率 获取所有用户健康打卡率趋势(需要管理员权限) GET /api/admin/stats/health-checkin-rate */
+export async function getAdminStatsHealthCheckinRate(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminStatsHealthCheckinRateParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/stats/health-checkin-rate", {
+    method: "GET",
+    params: {
+      // days has a default value: 30
+      days: "30",
+      // period has a default value: day
+      period: "day",
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 获取系统统计 获取系统整体统计数据(需要管理员权限) GET /api/admin/stats/system */
 export async function getAdminStatsSystem(options?: { [key: string]: any }) {
   return request<{
@@ -289,6 +327,44 @@ export async function getAdminStatsSystem(options?: { [key: string]: any }) {
   });
 }
 
+/** 获取用户活跃趋势 获取用户活跃数量趋势(需要管理员权限) GET /api/admin/stats/user-active-trend */
+export async function getAdminStatsUserActiveTrend(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminStatsUserActiveTrendParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/stats/user-active-trend", {
+    method: "GET",
+    params: {
+      // days has a default value: 30
+      days: "30",
+      // period has a default value: day
+      period: "day",
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取用户注册趋势 获取用户注册数量趋势(需要管理员权限) GET /api/admin/stats/user-registration-trend */
+export async function getAdminStatsUserRegistrationTrend(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminStatsUserRegistrationTrendParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/admin/stats/user-registration-trend", {
+    method: "GET",
+    params: {
+      // days has a default value: 30
+      days: "30",
+      // period has a default value: day
+      period: "day",
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 获取用户统计 获取用户统计数据(需要管理员权限) GET /api/admin/stats/users */
 export async function getAdminStatsUsers(options?: { [key: string]: any }) {
   return request<{
@@ -301,110 +377,6 @@ export async function getAdminStatsUsers(options?: { [key: string]: any }) {
     };
   }>("/api/admin/stats/users", {
     method: "GET",
-    ...(options || {}),
-  });
-}
-
-/** 获取用户注册趋势 获取用户注册数量趋势(需要管理员权限) GET /api/admin/stats/user-registration-trend */
-export async function getAdminStatsUserRegistrationTrend(
-  params?: {
-    days?: number;
-    period?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-  },
-  options?: { [key: string]: any }
-) {
-  return request<{
-    success?: boolean;
-    data?: Array<{
-      period?: string;
-      count?: number;
-    }>;
-  }>("/api/admin/stats/user-registration-trend", {
-    method: "GET",
-    params: {
-      days: 30,
-      period: 'day',
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** 获取用户活跃趋势 获取用户活跃数量趋势(需要管理员权限) GET /api/admin/stats/user-active-trend */
-export async function getAdminStatsUserActiveTrend(
-  params?: {
-    days?: number;
-    period?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-  },
-  options?: { [key: string]: any }
-) {
-  return request<{
-    success?: boolean;
-    data?: Array<{
-      period?: string;
-      count?: number;
-    }>;
-  }>("/api/admin/stats/user-active-trend", {
-    method: "GET",
-    params: {
-      days: 30,
-      period: 'day',
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** 获取健康打卡率 获取所有用户健康打卡率趋势(需要管理员权限) GET /api/admin/stats/health-checkin-rate */
-export async function getAdminStatsHealthCheckinRate(
-  params?: {
-    days?: number;
-    period?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-  },
-  options?: { [key: string]: any }
-) {
-  return request<{
-    success?: boolean;
-    data?: Array<{
-      period?: string;
-      checkin_users?: number;
-      total_users?: number;
-      checkin_rate?: number;
-    }>;
-  }>("/api/admin/stats/health-checkin-rate", {
-    method: "GET",
-    params: {
-      days: 30,
-      period: 'day',
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** 获取饮食打卡率 获取所有用户饮食打卡率趋势(需要管理员权限) GET /api/admin/stats/diet-checkin-rate */
-export async function getAdminStatsDietCheckinRate(
-  params?: {
-    days?: number;
-    period?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-  },
-  options?: { [key: string]: any }
-) {
-  return request<{
-    success?: boolean;
-    data?: Array<{
-      period?: string;
-      checkin_users?: number;
-      total_users?: number;
-      checkin_rate?: number;
-    }>;
-  }>("/api/admin/stats/diet-checkin-rate", {
-    method: "GET",
-    params: {
-      days: 30,
-      period: 'day',
-      ...params,
-    },
     ...(options || {}),
   });
 }
