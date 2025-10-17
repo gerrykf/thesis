@@ -2693,12 +2693,15 @@ export const getMenus = async (
       return;
     }
 
-    // 获取授权的菜单
+    // 获取授权的菜单 (返回所有25个字段)
     const [menus] = await db.execute(
-      `SELECT id, parent_id, title, path, component, icon, sort, type, permission, status
+      `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+              icon, extra_icon, enter_transition, leave_transition, active_path,
+              auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+              show_link, show_parent, status, created_at, updated_at
        FROM menus
        WHERE status = 1 AND id IN (${authorizedMenuIds.join(',')})
-       ORDER BY sort ASC, id ASC`
+       ORDER BY \`rank\` ASC, id ASC`
     );
 
     const menuList = menus as any[];
@@ -2714,10 +2717,13 @@ export const getMenus = async (
     // 获取父级菜单
     if (parentIds.size > 0) {
       const [parentMenus] = await db.execute(
-        `SELECT id, parent_id, title, path, component, icon, sort, type, permission, status
+        `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+                icon, extra_icon, enter_transition, leave_transition, active_path,
+                auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+                show_link, show_parent, status, created_at, updated_at
          FROM menus
          WHERE status = 1 AND id IN (${Array.from(parentIds).join(',')})
-         ORDER BY sort ASC, id ASC`
+         ORDER BY \`rank\` ASC, id ASC`
       );
 
       // 合并菜单列表，去重
@@ -2754,6 +2760,191 @@ export const getMenus = async (
     });
   } catch (error) {
     console.error("获取菜单列表错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/get-async-routes:
+ *   get:
+ *     summary: 获取异步路由（动态路由）
+ *     tags: [Route]
+ *     description: 根据用户角色获取动态路由配置
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
+export const getAsyncRoutes = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userRole = req.user?.role || 'user';
+
+    // 获取用户角色对应的 role_id
+    const [roleResult] = await db.execute(
+      "SELECT id FROM roles WHERE code = ?",
+      [userRole]
+    );
+
+    const roleId = (roleResult as any[])[0]?.id;
+
+    if (!roleId) {
+      res.status(400).json({
+        success: false,
+        message: "用户角色不存在",
+      });
+      return;
+    }
+
+    // 获取该角色授权的菜单ID列表
+    const [roleMenus] = await db.execute(
+      "SELECT menu_id FROM role_menus WHERE role_id = ?",
+      [roleId]
+    );
+
+    const authorizedMenuIds = (roleMenus as any[]).map((rm) => rm.menu_id);
+
+    if (authorizedMenuIds.length === 0) {
+      // 如果没有授权菜单，返回空数组
+      res.json({
+        success: true,
+        data: [],
+      });
+      return;
+    }
+
+    // 获取授权的菜单（只获取menu_type=0的菜单，排除按钮）
+    const [menus] = await db.execute(
+      `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+              icon, extra_icon, enter_transition, leave_transition, active_path,
+              auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+              show_link, show_parent, status
+       FROM menus
+       WHERE status = 1 AND menu_type = 0 AND id IN (${authorizedMenuIds.join(',')})
+       ORDER BY \`rank\` ASC, id ASC`
+    );
+
+    const menuList = menus as any[];
+
+    // 递归获取父级菜单
+    const parentIds = new Set<number>();
+    menuList.forEach(menu => {
+      if (menu.parent_id && menu.parent_id !== 0) {
+        parentIds.add(menu.parent_id);
+      }
+    });
+
+    // 获取父级菜单
+    if (parentIds.size > 0) {
+      const [parentMenus] = await db.execute(
+        `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+                icon, extra_icon, enter_transition, leave_transition, active_path,
+                auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+                show_link, show_parent, status
+         FROM menus
+         WHERE status = 1 AND menu_type = 0 AND id IN (${Array.from(parentIds).join(',')})
+         ORDER BY \`rank\` ASC, id ASC`
+      );
+
+      // 合并菜单列表，去重
+      const allMenuIds = new Set(menuList.map(m => m.id));
+      (parentMenus as any[]).forEach(pm => {
+        if (!allMenuIds.has(pm.id)) {
+          menuList.push(pm);
+        }
+      });
+    }
+
+    // 转换菜单为路由格式 (支持所有vue-pure-admin字段)
+    const convertMenuToRoute = (menu: any) => {
+      const route: any = {
+        path: menu.path,
+        name: menu.name || menu.title, // 优先使用name字段
+        meta: {
+          icon: menu.icon || 'ep:menu',
+          title: menu.title,
+          rank: menu.rank || 0,
+          showLink: menu.show_link === 1,
+          keepAlive: menu.keep_alive === 1
+        }
+      };
+
+      // 如果有component，添加到路由配置中
+      if (menu.component) {
+        route.component = menu.component;
+      }
+
+      // 添加redirect
+      if (menu.redirect) {
+        route.redirect = menu.redirect;
+      }
+
+      // 添加其他meta字段
+      if (menu.extra_icon) route.meta.extraIcon = menu.extra_icon;
+      if (menu.enter_transition) route.meta.enterTransition = menu.enter_transition;
+      if (menu.leave_transition) route.meta.leaveTransition = menu.leave_transition;
+      if (menu.active_path) route.meta.activePath = menu.active_path;
+      if (menu.auths) route.meta.auths = menu.auths;
+      if (menu.frame_src) route.meta.frameSrc = menu.frame_src;
+      if (menu.frame_loading !== undefined) route.meta.frameLoading = menu.frame_loading === 1;
+      if (menu.hidden_tag) route.meta.hiddenTag = menu.hidden_tag === 1;
+      if (menu.fixed_tag) route.meta.fixedTag = menu.fixed_tag === 1;
+      if (menu.show_parent) route.meta.showParent = menu.show_parent === 1;
+
+      return route;
+    };
+
+    // 构建路由树形结构
+    const buildRouteTree = (parentId: number = 0): any[] => {
+      return menuList
+        .filter((menu) => menu.parent_id === parentId)
+        .map((menu) => {
+          const route = convertMenuToRoute(menu);
+          const children = buildRouteTree(menu.id);
+
+          if (children && children.length > 0) {
+            route.children = children;
+          }
+
+          return route;
+        })
+        .filter(route => {
+          // 过滤掉没有子节点且不在授权列表中的父菜单
+          if (route.children && route.children.length > 0) {
+            return true;
+          }
+          // 通过path找到原始菜单，检查是否在授权列表中
+          const originalMenu = menuList.find(m => m.path === route.path);
+          return originalMenu && authorizedMenuIds.includes(originalMenu.id);
+        });
+    };
+
+    const routeTree = buildRouteTree(0);
+
+    res.json({
+      success: true,
+      data: routeTree,
+    });
+  } catch (error) {
+    console.error("获取异步路由错误:", error);
     res.status(500).json({
       success: false,
       message: "服务器内部错误",
@@ -2931,6 +3122,437 @@ export const updateRoleMenus = async (
     }
   } catch (error) {
     console.error("更新角色菜单错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/menus:
+ *   post:
+ *     summary: 创建菜单
+ *     tags: [Admin]
+ *     description: 创建新菜单(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - type
+ *               - sort
+ *               - status
+ *             properties:
+ *               parent_id:
+ *                 type: integer
+ *                 description: 上级菜单ID
+ *               title:
+ *                 type: string
+ *                 description: 菜单名称
+ *               type:
+ *                 type: string
+ *                 enum: [menu, button]
+ *                 description: 菜单类型
+ *               path:
+ *                 type: string
+ *                 description: 路径
+ *               component:
+ *                 type: string
+ *                 description: 组件路径
+ *               icon:
+ *                 type: string
+ *                 description: 图标
+ *               permission:
+ *                 type: string
+ *                 description: 权限标识
+ *               sort:
+ *                 type: integer
+ *                 description: 排序
+ *               status:
+ *                 type: integer
+ *                 enum: [0, 1]
+ *                 description: 状态
+ *     responses:
+ *       201:
+ *         description: 创建成功
+ */
+export const createMenu = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      parent_id = 0,
+      menu_type = 0,
+      title,
+      name,
+      path,
+      component,
+      rank = 99,
+      redirect,
+      icon,
+      extra_icon,
+      enter_transition,
+      leave_transition,
+      active_path,
+      auths,
+      frame_src,
+      frame_loading = 1,
+      keep_alive = 0,
+      hidden_tag = 0,
+      fixed_tag = 0,
+      show_link = 1,
+      show_parent = 0,
+      status = 1
+    } = req.body;
+
+    // 验证必填字段 (只有title是必填)
+    if (!title) {
+      res.status(400).json({
+        success: false,
+        message: "缺少必填字段: title",
+      });
+      return;
+    }
+
+    // 插入菜单 (支持所有25个字段)
+    const [result] = await db.execute(
+      `INSERT INTO menus (
+        parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+        icon, extra_icon, enter_transition, leave_transition, active_path,
+        auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+        show_link, show_parent, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        parent_id, menu_type, title, name || null, path || null, component || null,
+        rank, redirect || null, icon || null, extra_icon || null,
+        enter_transition || null, leave_transition || null, active_path || null,
+        auths || null, frame_src || null, frame_loading, keep_alive, hidden_tag,
+        fixed_tag, show_link, show_parent, status
+      ]
+    );
+
+    const insertId = (result as any).insertId;
+
+    res.status(201).json({
+      success: true,
+      message: "菜单创建成功",
+      data: {
+        id: insertId
+      }
+    });
+  } catch (error) {
+    console.error("创建菜单错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/menus/{id}:
+ *   put:
+ *     summary: 更新菜单
+ *     tags: [Admin]
+ *     description: 更新菜单信息(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 菜单ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               parent_id:
+ *                 type: integer
+ *               title:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [menu, button]
+ *               path:
+ *                 type: string
+ *               component:
+ *                 type: string
+ *               icon:
+ *                 type: string
+ *               permission:
+ *                 type: string
+ *               sort:
+ *                 type: integer
+ *               status:
+ *                 type: integer
+ *                 enum: [0, 1]
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ */
+export const updateMenu = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const menuId = req.params.id;
+    const {
+      parent_id,
+      menu_type,
+      title,
+      name,
+      path,
+      component,
+      rank,
+      redirect,
+      icon,
+      extra_icon,
+      enter_transition,
+      leave_transition,
+      active_path,
+      auths,
+      frame_src,
+      frame_loading,
+      keep_alive,
+      hidden_tag,
+      fixed_tag,
+      show_link,
+      show_parent,
+      status
+    } = req.body;
+
+    // 检查菜单是否存在
+    const [menuCheck] = await db.execute(
+      "SELECT id FROM menus WHERE id = ?",
+      [menuId]
+    );
+
+    if ((menuCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "菜单不存在",
+      });
+      return;
+    }
+
+    // 构建更新语句 (支持所有25个字段)
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    if (parent_id !== undefined) {
+      updates.push("parent_id = ?");
+      values.push(parent_id);
+    }
+    if (menu_type !== undefined) {
+      updates.push("menu_type = ?");
+      values.push(menu_type);
+    }
+    if (title !== undefined) {
+      updates.push("title = ?");
+      values.push(title);
+    }
+    if (name !== undefined) {
+      updates.push("name = ?");
+      values.push(name);
+    }
+    if (path !== undefined) {
+      updates.push("path = ?");
+      values.push(path);
+    }
+    if (component !== undefined) {
+      updates.push("component = ?");
+      values.push(component);
+    }
+    if (rank !== undefined) {
+      updates.push("`rank` = ?");
+      values.push(rank);
+    }
+    if (redirect !== undefined) {
+      updates.push("redirect = ?");
+      values.push(redirect);
+    }
+    if (icon !== undefined) {
+      updates.push("icon = ?");
+      values.push(icon);
+    }
+    if (extra_icon !== undefined) {
+      updates.push("extra_icon = ?");
+      values.push(extra_icon);
+    }
+    if (enter_transition !== undefined) {
+      updates.push("enter_transition = ?");
+      values.push(enter_transition);
+    }
+    if (leave_transition !== undefined) {
+      updates.push("leave_transition = ?");
+      values.push(leave_transition);
+    }
+    if (active_path !== undefined) {
+      updates.push("active_path = ?");
+      values.push(active_path);
+    }
+    if (auths !== undefined) {
+      updates.push("auths = ?");
+      values.push(auths);
+    }
+    if (frame_src !== undefined) {
+      updates.push("frame_src = ?");
+      values.push(frame_src);
+    }
+    if (frame_loading !== undefined) {
+      updates.push("frame_loading = ?");
+      values.push(frame_loading);
+    }
+    if (keep_alive !== undefined) {
+      updates.push("keep_alive = ?");
+      values.push(keep_alive);
+    }
+    if (hidden_tag !== undefined) {
+      updates.push("hidden_tag = ?");
+      values.push(hidden_tag);
+    }
+    if (fixed_tag !== undefined) {
+      updates.push("fixed_tag = ?");
+      values.push(fixed_tag);
+    }
+    if (show_link !== undefined) {
+      updates.push("show_link = ?");
+      values.push(show_link);
+    }
+    if (show_parent !== undefined) {
+      updates.push("show_parent = ?");
+      values.push(show_parent);
+    }
+    if (status !== undefined) {
+      updates.push("status = ?");
+      values.push(status);
+    }
+
+    if (updates.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "没有需要更新的字段",
+      });
+      return;
+    }
+
+    values.push(menuId);
+
+    await db.execute(
+      `UPDATE menus SET ${updates.join(", ")} WHERE id = ?`,
+      values
+    );
+
+    res.json({
+      success: true,
+      message: "菜单更新成功",
+    });
+  } catch (error) {
+    console.error("更新菜单错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/menus/{id}:
+ *   delete:
+ *     summary: 删除菜单
+ *     tags: [Admin]
+ *     description: 删除菜单(需要超级管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 菜单ID
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ */
+export const deleteMenu = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const menuId = req.params.id;
+
+    // 检查菜单是否存在
+    const [menuCheck] = await db.execute(
+      "SELECT id FROM menus WHERE id = ?",
+      [menuId]
+    );
+
+    if ((menuCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "菜单不存在",
+      });
+      return;
+    }
+
+    // 检查是否有子菜单
+    const [childrenCheck] = await db.execute(
+      "SELECT id FROM menus WHERE parent_id = ?",
+      [menuId]
+    );
+
+    if ((childrenCheck as any[]).length > 0) {
+      res.status(400).json({
+        success: false,
+        message: "该菜单下有子菜单，无法删除",
+      });
+      return;
+    }
+
+    // 使用事务删除菜单和相关权限
+    const connection = await db.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 删除角色菜单关联
+      await connection.execute("DELETE FROM role_menus WHERE menu_id = ?", [
+        menuId,
+      ]);
+
+      // 删除菜单
+      await connection.execute("DELETE FROM menus WHERE id = ?", [menuId]);
+
+      await connection.commit();
+
+      res.json({
+        success: true,
+        message: "菜单删除成功",
+      });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error("删除菜单错误:", error);
     res.status(500).json({
       success: false,
       message: "服务器内部错误",

@@ -30,6 +30,9 @@ import {
   toggleRoleStatus,
   // 菜单管理
   getMenus,
+  createMenu,
+  updateMenu,
+  deleteMenu,
   getRoleMenus,
   updateRoleMenus,
   // 用户角色管理
@@ -52,6 +55,9 @@ router.use(requireAdminClient); // 要求必须是管理端客户端
 
 // 菜单管理路由 - 所有登录用户均可访问(用于前端菜单渲染)
 router.get('/menus', getMenus);                          // 普通用户可以查看菜单
+router.post('/menus', requireRole('super_admin'), createMenu);       // 只有超级管理员可以创建菜单
+router.put('/menus/:id', requireRole('super_admin'), updateMenu);    // 只有超级管理员可以更新菜单
+router.delete('/menus/:id', requireRole('super_admin'), deleteMenu); // 只有超级管理员可以删除菜单
 router.get('/roles/:id/menus', getRoleMenus);            // 普通用户可以查看角色菜单
 
 // 用户管理路由 - 需要管理员或超级管理员权限

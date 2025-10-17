@@ -21,6 +21,7 @@ import statsRoutes from './routes/statsRoutes';
 import adminRoutes from './routes/adminRoutes';
 import goalsRoutes from './routes/goalsRoutes';
 import monitorRoutes from './routes/monitorRoutes';
+import routeRoutes from './routes/routeRoutes';
 
 // 加载环境变量
 dotenv.config();
@@ -175,6 +176,7 @@ app.use('/api/diet', dietRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/monitor', monitorRoutes);
+app.use('/api', routeRoutes); // 动态路由API
 
 // API根路径
 app.get('/api', (req: Request, res: Response) => {

@@ -13,7 +13,7 @@ import {
   getAdminRolesIdMenus
 } from "@/api/admin";
 import { addDialog } from "@/components/ReDialog";
-import { deviceDetection, getKeyList } from "@pureadmin/utils";
+import { deviceDetection } from "@pureadmin/utils";
 import RoleForm from "../components/RoleForm.vue";
 
 export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
@@ -372,6 +372,7 @@ export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
 
       await putAdminRolesIdMenus({ id }, { menuIds: checkedKeys });
       ElMessage.success(`角色"${name}"的菜单权限修改成功`);
+      isShow.value = false;
     } catch (error: any) {
       ElMessage.error(error.message || "保存权限失败");
     }

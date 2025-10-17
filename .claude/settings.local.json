@@ -39,7 +39,12 @@
       "Bash(tee:*)",
       "Bash(echo \"=== 测试1: 在线用户列表 ===\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")",
       "Bash(echo -e \"\\n\\n=== 测试2: 登录日志列表 ===\" curl -s \"http://localhost:3000/api/monitor/login-logs?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")",
-      "Bash(echo -e \"\\n\\n=== 测试3: 操作日志列表 ===\" curl -s \"http://localhost:3000/api/monitor/operation-logs?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")"
+      "Bash(echo -e \"\\n\\n=== 测试3: 操作日志列表 ===\" curl -s \"http://localhost:3000/api/monitor/operation-logs?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjA2NzMyMDQsImV4cCI6MTc2MTI3ODAwNH0.419-nDJCxE5Kl7yy9zgW22Vl7qNjIhaIIPuTmaxrG48\")",
+      "Bash(bash:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY3NTYzMCwiZXhwIjoxNzYxMjgwNDMwfQ.bg_t-mrgxhExD6QzeDZhNd5E_xeY0EStnDm1PZkC8cs\")"
     ],
     "deny": [],
     "ask": []

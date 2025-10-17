@@ -88,33 +88,51 @@ CREATE TABLE IF NOT EXISTS users (
 ) COMMENT '用户表';
 
 -- ================================
--- 3. 创建菜单/权限表 (menus)
+-- 3. 创建菜单/权限表 (menus) - 完整版25个字段
+-- 参考 vue-pure-admin 菜单管理实现
 -- ================================
 CREATE TABLE IF NOT EXISTS menus (
     id INT PRIMARY KEY AUTO_INCREMENT COMMENT '菜单ID',
     parent_id INT DEFAULT 0 COMMENT '父菜单ID，0表示顶级菜单',
-    title VARCHAR(50) NOT NULL COMMENT '菜单标题',
-    path VARCHAR(100) DEFAULT NULL COMMENT '路由路径',
-    component VARCHAR(100) DEFAULT NULL COMMENT '组件路径',
-    icon VARCHAR(50) DEFAULT NULL COMMENT '图标',
-    sort INT DEFAULT 0 COMMENT '排序',
-    type TINYINT DEFAULT 1 COMMENT '类型 1:菜单 2:按钮',
-    permission VARCHAR(100) DEFAULT NULL COMMENT '权限标识',
-    status TINYINT DEFAULT 1 COMMENT '状态 1:启用 0:禁用',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单权限表';
+    menu_type TINYINT DEFAULT 0 COMMENT '菜单类型 0:菜单 1:iframe 2:外链 3:按钮',
+    title VARCHAR(100) NOT NULL COMMENT '菜单名称',
+    name VARCHAR(100) DEFAULT NULL COMMENT '路由名称',
+    path VARCHAR(200) DEFAULT NULL COMMENT '路由路径',
+    component VARCHAR(200) DEFAULT NULL COMMENT '组件路径',
+    `rank` INT DEFAULT 99 COMMENT '菜单排序',
+    redirect VARCHAR(200) DEFAULT NULL COMMENT '路由重定向',
+    icon VARCHAR(100) DEFAULT NULL COMMENT '菜单图标',
+    extra_icon VARCHAR(100) DEFAULT NULL COMMENT '右侧图标',
+    enter_transition VARCHAR(100) DEFAULT NULL COMMENT '进场动画',
+    leave_transition VARCHAR(100) DEFAULT NULL COMMENT '离场动画',
+    active_path VARCHAR(200) DEFAULT NULL COMMENT '菜单激活路径',
+    auths VARCHAR(200) DEFAULT NULL COMMENT '权限标识',
+    frame_src VARCHAR(500) DEFAULT NULL COMMENT 'iframe链接地址',
+    frame_loading TINYINT DEFAULT 1 COMMENT '加载动画 0:关闭 1:开启',
+    keep_alive TINYINT DEFAULT 0 COMMENT '缓存页面 0:关闭 1:开启',
+    hidden_tag TINYINT DEFAULT 0 COMMENT '隐藏标签 0:不隐藏 1:隐藏',
+    fixed_tag TINYINT DEFAULT 0 COMMENT '固定标签 0:不固定 1:固定',
+    show_link TINYINT DEFAULT 1 COMMENT '是否显示 0:隐藏 1:显示',
+    show_parent TINYINT DEFAULT 0 COMMENT '是否显示父级 0:不显示 1:显示',
+    status TINYINT DEFAULT 1 COMMENT '状态 0:禁用 1:启用',
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    KEY idx_parent_id (parent_id),
+    KEY idx_menu_type (menu_type),
+    KEY idx_rank (`rank`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单管理表（完整版）';
 
 -- ================================
 -- 4. 创建角色-菜单关联表 (role_menus)
 -- ================================
 CREATE TABLE IF NOT EXISTS role_menus (
-    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     role_id INT NOT NULL COMMENT '角色ID',
     menu_id INT NOT NULL COMMENT '菜单ID',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    UNIQUE KEY uk_role_menu (role_id, menu_id),
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE
+    PRIMARY KEY (role_id, menu_id),
+    KEY fk_role_menus_menu (menu_id),
+    CONSTRAINT role_menus_ibfk_1 FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT role_menus_ibfk_2 FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色菜单关联表';
 
 -- ================================
