@@ -2873,31 +2873,36 @@ export const getAsyncRoutes = async (
       });
     }
 
-    // 转换菜单为路由格式 (支持所有vue-pure-admin字段)
+    // 转换菜单为路由格式 (符合 vue-pure-admin 官方格式)
     const convertMenuToRoute = (menu: any) => {
       const route: any = {
         path: menu.path,
-        name: menu.name || menu.title, // 优先使用name字段
         meta: {
           icon: menu.icon || 'ep:menu',
           title: menu.title,
-          rank: menu.rank || 0,
-          showLink: menu.show_link === 1,
-          keepAlive: menu.keep_alive === 1
+          rank: menu.rank || 0
         }
       };
 
-      // 如果有component，添加到路由配置中
-      if (menu.component) {
-        route.component = menu.component;
+      // 只有叶子节点才添加 name 和 component
+      // menu_type: 0=目录, 1=菜单, 2=按钮
+      if (menu.menu_type === 1) {
+        route.name = menu.name || menu.title;
+
+        // 如果有component，添加到路由配置中（格式：system/user/index）
+        if (menu.component) {
+          route.component = menu.component;
+        }
       }
 
-      // 添加redirect
+      // 添加redirect（父路由通常需要）
       if (menu.redirect) {
         route.redirect = menu.redirect;
       }
 
       // 添加其他meta字段
+      if (menu.show_link !== undefined) route.meta.showLink = menu.show_link === 1;
+      if (menu.keep_alive !== undefined) route.meta.keepAlive = menu.keep_alive === 1;
       if (menu.extra_icon) route.meta.extraIcon = menu.extra_icon;
       if (menu.enter_transition) route.meta.enterTransition = menu.enter_transition;
       if (menu.leave_transition) route.meta.leaveTransition = menu.leave_transition;

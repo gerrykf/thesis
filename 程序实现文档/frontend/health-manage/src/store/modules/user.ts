@@ -49,7 +49,11 @@ export const useUserStore = defineStore("pure-user", {
     // 是否勾选了登录页的免登录
     isRemembered: false,
     // 登录页的免登录存储几天，默认7天
-    loginDay: 7
+    loginDay: 7,
+    // 登录页面当前页 0: 账号登录 1: 手机登录 2: 二维码登录 3: 注册 4: 忘记密码
+    currentPage: 0,
+    // 验证码
+    verifyCode: ""
   }),
   actions: {
     /** 存储用户ID */
@@ -87,6 +91,14 @@ export const useUserStore = defineStore("pure-user", {
     /** 设置登录页的免登录存储几天 */
     SET_LOGINDAY(value: number) {
       this.loginDay = Number(value);
+    },
+    /** 设置登录页面当前页 */
+    SET_CURRENTPAGE(value: number) {
+      this.currentPage = value;
+    },
+    /** 设置验证码 */
+    SET_VERIFYCODE(value: string) {
+      this.verifyCode = value;
     },
     /** 登入 */
     async loginByUsername(data: API.LoginRequest) {

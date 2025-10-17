@@ -1,6 +1,6 @@
 import { ref, reactive, computed, h, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { deviceDetection } from "@pureadmin/utils";
+import { deviceDetection, isAllEmpty } from "@pureadmin/utils";
 import { addDialog } from "@/components/ReDialog";
 import {
   getAdminMenus,
@@ -8,8 +8,9 @@ import {
   putAdminMenusId,
   deleteAdminMenusId
 } from "@/api/admin";
-import type { Menu, MenuFormData, MenuTreeOption } from "./types";
+import type { Menu, MenuTreeOption } from "./types";
 import MenuForm from "../components/MenuForm.vue";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
 export function useMenu() {
   // 搜索表单
@@ -29,39 +30,58 @@ export function useMenu() {
   // 当前选中的菜单
   const curRow = ref<Menu | null>(null);
 
+  const getMenuType = (type, text = false) => {
+    switch (type) {
+      case 0:
+        return text ? "菜单" : "primary";
+      case 1:
+        return text ? "iframe" : "warning";
+      case 2:
+        return text ? "外链" : "danger";
+      case 3:
+        return text ? "按钮" : "info";
+    }
+  };
+
   // 表格列配置
   const columns: TableColumnList = [
     {
       label: "菜单名称",
       prop: "title",
       align: "left",
-      minWidth: 180
-    },
-    {
-      label: "图标",
-      width: 100,
-      align: "center",
-      slot: "icon"
+      cellRenderer: ({ row }) => (
+        <>
+          <span class="inline-block mr-1">
+            {h(useRenderIcon(row.icon), {
+              style: { paddingTop: "1px" }
+            })}
+          </span>
+          <span>{row.title}</span>
+        </>
+      )
     },
     {
       label: "菜单类型",
       width: 100,
-      slot: "menuType"
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          size={props.size}
+          type={getMenuType(row.menu_type)}
+          effect="plain"
+        >
+          {getMenuType(row.menu_type, true)}
+        </el-tag>
+      )
     },
     {
-      label: "路由名称",
-      prop: "name",
-      minWidth: 150
+      label: "路由路径",
+      prop: "path"
     },
     {
-      label: "路径",
-      prop: "path",
-      minWidth: 180
-    },
-    {
-      label: "组件",
+      label: "组件路径",
       prop: "component",
-      minWidth: 200
+      formatter: ({ path, component }) =>
+        isAllEmpty(component) ? path : component
     },
     {
       label: "权限标识",
@@ -74,9 +94,10 @@ export function useMenu() {
       width: 80
     },
     {
-      label: "状态",
-      width: 100,
-      slot: "status"
+      label: "隐藏",
+      prop: "showLink",
+      formatter: ({ show_link }) => (show_link ? "否" : "是"),
+      width: 100
     },
     {
       label: "操作",
@@ -169,14 +190,19 @@ export function useMenu() {
     // 判断是否是编辑模式
     const isEdit = title === "修改";
     const menuRow = isEdit ? (row as Menu) : null;
-    const parentId = isEdit ? menuRow?.parent_id || 0 : (row as any)?.parent_id || 0;
+    const parentId = isEdit
+      ? menuRow?.parent_id || 0
+      : (row as any)?.parent_id || 0;
 
     // 构建上级菜单选项（转换为vue-pure-admin需要的格式）
     const buildMenuTree = (menus: Menu[]): any[] => {
       return menus.map(menu => ({
         id: menu.id,
         title: menu.title,
-        children: menu.children && menu.children.length > 0 ? buildMenuTree(menu.children) : undefined
+        children:
+          menu.children && menu.children.length > 0
+            ? buildMenuTree(menu.children)
+            : undefined
       }));
     };
 
@@ -213,7 +239,8 @@ export function useMenu() {
       fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(MenuForm, { ref: formRef }),
+      contentRenderer: () =>
+        h(MenuForm, { ref: formRef, formInline: {} as any }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value?.getRef();
         const curData = options.props.formInline;
@@ -234,7 +261,7 @@ export function useMenu() {
   // 保存菜单（转换驼峰命名到snake_case并转换boolean到0/1）
   async function handleSaveMenu(title: string, data: any, id?: number) {
     try {
-      const menuData = {
+      const menuData: any = {
         parent_id: data.parentId,
         menu_type: data.menuType,
         title: data.title,
@@ -260,10 +287,10 @@ export function useMenu() {
       };
 
       if (title === "新增") {
-        await postAdminMenus(menuData);
+        await postAdminMenus(menuData as any);
         ElMessage.success(`新增菜单"${data.title}"成功`);
       } else {
-        await putAdminMenusId({ id: id! }, menuData);
+        await putAdminMenusId({ id: id! }, menuData as any);
         ElMessage.success(`修改菜单"${data.title}"成功`);
       }
       return true;

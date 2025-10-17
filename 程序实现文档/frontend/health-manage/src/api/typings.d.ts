@@ -66,6 +66,11 @@ declare namespace API {
     id: number;
   };
 
+  type deleteAdminMenusIdParams = {
+    /** 菜单ID */
+    id: number;
+  };
+
   type deleteAdminRolesIdParams = {
     /** 角色ID */
     id: number;
@@ -465,6 +470,11 @@ declare namespace API {
   };
 
   type putAdminFoodsIdParams = {
+    id: number;
+  };
+
+  type putAdminMenusIdParams = {
+    /** 菜单ID */
     id: number;
   };
 

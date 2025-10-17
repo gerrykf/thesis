@@ -37,6 +37,7 @@ export type setType = {
 };
 
 export type userType = {
+  userId?: number;
   avatar?: string;
   username?: string;
   nickname?: string;
@@ -45,4 +46,6 @@ export type userType = {
   userMenus?: Array<any>;
   isRemembered?: boolean;
   loginDay?: number;
+  currentPage?: number;
+  verifyCode?: string;
 };

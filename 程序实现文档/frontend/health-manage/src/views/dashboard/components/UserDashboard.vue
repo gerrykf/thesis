@@ -84,7 +84,7 @@ const nutritionOption = ref({});
 
 // 返回用户列表
 const handleGoBack = () => {
-  router.push("/users/list");
+  router.push("/user/index");
 };
 
 // 加载概览数据

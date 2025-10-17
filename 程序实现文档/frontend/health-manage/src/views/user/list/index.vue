@@ -579,7 +579,7 @@ const handleAddUser = async () => {
 
 // 查看用户详情
 const viewUserDetail = (userId: number) => {
-  router.push(`/users/detail/${userId}`);
+  router.push(`/user/detail/${userId}`);
 };
 
 // 查看用户分析数据

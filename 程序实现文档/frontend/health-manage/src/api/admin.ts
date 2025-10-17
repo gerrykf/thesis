@@ -178,7 +178,8 @@ export async function postAdminMenus(
 
 /** 更新菜单 更新菜单信息(需要超级管理员权限) PUT /api/admin/menus/${param0} */
 export async function putAdminMenusId(
-  params: { id: number },
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putAdminMenusIdParams,
   body: {
     parent_id?: number;
     title?: string;
@@ -206,7 +207,8 @@ export async function putAdminMenusId(
 
 /** 删除菜单 删除菜单(需要超级管理员权限) DELETE /api/admin/menus/${param0} */
 export async function deleteAdminMenusId(
-  params: { id: number },
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deleteAdminMenusIdParams,
   options?: { [key: string]: any }
 ) {
   const { id: param0, ...queryParams } = params;

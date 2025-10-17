@@ -44,7 +44,9 @@
       "Bash(bash:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(git clone:*)",
-      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY3NTYzMCwiZXhwIjoxNzYxMjgwNDMwfQ.bg_t-mrgxhExD6QzeDZhNd5E_xeY0EStnDm1PZkC8cs\")"
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY3NTYzMCwiZXhwIjoxNzYxMjgwNDMwfQ.bg_t-mrgxhExD6QzeDZhNd5E_xeY0EStnDm1PZkC8cs\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY4ODMyNSwiZXhwIjoxNzYxMjkzMTI1fQ.pYYMbRJMpUCTfPTg9xmW9QZ9PH3czIHsi1Sq3qCD3QU\")",
+      "WebFetch(domain:pure-admin.cn)"
     ],
     "deny": [],
     "ask": []

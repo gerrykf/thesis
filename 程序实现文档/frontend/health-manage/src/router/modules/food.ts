@@ -3,10 +3,10 @@ import { FoodPermission } from "@/utils/rbac";
 const Layout = () => import("@/layout/index.vue");
 
 export default {
-  path: "/foods",
+  path: "/food",
+  redirect: "/food/index",
   name: "FoodManagement",
   component: Layout,
-  redirect: "/foods/list",
   meta: {
     icon: "ep:food",
     title: "食物管理",
@@ -14,9 +14,9 @@ export default {
   },
   children: [
     {
-      path: "/foods/list",
+      path: "/foods/index",
       name: "FoodList",
-      component: () => import("@/views/foods/list/index.vue"),
+      component: () => import("@/views/food/list/index.vue"),
       meta: {
         title: "食物列表",
         showLink: true,

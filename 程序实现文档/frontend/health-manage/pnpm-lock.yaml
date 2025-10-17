@@ -74,12 +74,18 @@ importers:
       sortablejs:
         specifier: ^1.15.6
         version: 1.15.6
+      typeit:
+        specifier: ^8.8.7
+        version: 8.8.7
       vue:
         specifier: ^3.5.18
         version: 3.5.18(typescript@5.9.2)
       vue-echarts:
         specifier: ^8.0.1
         version: 8.0.1(echarts@5.6.0)(vue@3.5.18(typescript@5.9.2))
+      vue-i18n:
+        specifier: ^11.1.12
+        version: 11.1.12(vue@3.5.18(typescript@5.9.2))
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.18(typescript@5.9.2))
@@ -886,6 +892,18 @@ packages:
     peerDependencies:
       vue: '>=3'
 
+  '@intlify/core-base@11.1.12':
+    resolution: {integrity: sha512-whh0trqRsSqVLNEUCwU59pyJZYpU8AmSWl8M3Jz2Mv5ESPP6kFh4juas2NpZ1iCvy7GlNRffUD1xr84gceimjg==}
+    engines: {node: '>= 16'}
+
+  '@intlify/message-compiler@11.1.12':
+    resolution: {integrity: sha512-Fv9iQSJoJaXl4ZGkOCN1LDM3trzze0AS2zRz2EHLiwenwL6t0Ki9KySYlyr27yVOj5aVz0e55JePO+kELIvfdQ==}
+    engines: {node: '>= 16'}
+
+  '@intlify/shared@11.1.12':
+    resolution: {integrity: sha512-Om86EjuQtA69hdNj3GQec9ZC0L0vPSAnXzB3gP/gyJ7+mA7t06d9aOAiqMZ+xEOsumGP4eEBlfl8zF2LOTzf2A==}
+    engines: {node: '>= 16'}
+
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
     engines: {node: 20 || >=22}
@@ -1291,6 +1309,9 @@ packages:
 
   '@types/tinycolor2@1.4.6':
     resolution: {integrity: sha512-iEN8J0BoMnsWBqjVbWH/c0G0Hh7O21lpR2/+PrvAVgWdzL7eexIFm4JN/Wn10PTcmNdtS6U67r499mlWMXOxNw==}
+
+  '@types/web-animations-js@2.2.16':
+    resolution: {integrity: sha512-ATELeWMFwj8eQiH0KmvsCl1V2lu/qx/CjOBmv4ADSZS5u8r4reMyjCXtxG7khqyiwH3IOMNdrON/Ugn94OUcRA==}
 
   '@types/web-bluetooth@0.0.16':
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
@@ -3708,6 +3729,9 @@ packages:
   type@2.7.3:
     resolution: {integrity: sha512-8j+1QmAbPvLZow5Qpi6NCaN8FB60p/6x8/vfNqOk/hC+HuvFZhL4+WfekuhQLiqFZXOgQdrs3B+XxEmCc6b3FQ==}
 
+  typeit@8.8.7:
+    resolution: {integrity: sha512-sSVpy+cjeFP6Z+fZqiHzUSShg5yYFeJEt/Qut/bX945+Axyq+Yq+GPOuuk+sofoccSv8nNX/ibOOHkbki2mEpg==}
+
   typescript-eslint@8.39.0:
     resolution: {integrity: sha512-lH8FvtdtzcHJCkMOKnN73LIn6SLTpoojgJqDAxPm1jCR14eWSGPX8ul/gggBdPMk/d5+u9V854vTYQ8T5jF/1Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -3884,6 +3908,12 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
+
+  vue-i18n@11.1.12:
+    resolution: {integrity: sha512-BnstPj3KLHLrsqbVU2UOrPmr0+Mv11bsUZG0PyCOzsawCivk8W00GMXHeVUWIDOgNaScCuZah47CZFE+Wnl8mw==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue-router@4.5.1:
     resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
@@ -4581,6 +4611,18 @@ snapshots:
       '@iconify/types': 2.0.0
       vue: 3.5.18(typescript@5.9.2)
 
+  '@intlify/core-base@11.1.12':
+    dependencies:
+      '@intlify/message-compiler': 11.1.12
+      '@intlify/shared': 11.1.12
+
+  '@intlify/message-compiler@11.1.12':
+    dependencies:
+      '@intlify/shared': 11.1.12
+      source-map-js: 1.2.1
+
+  '@intlify/shared@11.1.12': {}
+
   '@isaacs/balanced-match@4.0.1': {}
 
   '@isaacs/brace-expansion@5.0.0':
@@ -4919,6 +4961,8 @@ snapshots:
   '@types/sortablejs@1.15.8': {}
 
   '@types/tinycolor2@1.4.6': {}
+
+  '@types/web-animations-js@2.2.16': {}
 
   '@types/web-bluetooth@0.0.16': {}
 
@@ -7544,6 +7588,10 @@ snapshots:
 
   type@2.7.3: {}
 
+  typeit@8.8.7:
+    dependencies:
+      '@types/web-animations-js': 2.2.16
+
   typescript-eslint@8.39.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2):
     dependencies:
       '@typescript-eslint/eslint-plugin': 8.39.0(@typescript-eslint/parser@8.39.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
@@ -7722,6 +7770,13 @@ snapshots:
       semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
+
+  vue-i18n@11.1.12(vue@3.5.18(typescript@5.9.2)):
+    dependencies:
+      '@intlify/core-base': 11.1.12
+      '@intlify/shared': 11.1.12
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.18(typescript@5.9.2)
 
   vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)):
     dependencies:

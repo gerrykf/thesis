@@ -27,7 +27,7 @@ const IFrame = () => import("@/layout/frame.vue");
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
-import { getAsyncRoutes } from "@/api/routes";
+import { getGetAsyncRoutes } from "@/api/route";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -139,12 +139,17 @@ function findRouteByPath(path: string, routes: RouteRecordRaw[]) {
   }
 }
 
+/** 动态路由注册完成后，再添加全屏404（页面不存在）页面，避免刷新动态路由页面时误跳转到404页面 */
 function addPathMatch() {
   if (!router.hasRoute("pathMatch")) {
     router.addRoute({
-      path: "/:pathMatch(.*)",
-      name: "pathMatch",
-      redirect: "/error/404"
+      path: "/:pathMatch(.*)*",
+      name: "PageNotFound",
+      component: () => import("@/views/error/404.vue"),
+      meta: {
+        title: "menus.purePageNotFound",
+        showLink: false
+      }
     });
   }
 }
@@ -169,12 +174,6 @@ function handleAsyncRoutes(routeList) {
           // 最终路由进行升序
           ascending(router.options.routes[0].children);
           if (!router.hasRoute(v?.name)) router.addRoute(v);
-          const flattenRouters: any = router
-            .getRoutes()
-            .find(n => n.path === "/");
-          // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
-          flattenRouters.children = router.options.routes[0].children;
-          router.addRoute(flattenRouters);
         }
       }
     );
@@ -204,7 +203,7 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
+        getGetAsyncRoutes().then(({ data }) => {
           handleAsyncRoutes(cloneDeep(data));
           storageLocal().setItem(key, data);
           resolve(router);
@@ -213,7 +212,7 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
+      getGetAsyncRoutes().then(({ data }) => {
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });
@@ -304,6 +303,8 @@ function handleAliveRoute({ name }: ToRouteType, mode?: string) {
 function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
   if (!arrRoutes || !arrRoutes.length) return;
   const modulesRoutesKeys = Object.keys(modulesRoutes);
+  const Layout = () => import("@/layout/index.vue");
+
   arrRoutes.forEach((v: RouteRecordRaw) => {
     // 将backstage属性加入meta，标识此路由为后端返回路由
     v.meta.backstage = true;
@@ -315,8 +316,11 @@ function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
       v.name = (v.children[0].name as string) + "Parent";
     if (v.meta?.frameSrc) {
       v.component = IFrame;
+    } else if (v?.children && v.children.length) {
+      // 父级路由使用 Layout 组件
+      v.component = Layout;
     } else {
-      // 对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，component组件路径会跟path保持一致）
+      // 叶子路由：对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，component组件路径会跟path保持一致）
       const index = v?.component
         ? modulesRoutesKeys.findIndex(ev => ev.includes(v.component as any))
         : modulesRoutesKeys.findIndex(ev => ev.includes(v.path));

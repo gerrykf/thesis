@@ -206,16 +206,3 @@ export async function deleteMonitorOperationLogsClear(options?: {
     }
   );
 }
-
-// 简化的导出别名，便于在组件中使用
-export const getOnlineUsers = getMonitorOnlineUsers;
-export const forceOfflineUser = (id: number) =>
-  deleteMonitorOnlineUsersId({ id });
-
-export const getLoginLogs = getMonitorLoginLogs;
-export const batchDeleteLoginLogs = postMonitorLoginLogsBatchDelete;
-export const clearAllLoginLogs = deleteMonitorLoginLogsClear;
-
-export const getOperationLogs = getMonitorOperationLogs;
-export const batchDeleteOperationLogs = postMonitorOperationLogsBatchDelete;
-export const clearAllOperationLogs = deleteMonitorOperationLogsClear;
