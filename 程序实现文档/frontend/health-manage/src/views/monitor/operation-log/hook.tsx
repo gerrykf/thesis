@@ -3,9 +3,9 @@ import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
 import { getKeyList } from "@pureadmin/utils";
 import {
-  getOperationLogs,
-  batchDeleteOperationLogs,
-  clearAllOperationLogs
+  getMonitorOperationLogs,
+  postMonitorOperationLogsBatchDelete,
+  deleteMonitorOperationLogsClear
 } from "@/api/monitor";
 import { usePublicHooks } from "@/views/system/hooks";
 import type { PaginationProps } from "@pureadmin/table";
@@ -128,7 +128,7 @@ export function useOperationLogs(tableRef: Ref) {
         return;
       }
 
-      await batchDeleteOperationLogs({ ids });
+      await postMonitorOperationLogsBatchDelete({ ids });
       message(`成功删除 ${ids.length} 条记录`, { type: "success" });
       tableRef.value.getTableRef().clearSelection();
       selectedNum.value = 0;
@@ -141,7 +141,7 @@ export function useOperationLogs(tableRef: Ref) {
 
   async function clearAll() {
     try {
-      await clearAllOperationLogs();
+      await deleteMonitorOperationLogsClear();
       message("已清空所有操作日志", { type: "success" });
       onSearch();
     } catch (error) {
@@ -175,7 +175,7 @@ export function useOperationLogs(tableRef: Ref) {
         );
       }
 
-      const response = await unwrap(getOperationLogs(params));
+      const response = await unwrap(getMonitorOperationLogs(params));
       dataList.value = response.data?.list || [];
       pagination.total = response.data?.total || 0;
     } catch (error) {

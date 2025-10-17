@@ -1,11 +1,11 @@
-import { UserPermission } from "@/utils/rbac";
+import { RoleCode, UserPermission } from "@/utils/rbac";
 
 const Layout = () => import("@/layout/index.vue");
 
 export default {
   path: "/user",
   redirect: "/user/index",
-  name: "FoodManagement",
+  name: "UserManagement",
   component: Layout,
   meta: {
     icon: "ri:admin-line",
@@ -18,8 +18,9 @@ export default {
       name: "UserList",
       component: () => import("@/views/user/list/index.vue"),
       meta: {
-        title: "用户列表",
+        title: "用户管理",
         showLink: true,
+        roles: [RoleCode.SUPER_ADMIN, RoleCode.ADMIN],
         auths: [UserPermission.LIST]
       }
     },
@@ -29,8 +30,8 @@ export default {
       component: () => import("@/views/user/detail/index.vue"),
       meta: {
         title: "用户详情",
-        showLink: true,
-        auths: [UserPermission.LIST]
+        showLink: false,
+        auths: [UserPermission.VIEW]
       }
     }
   ]

@@ -12,29 +12,58 @@ TRUNCATE TABLE menus;
 -- 重新启用外键检查
 SET FOREIGN_KEY_CHECKS = 1;
 
--- 1. 首页模块 (ID: 1-3)
-INSERT INTO menus (id, parent_id, menu_type, title, name, path, component, `rank`, redirect, icon, keep_alive, show_link, status) VALUES
-(1, 0, 0, '首页', 'Home', '/', NULL, 0, '/dashboard', 'ep:home-filled', 0, 1, 1),
-(2, 1, 0, '数据趋势', 'Dashboard', '/dashboard', 'dashboard/index', 1, NULL, 'ep:data-line', 1, 1, 1),
-(3, 1, 0, '欢迎页', 'Welcome', '/welcome', 'welcome/index', 2, NULL, 'ep:star-filled', 0, 0, 1);
-
 -- 2. 系统管理模块 (ID: 10-29)
 INSERT INTO menus (id, parent_id, menu_type, title, name, path, component, `rank`, redirect, icon, keep_alive, show_link, status) VALUES
 -- 系统管理父级
-(10, 0, 0, '系统管理', 'SystemManagement', '/system', NULL, 2, '/users/list', 'ri:settings-3-line', 0, 1, 1),
-
--- 用户管理
-(11, 10, 0, '用户管理', 'UserManagement', '/users', NULL, 1, '/users/list', 'ep:user-filled', 0, 1, 1),
-(12, 11, 0, '用户列表', 'UserList', '/users/list', 'system/users/list/index', 1, NULL, 'ep:user', 1, 1, 1),
-(13, 11, 0, '用户详情', 'UserDetail', '/users/detail/:id', 'system/users/detail/index', 2, NULL, 'ep:document', 0, 0, 1),
+(
+    10,
+    0,
+    0,
+    '系统管理',
+    'SystemManagement',
+    '/system',
+    NULL,
+    2,
+    null,
+    'ri:settings-3-line',
+    0,
+    1,
+    1
+),
 
 -- 角色管理
-(14, 10, 0, '角色管理', 'RoleManagement', '/roles', NULL, 3, '/roles/list', 'ep:lock', 0, 1, 1),
-(15, 14, 0, '角色列表', 'RoleList', '/roles/list', 'system/roles/index', 1, NULL, 'ep:key', 1, 1, 1),
+(
+    14,
+    10,
+    0,
+    '角色管理',
+    'RoleManagement',
+    '/system/role',
+    NULL,
+    3,
+    '/role/index',
+    'ep:lock',
+    0,
+    1,
+    1
+),
 
 -- 菜单管理
-(16, 10, 0, '菜单管理', 'MenuManagement', '/menus', NULL, 4, '/menus/list', 'ep:menu', 0, 1, 1),
-(17, 16, 0, '菜单列表', 'MenuList', '/menus/list', 'system/menus/index', 1, NULL, 'ep:menu', 1, 1, 1);
+(
+    16,
+    10,
+    0,
+    '菜单管理',
+    'MenuManagement',
+    '/system/menu',
+    NULL,
+    4,
+    '/system/menu/index',
+    'ep:menu',
+    0,
+    1,
+    1
+),
 
 -- 用户管理按钮权限 (ID: 20-24)
 INSERT INTO menus (id, parent_id, menu_type, title, name, auths, `rank`, show_link, status) VALUES
@@ -51,11 +80,6 @@ INSERT INTO menus (id, parent_id, menu_type, title, name, auths, `rank`, show_li
 (27, 15, 3, '删除角色', NULL, 'role:delete', 3, 1, 1),
 (28, 15, 3, '菜单权限', NULL, 'role:menu', 4, 1, 1),
 (29, 15, 3, '切换状态', NULL, 'role:status', 5, 1, 1);
-
--- 3. 食物管理模块 (ID: 30-39)
-INSERT INTO menus (id, parent_id, menu_type, title, name, path, component, `rank`, redirect, icon, keep_alive, show_link, status) VALUES
-(30, 0, 0, '食物管理', 'FoodManagement', '/foods', NULL, 3, '/foods/list', 'ep:food', 0, 1, 1),
-(31, 30, 0, '食物列表', 'FoodList', '/foods/list', 'foods/list/index', 1, NULL, 'ep:food', 1, 1, 1);
 
 -- 食物管理按钮权限 (ID: 35-39)
 INSERT INTO menus (id, parent_id, menu_type, title, name, auths, `rank`, show_link, status) VALUES

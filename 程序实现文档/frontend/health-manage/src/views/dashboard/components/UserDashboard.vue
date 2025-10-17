@@ -409,7 +409,7 @@ onMounted(() => {
   <div class="user-dashboard">
     <!-- 返回按钮 (仅在查看其他用户数据时显示) -->
     <div v-if="isViewingOtherUser" class="back-button-container">
-      <el-button type="primary" @click="handleGoBack">
+      <el-button type="primary" link  @click="handleGoBack">
         <el-icon style="margin-right: 4px"><ArrowLeft /></el-icon>
         返回用户列表
       </el-button>
@@ -582,7 +582,7 @@ onMounted(() => {
           .overview-value {
             font-size: 24px;
             font-weight: 600;
-            color: #303133;
+            color: var(--el-text-color);
             margin-bottom: 2px;
           }
 

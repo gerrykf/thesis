@@ -14,11 +14,11 @@ export default {
   },
   children: [
     {
-      path: "/foods/index",
+      path: "/food/index",
       name: "FoodList",
       component: () => import("@/views/food/list/index.vue"),
       meta: {
-        title: "食物列表",
+        title: "食物管理",
         showLink: true,
         auths: [FoodPermission.LIST]
       }

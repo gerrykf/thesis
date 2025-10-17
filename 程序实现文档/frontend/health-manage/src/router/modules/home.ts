@@ -20,15 +20,15 @@ export default {
         title: "数据趋势",
         showLink: VITE_HIDE_HOME === "true" ? false : true
       }
-    },
-    {
-      path: "/welcome",
-      name: "Welcome",
-      component: () => import("@/views/welcome/index.vue"),
-      meta: {
-        title: "欢迎页",
-        showLink: false
-      }
     }
+    // {
+    //   path: "/welcome",
+    //   name: "Welcome",
+    //   component: () => import("@/views/welcome/index.vue"),
+    //   meta: {
+    //     title: "欢迎页",
+    //     showLink: false
+    //   }
+    // }
   ]
 } satisfies RouteConfigsTable;

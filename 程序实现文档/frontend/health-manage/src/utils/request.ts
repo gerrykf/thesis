@@ -57,6 +57,21 @@ request.interceptors.request.use(
     // 标识客户端类型为管理端
     config.headers["X-Client-Type"] = "admin";
 
+    // 处理 OpenAPI 生成的 requestType: "form"
+    // OpenAPI 生成器会为 multipart/form-data 接口生成 requestType: "form"
+    // 但 axios 不支持这个属性，需要转换为正确的配置
+    const configAny = config as any;
+    if (configAny.requestType === "form") {
+      // 删除 requestType 属性
+      delete configAny.requestType;
+
+      // 如果 data 是 FormData，让 axios 自动设置 Content-Type
+      if (config.data instanceof FormData) {
+        // 删除手动设置的 Content-Type，让浏览器自动设置（包含 boundary）
+        delete config.headers["Content-Type"];
+      }
+    }
+
     return config;
   },
   error => {

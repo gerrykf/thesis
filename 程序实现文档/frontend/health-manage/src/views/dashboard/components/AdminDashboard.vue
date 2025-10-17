@@ -101,7 +101,7 @@ const loadRegistrationTrend = async () => {
       registrationTrendOption.value = {
         title: {
           text: "用户注册趋势",
-          left: "center"
+          left: "center",
         },
         tooltip: {
           trigger: "axis"
@@ -517,7 +517,7 @@ onMounted(() => {
           .stat-value {
             font-size: 28px;
             font-weight: 600;
-            color: #303133;
+            color: var(--el-text-color);
             margin-bottom: 4px;
           }
 

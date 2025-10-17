@@ -73,70 +73,6 @@
       </el-form>
     </el-card>
 
-    <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-row">
-      <el-col :span="6">
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon total-users">
-              <el-icon size="24">
-                <User />
-              </el-icon>
-            </div>
-            <div class="stat-info">
-              <h3>{{ userStats.totalUsers }}</h3>
-              <p>总用户数</p>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon active-users">
-              <el-icon size="24">
-                <UserFilled />
-              </el-icon>
-            </div>
-            <div class="stat-info">
-              <h3>{{ userStats.activeUsers }}</h3>
-              <p>活跃用户</p>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon new-users">
-              <el-icon size="24">
-                <Plus />
-              </el-icon>
-            </div>
-            <div class="stat-info">
-              <h3>{{ userStats.newUsersToday }}</h3>
-              <p>今日新增</p>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon admin-users">
-              <el-icon size="24">
-                <Setting />
-              </el-icon>
-            </div>
-            <div class="stat-info">
-              <h3>{{ userStats.adminUsers }}</h3>
-              <p>管理员</p>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
     <!-- 用户列表表格 -->
     <el-card shadow="never">
       <template #header>
@@ -511,7 +447,7 @@ const addUserDialog = reactive({
         trigger: ["blur", "change"]
       }
     ]
-  }
+  } as any
 });
 
 // 加载角色列表
@@ -613,7 +549,7 @@ onMounted(() => {
 
 .page-header h2 {
   margin: 0 0 8px 0;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 24px;
   font-weight: 600;
 }
