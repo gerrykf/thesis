@@ -55,7 +55,7 @@ defineEmits<{
 
 .card-title {
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 16px;
 }
 

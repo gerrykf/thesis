@@ -590,7 +590,7 @@ onMounted(async () => {
 
 .header-info h2 {
   margin: 0;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 24px;
   font-weight: 600;
 }

@@ -1083,7 +1083,7 @@ onMounted(async () => {
 
 .header-info h2 {
   margin: 0 0 4px 0;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 24px;
   font-weight: 600;
 }
@@ -1096,7 +1096,7 @@ onMounted(async () => {
 
 .card-title {
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
 }
 
 .user-profile-card {
@@ -1120,7 +1120,7 @@ onMounted(async () => {
 
 .user-basic h3 {
   margin: 0 0 8px 0;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 18px;
   font-weight: 600;
 }
@@ -1150,7 +1150,7 @@ onMounted(async () => {
 }
 
 .info-item .value {
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 14px;
   flex: 1;
 }
@@ -1209,7 +1209,7 @@ onMounted(async () => {
   margin: 0 0 4px 0;
   font-size: 20px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
 }
 
 .stat-info p {

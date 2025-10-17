@@ -294,7 +294,6 @@ const getRoleText = (role: string) => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
   border-radius: 12px;
 }
 
@@ -322,9 +321,7 @@ const getRoleText = (role: string) => {
 }
 
 .user-avatar {
-  border: 4px solid #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   transition: all 0.3s ease;
   cursor: pointer;
 }

@@ -248,7 +248,7 @@ const formatTime = (date: Date) => {
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
 }
 
 .stat-info p {
@@ -266,7 +266,7 @@ const formatTime = (date: Date) => {
 
 .quick-actions h2 {
   margin: 0 0 24px 0;
-  color: #303133;
+  color: var(--el-text-color);
   font-size: 24px;
   font-weight: 600;
   text-align: center;

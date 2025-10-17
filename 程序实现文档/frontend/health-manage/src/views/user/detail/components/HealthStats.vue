@@ -102,7 +102,7 @@ onUnmounted(() => {
 
 .card-title {
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
 }
 
 .stat-item {
@@ -111,7 +111,7 @@ onUnmounted(() => {
   gap: 12px;
   padding: 16px;
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--el-bg-color-page);
   height: 100%;
   min-height: 80px;
 }
@@ -122,7 +122,6 @@ onUnmounted(() => {
 }
 
 .stat-item.clickable:hover {
-  background: #f0f0f0;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -163,7 +162,7 @@ onUnmounted(() => {
   margin: 0 0 4px 0;
   font-size: 20px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color);
 }
 
 .stat-info p {
