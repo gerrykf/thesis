@@ -48,6 +48,48 @@ const tableRef = ref();
 const contentRef = ref();
 const treeHeight = ref();
 
+// 全选按钮的状态
+const isSelectAll = ref(false);
+const isIndeterminate = ref(false);
+
+// 监听树的选中状态变化，更新全选按钮
+const updateSelectAllState = () => {
+  if (!treeRef.value || !treeData.value.length) {
+    isSelectAll.value = false;
+    isIndeterminate.value = false;
+    return;
+  }
+
+  // 获取选中的节点（完全选中）和半选中的节点
+  const checkedKeys = treeRef.value.getCheckedKeys();
+  const halfCheckedKeys = treeRef.value.getHalfCheckedKeys();
+
+  // 总的选中数 = 完全选中 + 半选中
+  const totalCheckedCount = checkedKeys.length + halfCheckedKeys.length;
+  const totalCount = treeIds.value.length;
+
+  console.log("全选状态更新:", {
+    checkedKeys: checkedKeys.length,
+    halfCheckedKeys: halfCheckedKeys.length,
+    totalCheckedCount,
+    totalCount
+  });
+
+  if (totalCheckedCount === 0) {
+    // 没有选中任何节点
+    isSelectAll.value = false;
+    isIndeterminate.value = false;
+  } else if (totalCheckedCount === totalCount) {
+    // 全部选中
+    isSelectAll.value = true;
+    isIndeterminate.value = false;
+  } else {
+    // 部分选中（半选状态）
+    isSelectAll.value = false;
+    isIndeterminate.value = true;
+  }
+};
+
 const {
   form,
   isShow,
@@ -58,11 +100,12 @@ const {
   dataList,
   treeData,
   treeProps,
-  isLinkage,
+  isEditMode,
+  expandedKeys,
   pagination,
   isExpandAll,
-  isSelectAll,
   treeSearchValue,
+  treeIds,
   onSearch,
   resetForm,
   openDialog,
@@ -74,7 +117,23 @@ const {
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
-} = useRole(treeRef);
+} = useRole(treeRef, updateSelectAllState);
+
+// 处理全选按钮的点击
+const handleSelectAllChange = (value: boolean) => {
+  if (!treeRef.value) return;
+
+  if (value) {
+    // 全选
+    treeRef.value.setCheckedKeys(treeIds.value);
+  } else {
+    // 全不选
+    treeRef.value.setCheckedKeys([]);
+  }
+
+  // 更新半选状态
+  isIndeterminate.value = false;
+};
 
 onMounted(() => {
   useResizeObserver(contentRef, async () => {
@@ -302,19 +361,26 @@ onMounted(() => {
           clearable
           @input="onQueryChanged"
         />
-        <div class="flex flex-wrap">
+        <div class="flex flex-wrap mb-2">
+          <el-checkbox
+            v-model="isSelectAll"
+            :indeterminate="isIndeterminate"
+            label="全选"
+            @change="handleSelectAllChange"
+          />
           <el-checkbox v-model="isExpandAll" label="展开/折叠" />
-          <el-checkbox v-model="isSelectAll" label="全选/全不选" />
-          <el-checkbox v-model="isLinkage" label="父子联动" />
         </div>
         <el-tree-v2
+          :key="curRow?.id"
           ref="treeRef"
           show-checkbox
           :data="treeData"
           :props="treeProps"
           :height="treeHeight"
-          :check-strictly="!isLinkage"
+          :check-strictly="!isEditMode"
+          :default-expanded-keys="expandedKeys"
           :filter-method="filterMethod"
+          @check="updateSelectAllState"
         >
           <template #default="{ node }">
             <span>{{ node.label }}</span>
