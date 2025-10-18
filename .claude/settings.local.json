@@ -47,7 +47,20 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY3NTYzMCwiZXhwIjoxNzYxMjgwNDMwfQ.bg_t-mrgxhExD6QzeDZhNd5E_xeY0EStnDm1PZkC8cs\")",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDY4ODMyNSwiZXhwIjoxNzYxMjkzMTI1fQ.pYYMbRJMpUCTfPTg9xmW9QZ9PH3czIHsi1Sq3qCD3QU\")",
       "WebFetch(domain:pure-admin.cn)",
-      "Bash(pnpm openapi:*)"
+      "Bash(pnpm openapi:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2Mjg0OCwiZXhwIjoxNzYxMzY3NjQ4fQ.2UmTbSXNuRK-DHGkDOloW8GM3flr2t5-C-Li30JSrc8\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2Mjg0OCwiZXhwIjoxNzYxMzY3NjQ4fQ.2UmTbSXNuRK-DHGkDOloW8GM3flr2t5-C-Li30JSrc8\" curl -s \"http://localhost:3000/api/admin/users?page=1&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2Mjg0OCwiZXhwIjoxNzYxMzY3NjQ4fQ.2UmTbSXNuRK-DHGkDOloW8GM3flr2t5-C-Li30JSrc8\" curl -s \"http://localhost:3000/api/admin/users?page=1&pageSize=2\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2MzQ4NSwiZXhwIjoxNzYxMzY4Mjg1fQ.HFGmtsWdtBUcwYXLV05CjhsYr8sJbokfDxOX99TqwGQ\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2MzQ4NSwiZXhwIjoxNzYxMzY4Mjg1fQ.HFGmtsWdtBUcwYXLV05CjhsYr8sJbokfDxOX99TqwGQ\" curl -v \"http://localhost:3000/api/admin/users?nickname=%E7%AE%A1%E7%90%86&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2NDgyMiwiZXhwIjoxNzYxMzY5NjIyfQ.uYm7es8yQZeYJujjKbVi-fBpVtVwc2JfPaRgxtOWMQ8\")",
+      "Bash(echo \"=== 测试昵称查询（nickname=管理）===\" curl -s \"http://localhost:3000/api/admin/users?nickname=管理&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(echo \"\" echo \"=== 测试空结果查询（username=不存在）===\" curl -s \"http://localhost:3000/api/admin/users?username=不存在的用户xyz123\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2NDgyMiwiZXhwIjoxNzYxMzY5NjIyfQ.uYm7es8yQZeYJujjKbVi-fBpVtVwc2JfPaRgxtOWMQ8\" curl -s \"http://localhost:3000/api/admin/users?nickname=admin&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc2NTExOSwiZXhwIjoxNzYxMzY5OTE5fQ.GNlqIFvZzgbmhxMYr4mlGZShG1xWa61bRmafkZfgimA\")",
+      "Bash(echo \"=== 测试：查询启用状态的用户 ===\" curl -s \"http://localhost:3000/api/admin/users?is_active=true&pageSize=3\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(echo \"\" echo \"=== 测试：查询禁用状态的用户 ===\" curl -s \"http://localhost:3000/api/admin/users?is_active=false&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(echo \"\" echo \"=== 测试：不传 is_active 参数（查询所有用户）===\" curl -s \"http://localhost:3000/api/admin/users?pageSize=3\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")"
     ],
     "deny": [],
     "ask": []

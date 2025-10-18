@@ -5,7 +5,7 @@
     </template>
 
     <el-row :gutter="12">
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+      <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
         <div class="stat-item clickable" @click="$emit('view-health-records')">
           <div class="stat-icon health">
             <el-icon :size="iconSize"><DataAnalysis /></el-icon>
@@ -16,7 +16,7 @@
           </div>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+      <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
         <div class="stat-item clickable" @click="$emit('view-diet-records')">
           <div class="stat-icon diet">
             <el-icon :size="iconSize"><Food /></el-icon>
@@ -27,7 +27,7 @@
           </div>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+      <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
         <div class="stat-item clickable" @click="$emit('view-active-goals')">
           <div class="stat-icon goals">
             <el-icon :size="iconSize"><Flag /></el-icon>
@@ -35,17 +35,6 @@
           <div class="stat-info">
             <h3>{{ healthStats.activeGoals }}</h3>
             <p>活跃目标</p>
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-        <div class="stat-item clickable" @click="$emit('view-active-days')">
-          <div class="stat-icon days">
-            <el-icon :size="iconSize"><Calendar /></el-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ healthStats.activeDays }}</h3>
-            <p>活跃天数</p>
           </div>
         </div>
       </el-col>
@@ -74,7 +63,9 @@ defineEmits<{
 }>();
 
 // 窗口宽度
-const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200);
+const windowWidth = ref(
+  typeof window !== "undefined" ? window.innerWidth : 1200
+);
 
 // 响应式图标大小
 const iconSize = computed(() => {
@@ -87,11 +78,11 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-  window.addEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
+  window.removeEventListener("resize", handleResize);
 });
 </script>
 

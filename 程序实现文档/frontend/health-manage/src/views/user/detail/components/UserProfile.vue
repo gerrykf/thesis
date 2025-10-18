@@ -164,14 +164,15 @@ const windowWidth = ref(
   typeof window !== "undefined" ? window.innerWidth : 1200
 );
 
-// 上传配置
-const uploadAction = ref("/api/auth/avatar");
+// 上传配置 - 使用管理员专用接口
+const uploadAction = computed(() => `/api/admin/users/${props.userInfo.id}/avatar`);
 const uploadHeaders = computed(() => {
   const tokenData = getToken();
   return {
     Authorization: tokenData?.accessToken
       ? `Bearer ${tokenData.accessToken}`
-      : ""
+      : "",
+    "X-Client-Type": "admin"
   };
 });
 

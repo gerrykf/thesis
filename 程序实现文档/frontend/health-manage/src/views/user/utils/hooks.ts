@@ -54,6 +54,8 @@ export function useUserList() {
         limit: pagination.pageSize,
         search: search || undefined,
         role: searchForm.role as any,
+        is_active:
+          searchForm.is_active !== null ? searchForm.is_active : undefined,
         createdStartDate: searchForm.createdDateRange?.[0] || undefined,
         createdEndDate: searchForm.createdDateRange?.[1] || undefined,
         loginStartDate: searchForm.loginDateRange?.[0] || undefined,

@@ -44,15 +44,28 @@ export interface HealthRecord {
 // 饮食记录类型
 export interface DietRecord {
   id: number;
+  user_id: number;
+  food_id: number;
   record_date: string;
   meal_type: string;
-  food_name: string;
-  portion: number;
+  meal_time?: string;
+  quantity: number;
   calories: number;
   protein: number;
   fat: number;
   carbs: number;
+  fiber?: number;
+  sodium?: number;
   notes?: string;
+  created_at?: string;
+  updated_at?: string;
+  food_name: string;
+  category?: string;
+  food_calories_per_100g?: number;
+  food_protein_per_100g?: number;
+  food_fat_per_100g?: number;
+  food_carbs_per_100g?: number;
+  food_fiber_per_100g?: number;
 }
 
 // 角色选项类型

@@ -504,9 +504,6 @@ const handleAddUser = async () => {
       } else {
         ElMessage.error(response?.message || "创建用户失败");
       }
-    } catch (error: any) {
-      console.error("创建用户失败:", error);
-      ElMessage.error(error?.message || "创建用户失败");
     } finally {
       addUserDialog.loading = false;
     }

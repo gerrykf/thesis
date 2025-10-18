@@ -51,9 +51,7 @@
           </el-option>
         </el-select>
         <div style="margin-top: 4px; font-size: 12px; color: #909399">
-          <span v-if="isEditingUserSuperAdmin">
-            超级管理员角色不允许修改
-          </span>
+          <span v-if="isEditingUserSuperAdmin"> 超级管理员角色不允许修改 </span>
           <span v-else-if="!isSuperAdmin">
             只有超级管理员可以分配超级管理员角色
           </span>

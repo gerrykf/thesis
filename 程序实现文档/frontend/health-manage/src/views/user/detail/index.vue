@@ -8,6 +8,8 @@
       </div>
     </div>
 
+    <el-divider />
+
     <div v-loading="loading" class="detail-content">
       <!-- 用户基本信息 -->
       <UserProfile
@@ -25,7 +27,6 @@
         @view-health-records="viewAllRecords"
         @view-diet-records="viewDietRecords"
         @view-active-goals="viewActiveGoals"
-        @view-active-days="viewActiveDays"
       />
     </div>
 
@@ -45,48 +46,15 @@
       v-model:visible="dietRecordsDialog.visible"
       :loading="dietRecordsDialog.loading"
       :records="dietRecordsDialog.records"
-      :total="dietRecordsDialog.total"
-      :page="dietRecordsDialog.page"
-      :page-size="dietRecordsDialog.pageSize"
-      @page-change="handleDietRecordsPageChange"
+      @date-query="handleDietDateQuery"
     />
 
     <!-- 活跃目标对话框 -->
-    <el-dialog
-      v-model="activeGoalsDialog.visible"
-      title="活跃目标"
-      width="80%"
-      :close-on-click-modal="false"
-    >
-      <el-alert
-        title="功能开发中"
-        type="info"
-        description="活跃目标功能正在开发中，敬请期待。"
-        :closable="false"
-        style="margin-bottom: 20px"
-      />
-    </el-dialog>
-
-    <!-- 活跃天数对话框 -->
-    <el-dialog
-      v-model="activeDaysDialog.visible"
-      title="活跃天数"
-      width="60%"
-      :close-on-click-modal="false"
-    >
-      <el-alert
-        title="功能开发中"
-        type="info"
-        description="活跃天数日历视图功能正在开发中，敬请期待。"
-        :closable="false"
-        style="margin-bottom: 20px"
-      />
-      <div style="text-align: center; padding: 40px 0">
-        <el-statistic :value="healthStats.activeDays" title="累计活跃天数">
-          <template #suffix>天</template>
-        </el-statistic>
-      </div>
-    </el-dialog>
+    <ActiveGoalsDialog
+      v-model:visible="activeGoalsDialog.visible"
+      :loading="activeGoalsDialog.loading"
+      :goals="activeGoalsDialog.goals"
+    />
 
     <!-- 编辑用户对话框 -->
     <EditUserDialog
@@ -112,11 +80,13 @@ import {
   getAdminUsersId,
   getAdminUsersIdHealthStats,
   getAdminUsersIdHealthRecords,
+  getAdminUsersIdDietRecords,
   putAdminUsersId,
   patchAdminUsersIdToggleStatus,
   deleteAdminUsersId,
   getAdminRoles,
-  putAdminUsersIdRole
+  putAdminUsersIdRole,
+  getAdminUsersIdGoals
 } from "@/api/admin";
 import { unwrap } from "@/utils/api";
 
@@ -125,6 +95,7 @@ import UserProfile from "./components/UserProfile.vue";
 import HealthStats from "./components/HealthStats.vue";
 import HealthRecordsDialog from "./components/HealthRecordsDialog.vue";
 import DietRecordsDialog from "./components/DietRecordsDialog.vue";
+import ActiveGoalsDialog from "./components/ActiveGoalsDialog.vue";
 import EditUserDialog from "./components/EditUserDialog.vue";
 
 // 导入类型
@@ -213,15 +184,16 @@ const allRecordsDialog = reactive({
 const dietRecordsDialog = reactive({
   visible: false,
   records: [] as DietRecord[],
-  total: 0,
-  page: 1,
-  pageSize: 10,
-  loading: false
+  loading: false,
+  startDate: null as string | null,
+  endDate: null as string | null
 });
 
 // 活跃目标对话框
 const activeGoalsDialog = reactive({
-  visible: false
+  visible: false,
+  loading: false,
+  goals: [] as API.UserGoal[]
 });
 
 // 活跃天数对话框
@@ -285,8 +257,6 @@ const loadUserDetail = async () => {
         Object.assign(userInfo, userResponse.data);
       }
     } catch (error) {
-      console.error("获取用户详情失败:", error);
-      ElMessage.error("获取用户详情失败");
       router.push("/user/index");
       return;
     }
@@ -302,9 +272,6 @@ const loadUserDetail = async () => {
     } catch (error) {
       console.error("获取健康统计失败:", error);
     }
-  } catch (error) {
-    console.error("加载用户详情失败:", error);
-    ElMessage.error("加载用户详情失败");
   } finally {
     loading.value = false;
   }
@@ -335,11 +302,8 @@ const toggleUserStatus = async () => {
     } else {
       ElMessage.error(`${action}失败`);
     }
-  } catch (error) {
-    if (error !== "cancel") {
-      console.error(`${action}用户失败:`, error);
-      ElMessage.error(`${action}用户失败`);
-    }
+  } finally {
+    // no-op
   }
 };
 
@@ -409,9 +373,6 @@ const saveUserEdit = async () => {
     ElMessage.success("保存成功");
     editDialog.visible = false;
     await loadUserDetail();
-  } catch (error) {
-    console.error("保存用户信息失败:", error);
-    ElMessage.error("保存用户信息失败");
   } finally {
     editDialog.loading = false;
   }
@@ -438,11 +399,8 @@ const deleteUser = async () => {
     } else {
       ElMessage.error(response?.message || "删除失败");
     }
-  } catch (error) {
-    if (error !== "cancel") {
-      console.error("删除用户失败:", error);
-      ElMessage.error("删除用户失败");
-    }
+  } finally {
+    // no-op
   }
 };
 
@@ -469,9 +427,6 @@ const loadAllRecords = async () => {
         []) as HealthRecord[];
       allRecordsDialog.total = response.data.total || 0;
     }
-  } catch (error) {
-    console.error("加载健康记录失败:", error);
-    ElMessage.error("加载健康记录失败");
   } finally {
     allRecordsDialog.loading = false;
   }
@@ -493,59 +448,66 @@ const viewDietRecords = async () => {
 const loadDietRecords = async () => {
   dietRecordsDialog.loading = true;
   try {
-    // TODO: 等待后端实现 GET /api/admin/users/:id/diet-records 接口
-    ElMessage.warning("饮食记录API接口开发中，当前显示为模拟数据");
-
-    // 模拟数据
-    const mockData = {
-      records: [
-        {
-          id: 1,
-          record_date: "2025-01-15",
-          meal_type: "breakfast",
-          food_name: "全麦面包 + 牛奶",
-          portion: 200,
-          calories: 350,
-          protein: 15,
-          fat: 8,
-          carbs: 55,
-          notes: "早餐"
-        },
-        {
-          id: 2,
-          record_date: "2025-01-15",
-          meal_type: "lunch",
-          food_name: "鸡胸肉沙拉",
-          portion: 300,
-          calories: 450,
-          protein: 35,
-          fat: 12,
-          carbs: 40,
-          notes: "午餐"
-        }
-      ],
-      total: 2
+    const params: any = {
+      id: Number(route.params.userId)
     };
 
-    dietRecordsDialog.records = mockData.records;
-    dietRecordsDialog.total = mockData.total;
-  } catch (error) {
-    console.error("加载饮食记录失败:", error);
-    ElMessage.error("加载饮食记录失败");
+    // 添加日期参数
+    if (dietRecordsDialog.startDate) {
+      params.startDate = dietRecordsDialog.startDate;
+    }
+    if (dietRecordsDialog.endDate) {
+      params.endDate = dietRecordsDialog.endDate;
+    }
+
+    params.pageSize = 500; // 假设一次性获取所有饮食记录
+
+    const response = await unwrap(getAdminUsersIdDietRecords(params));
+
+    if (response?.success && response.data) {
+      dietRecordsDialog.records = (response.data.records || []) as DietRecord[];
+    }
   } finally {
     dietRecordsDialog.loading = false;
   }
 };
 
-// 饮食记录分页变化
-const handleDietRecordsPageChange = (page: number) => {
-  dietRecordsDialog.page = page;
+// 处理饮食记录日期查询
+const handleDietDateQuery = (
+  startDate: string | null,
+  endDate: string | null
+) => {
+  dietRecordsDialog.startDate = startDate;
+  dietRecordsDialog.endDate = endDate;
   loadDietRecords();
 };
 
 // 查看活跃目标
-const viewActiveGoals = () => {
+const viewActiveGoals = async () => {
   activeGoalsDialog.visible = true;
+  await loadActiveGoals();
+};
+
+// 加载活跃目标
+const loadActiveGoals = async () => {
+  activeGoalsDialog.loading = true;
+  try {
+    const response = await unwrap(
+      getAdminUsersIdGoals({ id: Number(route.params.userId) })
+    );
+
+    if (response?.success && response.data) {
+      // 只显示活跃状态的目标
+      activeGoalsDialog.goals = response.data.filter(
+        (goal: API.UserGoal) => goal.status === "active"
+      );
+    }
+  } catch (error) {
+    console.error("获取活跃目标失败:", error);
+    ElMessage.error("获取活跃目标失败");
+  } finally {
+    activeGoalsDialog.loading = false;
+  }
 };
 
 // 查看活跃天数
@@ -579,9 +541,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
   padding: 16px 0;
-  border-bottom: 2px solid #f0f0f0;
 }
 
 .header-info {
@@ -633,7 +593,6 @@ onMounted(async () => {
     gap: 12px;
     margin-bottom: 16px;
     padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
   }
 
   .header-info h2 {

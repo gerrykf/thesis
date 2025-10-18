@@ -1,5 +1,6 @@
 import { Router, type Router as RouterType } from 'express';
 import { authenticateToken, requireRole, requireAdminClient } from '../middleware/auth';
+import { uploadAvatar as uploadMiddleware } from '../middleware/upload';
 import {
   createUser,
   getUsers,
@@ -12,6 +13,7 @@ import {
   getUserStats,
   getUserHealthStats,
   getUserHealthRecords,
+  getUserDietRecords,
   getUserRegistrationTrend,
   getUserActiveTrend,
   getHealthCheckinRate,
@@ -36,7 +38,11 @@ import {
   getRoleMenus,
   updateRoleMenus,
   // 用户角色管理
-  updateUserRole
+  updateUserRole,
+  // 用户目标管理
+  getUserGoals,
+  // 用户头像管理
+  uploadUserAvatar
 } from '../controllers/adminController';
 
 const router: RouterType = Router();
@@ -68,10 +74,13 @@ router.patch('/users/:id/toggle-status', requireRole('admin', 'super_admin'), to
 router.put('/users/:id', requireRole('admin', 'super_admin'), updateUserById);
 router.delete('/users/:id', requireRole('admin', 'super_admin'), deleteUser);
 router.put('/users/:id/role', requireRole('admin', 'super_admin'), updateUserRole);
+router.post('/users/:id/avatar', requireRole('admin', 'super_admin'), uploadMiddleware.single('avatar'), uploadUserAvatar);
 
 // 用户健康数据管理 - 需要管理员或超级管理员权限
 router.get('/users/:id/health-stats', requireRole('admin', 'super_admin'), getUserHealthStats);
 router.get('/users/:id/health-records', requireRole('admin', 'super_admin'), getUserHealthRecords);
+router.get('/users/:id/diet-records', requireRole('admin', 'super_admin'), getUserDietRecords);
+router.get('/users/:id/goals', requireRole('admin', 'super_admin'), getUserGoals);
 
 // 系统统计 - 需要管理员或超级管理员权限
 router.get('/stats/system', requireRole('admin', 'super_admin'), getSystemStats);

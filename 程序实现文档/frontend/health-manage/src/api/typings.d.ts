@@ -246,6 +246,26 @@ declare namespace API {
     period?: "day" | "week" | "month" | "quarter" | "year";
   };
 
+  type getAdminUsersIdDietRecordsParams = {
+    /** 用户ID */
+    id: number;
+    /** 页码 */
+    page?: number;
+    /** 每页条数 */
+    pageSize?: number;
+    /** 开始日期(YYYY-MM-DD) */
+    startDate?: string;
+    /** 结束日期(YYYY-MM-DD) */
+    endDate?: string;
+    /** 餐次类型 */
+    mealType?: "breakfast" | "lunch" | "dinner" | "snack";
+  };
+
+  type getAdminUsersIdGoalsParams = {
+    /** 用户ID */
+    id: number;
+  };
+
   type getAdminUsersIdHealthRecordsParams = {
     /** 用户ID */
     id: number;
@@ -278,6 +298,8 @@ declare namespace API {
     search?: string;
     /** 用户角色筛选 */
     role?: "user" | "admin";
+    /** 账号状态筛选(true:启用, false:禁用) */
+    is_active?: boolean;
     /** 创建时间开始日期(YYYY-MM-DD) */
     createdStartDate?: string;
     /** 创建时间结束日期(YYYY-MM-DD) */
@@ -465,6 +487,11 @@ declare namespace API {
   };
 
   type patchAdminUsersIdToggleStatusParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type postAdminUsersIdAvatarParams = {
     /** 用户ID */
     id: number;
   };

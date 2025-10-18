@@ -27,6 +27,7 @@ import {
   MoonNight,
   ArrowLeft
 } from "@element-plus/icons-vue";
+import { fi } from "element-plus/es/locale/index.mjs";
 
 // 注册 ECharts 组件
 use([
@@ -106,9 +107,8 @@ const loadOverview = async () => {
         avg_daily_calories: data.avg_daily_calories || 0
       };
     }
-  } catch (error) {
-    console.error("加载概览失败:", error);
-    ElMessage.error("加载概览失败");
+  } finally {
+    // no-op
   }
 };
 
@@ -172,9 +172,6 @@ const loadWeightTrend = async () => {
         ]
       };
     }
-  } catch (error) {
-    console.error("加载体重趋势失败:", error);
-    ElMessage.error("加载体重趋势失败");
   } finally {
     loading.value = false;
   }
@@ -241,9 +238,8 @@ const loadExerciseTrend = async () => {
         ]
       };
     }
-  } catch (error) {
-    console.error("加载运动趋势失败:", error);
-    ElMessage.error("加载运动趋势失败");
+  } finally {
+    // no-op
   }
 };
 
@@ -302,9 +298,8 @@ const loadSleepQuality = async () => {
         };
       }
     }
-  } catch (error) {
-    console.error("加载睡眠质量失败:", error);
-    ElMessage.error("加载睡眠质量失败");
+  } finally {
+    // no-op
   }
 };
 
@@ -368,9 +363,8 @@ const loadNutritionAnalysis = async () => {
         ]
       };
     }
-  } catch (error) {
-    console.error("加载营养分析失败:", error);
-    ElMessage.error("加载营养分析失败");
+  } finally {
+    // no-op
   }
 };
 
@@ -409,7 +403,7 @@ onMounted(() => {
   <div class="user-dashboard">
     <!-- 返回按钮 (仅在查看其他用户数据时显示) -->
     <div v-if="isViewingOtherUser" class="back-button-container">
-      <el-button type="primary" link  @click="handleGoBack">
+      <el-button type="primary" link @click="handleGoBack">
         <el-icon style="margin-right: 4px"><ArrowLeft /></el-icon>
         返回用户列表
       </el-button>

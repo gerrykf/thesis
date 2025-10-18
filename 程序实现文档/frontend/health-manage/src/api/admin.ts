@@ -600,6 +600,137 @@ export async function deleteAdminUsersId(
   );
 }
 
+/** 上传用户头像 管理员为指定用户上传头像(需要管理员权限) POST /api/admin/users/${param0}/avatar */
+export async function postAdminUsersIdAvatar(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.postAdminUsersIdAvatarParams,
+  body: {},
+  avatar?: File,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  const formData = new FormData();
+
+  if (avatar) {
+    formData.append("avatar", avatar);
+  }
+
+  Object.keys(body).forEach((ele) => {
+    const item = (body as any)[ele];
+
+    if (item !== undefined && item !== null) {
+      if (typeof item === "object" && !(item instanceof File)) {
+        if (item instanceof Array) {
+          item.forEach((f) => formData.append(ele, f || ""));
+        } else {
+          formData.append(
+            ele,
+            new Blob([JSON.stringify(item)], { type: "application/json" })
+          );
+        }
+      } else {
+        formData.append(ele, item);
+      }
+    }
+  });
+
+  return request<{
+    success?: boolean;
+    message?: string;
+    data?: { avatarUrl?: string };
+  }>(`/api/admin/users/${param0}/avatar`, {
+    method: "POST",
+    params: { ...queryParams },
+    data: formData,
+    requestType: "form",
+    ...(options || {}),
+  });
+}
+
+/** 获取用户饮食记录 获取指定用户的饮食记录列表(需要管理员权限) GET /api/admin/users/${param0}/diet-records */
+export async function getAdminUsersIdDietRecords(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminUsersIdDietRecordsParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{
+    success?: boolean;
+    data?: {
+      records?: {
+        id?: number;
+        user_id?: number;
+        food_id?: number;
+        record_date?: string;
+        meal_type?: "breakfast" | "lunch" | "dinner" | "snack";
+        meal_time?: string;
+        quantity?: number;
+        calories?: number;
+        protein?: number;
+        fat?: number;
+        carbs?: number;
+        fiber?: number;
+        sodium?: number;
+        notes?: string;
+        created_at?: string;
+        updated_at?: string;
+        food_name?: string;
+        category?: string;
+        food_calories_per_100g?: number;
+        food_protein_per_100g?: number;
+        food_fat_per_100g?: number;
+        food_carbs_per_100g?: number;
+        food_fiber_per_100g?: number;
+      }[];
+      total?: number;
+      page?: number;
+      pageSize?: number;
+    };
+  }>(`/api/admin/users/${param0}/diet-records`, {
+    method: "GET",
+    params: {
+      // page has a default value: 1
+      page: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+
+      ...queryParams,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取用户目标列表 获取指定用户的目标列表(需要管理员权限) GET /api/admin/users/${param0}/goals */
+export async function getAdminUsersIdGoals(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminUsersIdGoalsParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{
+    success?: boolean;
+    data?: {
+      id?: number;
+      user_id?: number;
+      goal_type?: "weight" | "exercise" | "calories" | "custom";
+      goal_name?: string;
+      target_value?: number;
+      current_value?: number;
+      unit?: string;
+      start_date?: string;
+      target_date?: string;
+      status?: "active" | "completed" | "paused" | "cancelled";
+      description?: string;
+      created_at?: string;
+      updated_at?: string;
+    }[];
+  }>(`/api/admin/users/${param0}/goals`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 获取用户健康记录 获取指定用户的健康记录列表(需要管理员权限) GET /api/admin/users/${param0}/health-records */
 export async function getAdminUsersIdHealthRecords(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

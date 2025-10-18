@@ -215,6 +215,11 @@ export const createUser = async (
  *           enum: [user, admin]
  *         description: 用户角色筛选
  *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: 账号状态筛选(true:启用, false:禁用)
+ *       - in: query
  *         name: createdStartDate
  *         schema:
  *           type: string
@@ -360,7 +365,7 @@ export const getUsers = async (
     });
 
     const [users] = await db.execute(
-      `SELECT u.id, u.username, u.nickname, u.email, u.phone, u.gender, u.is_active, u.created_at, u.last_login_at,
+      `SELECT u.id, u.username, u.nickname, u.email, u.phone, u.gender, u.avatar, u.is_active, u.created_at, u.last_login_at,
               r.code as role, r.id as role_id, r.name as role_name
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
@@ -1422,6 +1427,261 @@ export const getUserHealthRecords = async (
     });
   } catch (error) {
     console.error("获取用户健康记录错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/users/{id}/diet-records:
+ *   get:
+ *     summary: 获取用户饮食记录
+ *     tags: [Admin]
+ *     description: 获取指定用户的饮食记录列表(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 页码
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 每页条数
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 开始日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: 结束日期(YYYY-MM-DD)
+ *       - in: query
+ *         name: mealType
+ *         schema:
+ *           type: string
+ *           enum: [breakfast, lunch, dinner, snack]
+ *         description: 餐次类型
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     records:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           user_id:
+ *                             type: integer
+ *                           food_id:
+ *                             type: integer
+ *                           record_date:
+ *                             type: string
+ *                             format: date
+ *                           meal_type:
+ *                             type: string
+ *                             enum: [breakfast, lunch, dinner, snack]
+ *                           meal_time:
+ *                             type: string
+ *                             format: time
+ *                             nullable: true
+ *                           quantity:
+ *                             type: number
+ *                             format: decimal
+ *                           calories:
+ *                             type: number
+ *                             format: decimal
+ *                           protein:
+ *                             type: number
+ *                             format: decimal
+ *                           fat:
+ *                             type: number
+ *                             format: decimal
+ *                           carbs:
+ *                             type: number
+ *                             format: decimal
+ *                           fiber:
+ *                             type: number
+ *                             format: decimal
+ *                           sodium:
+ *                             type: number
+ *                             format: decimal
+ *                           notes:
+ *                             type: string
+ *                             nullable: true
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                           updated_at:
+ *                             type: string
+ *                             format: date-time
+ *                           food_name:
+ *                             type: string
+ *                             nullable: true
+ *                           category:
+ *                             type: string
+ *                             nullable: true
+ *                           food_calories_per_100g:
+ *                             type: number
+ *                             format: decimal
+ *                             nullable: true
+ *                           food_protein_per_100g:
+ *                             type: number
+ *                             format: decimal
+ *                             nullable: true
+ *                           food_fat_per_100g:
+ *                             type: number
+ *                             format: decimal
+ *                             nullable: true
+ *                           food_carbs_per_100g:
+ *                             type: number
+ *                             format: decimal
+ *                             nullable: true
+ *                           food_fiber_per_100g:
+ *                             type: number
+ *                             format: decimal
+ *                             nullable: true
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const getUserDietRecords = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const offset = (page - 1) * pageSize;
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
+    const mealType = req.query.mealType as string;
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute("SELECT id FROM users WHERE id = ?", [
+      userId,
+    ]);
+
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    // 构建查询 - 使用正确的字段名
+    let query = `
+      SELECT
+        dr.id,
+        dr.user_id,
+        dr.food_id,
+        dr.record_date,
+        dr.meal_type,
+        dr.meal_time,
+        dr.quantity,
+        dr.calories,
+        dr.protein,
+        dr.fat,
+        dr.carbs,
+        dr.fiber,
+        dr.sodium,
+        dr.notes,
+        dr.created_at,
+        dr.updated_at,
+        f.name as food_name,
+        f.category,
+        f.calories_per_100g as food_calories_per_100g,
+        f.protein_per_100g as food_protein_per_100g,
+        f.fat_per_100g as food_fat_per_100g,
+        f.carbs_per_100g as food_carbs_per_100g,
+        f.fiber_per_100g as food_fiber_per_100g
+      FROM diet_records dr
+      LEFT JOIN foods f ON dr.food_id = f.id
+      WHERE dr.user_id = ?
+    `;
+    let countQuery = "SELECT COUNT(*) as total FROM diet_records WHERE user_id = ?";
+    const params: any[] = [userId];
+    const countParams: any[] = [userId];
+
+    // 日期筛选
+    if (startDate) {
+      query += " AND dr.record_date >= ?";
+      countQuery += " AND record_date >= ?";
+      params.push(startDate);
+      countParams.push(startDate);
+    }
+
+    if (endDate) {
+      query += " AND dr.record_date <= ?";
+      countQuery += " AND record_date <= ?";
+      params.push(endDate);
+      countParams.push(endDate);
+    }
+
+    // 餐次筛选
+    if (mealType) {
+      query += " AND dr.meal_type = ?";
+      countQuery += " AND meal_type = ?";
+      params.push(mealType);
+      countParams.push(mealType);
+    }
+
+    query += ` ORDER BY dr.record_date DESC, dr.meal_time DESC, dr.id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+
+    const [records] = await db.execute(query, params);
+    const [countResult] = await db.execute(countQuery, countParams);
+    const total = (countResult as any[])[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        records,
+        total,
+        page,
+        pageSize,
+      },
+    });
+  } catch (error: any) {
+    console.error("获取用户饮食记录错误:", error);
     res.status(500).json({
       success: false,
       message: "服务器内部错误",
@@ -3676,6 +3936,283 @@ export const updateUserRole = async (
     });
   } catch (error) {
     console.error("修改用户角色错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/users/{id}/goals:
+ *   get:
+ *     summary: 获取用户目标列表
+ *     tags: [Admin]
+ *     description: 获取指定用户的目标列表(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: 目标ID
+ *                       user_id:
+ *                         type: integer
+ *                         description: 用户ID
+ *                       goal_type:
+ *                         type: string
+ *                         enum: [weight, exercise, calories, custom]
+ *                         description: 目标类型
+ *                       goal_name:
+ *                         type: string
+ *                         description: 目标名称
+ *                       target_value:
+ *                         type: number
+ *                         description: 目标值
+ *                       current_value:
+ *                         type: number
+ *                         description: 当前值
+ *                       unit:
+ *                         type: string
+ *                         description: 单位
+ *                       start_date:
+ *                         type: string
+ *                         format: date
+ *                         description: 开始日期
+ *                       target_date:
+ *                         type: string
+ *                         format: date
+ *                         description: 目标日期
+ *                       status:
+ *                         type: string
+ *                         enum: [active, completed, paused, cancelled]
+ *                         description: 状态
+ *                       description:
+ *                         type: string
+ *                         description: 目标描述
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       updated_at:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const getUserGoals = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute("SELECT id FROM users WHERE id = ?", [
+      userId,
+    ]);
+
+    if ((userCheck as any[]).length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    // 查询用户目标
+    const [rows] = await db.query(
+      `SELECT * FROM user_goals
+       WHERE user_id = ?
+       ORDER BY
+         CASE status
+           WHEN 'active' THEN 1
+           WHEN 'paused' THEN 2
+           WHEN 'completed' THEN 3
+           WHEN 'cancelled' THEN 4
+           ELSE 5
+         END,
+         created_at DESC`,
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error: any) {
+    console.error("获取用户目标错误:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误",
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /api/admin/users/{id}/avatar:
+ *   post:
+ *     summary: 上传用户头像
+ *     tags: [Admin]
+ *     description: 管理员为指定用户上传头像(需要管理员权限)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 用户ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatar
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: 头像文件
+ *     responses:
+ *       200:
+ *         description: 上传成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 头像上传成功
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     avatarUrl:
+ *                       type: string
+ *                       example: /uploads/avatars/1_1234567890.png
+ *       400:
+ *         description: 请求参数错误
+ *       401:
+ *         description: 未授权
+ *       403:
+ *         description: 需要管理员权限
+ *       404:
+ *         description: 用户不存在
+ *       500:
+ *         description: 服务器内部错误
+ */
+export const uploadUserAvatar = async (
+  req: any,
+  res: Response
+): Promise<void> => {
+  const fs = await import('fs');
+  const path = await import('path');
+
+  try {
+    const userId = req.params.id;
+
+    // 检查用户是否存在
+    const [userCheck] = await db.execute(
+      "SELECT id, avatar FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if ((userCheck as any[]).length === 0) {
+      // 如果用户不存在且有上传的文件，删除文件
+      if (req.file) {
+        const uploadedFilePath = req.file.path;
+        if (fs.existsSync(uploadedFilePath)) {
+          fs.unlinkSync(uploadedFilePath);
+        }
+      }
+
+      res.status(404).json({
+        success: false,
+        message: "用户不存在",
+      });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({
+        success: false,
+        message: "请上传头像文件",
+      });
+      return;
+    }
+
+    // 生成头像URL路径
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    const oldAvatar = (userCheck as any[])[0]?.avatar;
+
+    // 更新数据库中的头像路径
+    await db.execute(
+      "UPDATE users SET avatar = ? WHERE id = ?",
+      [avatarUrl, userId]
+    );
+
+    // 删除旧头像文件（如果存在且不是默认头像）
+    if (oldAvatar && oldAvatar.startsWith('/uploads/avatars/')) {
+      const oldAvatarPath = path.join(__dirname, '../../', oldAvatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        fs.unlinkSync(oldAvatarPath);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "头像上传成功",
+      data: {
+        avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error("上传用户头像错误:", error);
+
+    // 如果发生错误，删除已上传的文件
+    if (req.file) {
+      const uploadedFilePath = req.file.path;
+      if (fs.existsSync(uploadedFilePath)) {
+        fs.unlinkSync(uploadedFilePath);
+      }
+    }
+
     res.status(500).json({
       success: false,
       message: "服务器内部错误",
