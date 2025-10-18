@@ -2919,7 +2919,48 @@ export const getMenus = async (
 ): Promise<void> => {
   try {
     const userRole = req.user?.role || 'user';
+    // 查询参数：是否包含静态路由（权限树配置时需要，用户登录获取菜单时不需要）
+    const includeStatic = req.query.include_static === 'true';
+    // 查询参数：是否用于权限树（如果是，返回所有菜单；否则只返回已授权的菜单）
+    const forPermissionTree = req.query.for_permission_tree === 'true';
 
+    // 构建WHERE条件：根据include_static参数决定是否排除静态路由
+    const staticCondition = includeStatic ? '' : 'AND is_static = 0';
+
+    // 如果是用于权限树 或者 是超级管理员，直接返回所有菜单
+    // 超级管理员应该能看到和管理所有菜单
+    // 权限树需要返回所有菜单类型（包括菜单、iframe、外链、按钮），用于角色权限配置
+    if (forPermissionTree || userRole === 'super_admin') {
+      const [allMenus] = await db.execute(
+        `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
+                icon, extra_icon, enter_transition, leave_transition, active_path,
+                auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
+                show_link, show_parent, status, is_static, router_source, created_at, updated_at
+         FROM menus
+         WHERE status = 1 ${staticCondition}
+         ORDER BY \`rank\` ASC, id ASC`
+      );
+
+      // 构建树形结构
+      const buildTree = (parentId: number = 0): any[] => {
+        return (allMenus as any[])
+          .filter((menu) => menu.parent_id === parentId)
+          .map((menu) => ({
+            ...menu,
+            children: buildTree(menu.id),
+          }));
+      };
+
+      const menuTree = buildTree(0);
+
+      res.json({
+        success: true,
+        data: menuTree,
+      });
+      return;
+    }
+
+    // 以下是原有的逻辑：获取当前角色已授权的菜单
     // 获取用户角色对应的 role_id
     const [roleResult] = await db.execute(
       "SELECT id FROM roles WHERE code = ?",
@@ -2953,14 +2994,14 @@ export const getMenus = async (
       return;
     }
 
-    // 获取授权的菜单 (返回所有25个字段)
+    // 获取授权的菜单 (返回所有27个字段)
     const [menus] = await db.execute(
       `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
               icon, extra_icon, enter_transition, leave_transition, active_path,
               auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
-              show_link, show_parent, status, created_at, updated_at
+              show_link, show_parent, status, is_static, router_source, created_at, updated_at
        FROM menus
-       WHERE status = 1 AND id IN (${authorizedMenuIds.join(',')})
+       WHERE status = 1 ${staticCondition} AND id IN (${authorizedMenuIds.join(',')})
        ORDER BY \`rank\` ASC, id ASC`
     );
 
@@ -2974,15 +3015,15 @@ export const getMenus = async (
       }
     });
 
-    // 获取父级菜单
+    // 获取父级菜单（使用相同的静态路由过滤策略）
     if (parentIds.size > 0) {
       const [parentMenus] = await db.execute(
         `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
                 icon, extra_icon, enter_transition, leave_transition, active_path,
                 auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
-                show_link, show_parent, status, created_at, updated_at
+                show_link, show_parent, status, is_static, router_source, created_at, updated_at
          FROM menus
-         WHERE status = 1 AND id IN (${Array.from(parentIds).join(',')})
+         WHERE status = 1 ${staticCondition} AND id IN (${Array.from(parentIds).join(',')})
          ORDER BY \`rank\` ASC, id ASC`
       );
 
@@ -3091,14 +3132,17 @@ export const getAsyncRoutes = async (
       return;
     }
 
-    // 获取授权的菜单（只获取menu_type=0的菜单，排除按钮）
+    // 获取授权的菜单（获取目录和菜单页面，排除按钮）
+    // 获取动态路由时，所有角色都排除静态路由（is_static = 1）
+    const staticCondition = 'AND is_static = 0';
+
     const [menus] = await db.execute(
       `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
               icon, extra_icon, enter_transition, leave_transition, active_path,
               auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
-              show_link, show_parent, status
+              show_link, show_parent, status, is_static, router_source
        FROM menus
-       WHERE status = 1 AND menu_type = 0 AND id IN (${authorizedMenuIds.join(',')})
+       WHERE status = 1 AND menu_type < 3 ${staticCondition} AND id IN (${authorizedMenuIds.join(',')})
        ORDER BY \`rank\` ASC, id ASC`
     );
 
@@ -3112,15 +3156,15 @@ export const getAsyncRoutes = async (
       }
     });
 
-    // 获取父级菜单
+    // 获取父级菜单（使用相同的静态路由过滤策略）
     if (parentIds.size > 0) {
       const [parentMenus] = await db.execute(
         `SELECT id, parent_id, menu_type, title, name, path, component, \`rank\`, redirect,
                 icon, extra_icon, enter_transition, leave_transition, active_path,
                 auths, frame_src, frame_loading, keep_alive, hidden_tag, fixed_tag,
-                show_link, show_parent, status
+                show_link, show_parent, status, is_static, router_source
          FROM menus
-         WHERE status = 1 AND menu_type = 0 AND id IN (${Array.from(parentIds).join(',')})
+         WHERE status = 1 AND menu_type < 3 ${staticCondition} AND id IN (${Array.from(parentIds).join(',')})
          ORDER BY \`rank\` ASC, id ASC`
       );
 
@@ -3145,8 +3189,8 @@ export const getAsyncRoutes = async (
       };
 
       // 只有叶子节点才添加 name 和 component
-      // menu_type: 0=目录, 1=菜单, 2=按钮
-      if (menu.menu_type === 1) {
+      // menu_type: 0:菜单 1:iframe 2:外链 3:按钮
+      if (menu.menu_type === 0) {
         route.name = menu.name || menu.title;
 
         // 如果有component，添加到路由配置中（格式：system/user/index）
@@ -3331,14 +3375,8 @@ export const updateRoleMenus = async (
       return;
     }
 
-    // 不能修改内置角色的权限
-    if (['1', '2', '3'].includes(roleId)) {
-      res.status(403).json({
-        success: false,
-        message: "不能修改系统内置角色的权限",
-      });
-      return;
-    }
+    // 超级管理员可以修改任何角色的权限（包括系统内置角色）
+    // 已移除内置角色权限保护，因为超级管理员需要灵活配置权限
 
     // 检查角色是否存在
     const [roleCheck] = await db.execute(
@@ -3421,10 +3459,10 @@ export const updateRoleMenus = async (
  *               title:
  *                 type: string
  *                 description: 菜单名称
- *               type:
- *                 type: string
- *                 enum: [menu, button]
- *                 description: 菜单类型
+ *               menu_type:
+ *                 type: integer
+ *                 enum: [0, 1, 2, 3]
+ *                 description: 菜单类型 (0:菜单 1:iframe 2:外链 3:按钮)
  *               path:
  *                 type: string
  *                 description: 路径
@@ -3549,9 +3587,10 @@ export const createMenu = async (
  *                 type: integer
  *               title:
  *                 type: string
- *               type:
- *                 type: string
- *                 enum: [menu, button]
+ *               menu_type:
+ *                 type: integer
+ *                 enum: [0, 1, 2, 3]
+ *                 description: 菜单类型 (0:菜单 1:iframe 2:外链 3:按钮)
  *               path:
  *                 type: string
  *               component:

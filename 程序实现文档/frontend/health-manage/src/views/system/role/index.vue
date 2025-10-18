@@ -4,6 +4,7 @@ import { useRole } from "./utils/hooks";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { IconifyIconOffline } from "@/components/ReIcon";
+import TreeLine from "@/components/ReTreeLine";
 
 import Search from "~icons/ri/search-line";
 import Refresh from "~icons/ep/refresh";
@@ -20,6 +21,7 @@ import {
   deviceDetection,
   useResizeObserver
 } from "@pureadmin/utils";
+import type { MenuType } from "../menu/utils/types";
 
 defineOptions({
   name: "RoleManagement"
@@ -47,6 +49,17 @@ const formRef = ref();
 const tableRef = ref();
 const contentRef = ref();
 const treeHeight = ref();
+
+// 获取菜单类型的标签配置
+const getMenuTypeTag = (menuType: MenuType): any => {
+  const tagConfig = {
+    0: { label: "菜单", type: "primary" },
+    1: { label: "iframe", type: "success" },
+    2: { label: "外链", type: "info" },
+    3: { label: "按钮", type: "warning" }
+  };
+  return tagConfig[menuType] || { label: "未知", type: "" };
+};
 
 // 全选按钮的状态
 const isSelectAll = ref(false);
@@ -382,8 +395,33 @@ onMounted(() => {
           :filter-method="filterMethod"
           @check="updateSelectAllState"
         >
-          <template #default="{ node }">
-            <span>{{ node.label }}</span>
+          <template #default="{ node, data }">
+            <span class="flex items-center gap-2">
+              <!-- 静态路由标识 -->
+              <el-tag v-if="data.is_static === 1" size="small" type="info">
+                静态
+              </el-tag>
+              <!-- 菜单类型标识 (0:菜单 1:iframe 2:外链 3:按钮) -->
+              <el-tag
+                v-if="data.menu_type !== undefined"
+                size="small"
+                :type="getMenuTypeTag(data.menu_type).type"
+              >
+                {{ getMenuTypeTag(data.menu_type).label }}
+              </el-tag>
+
+              <TreeLine :node="node" :treeData="treeData" :showLabelLine="true">
+                <!-- 菜单名称 -->
+                <span>{{ node.label }}</span>
+                <!-- 路由来源标识 -->
+                <span
+                  v-if="data.router_source === 'local'"
+                  class="text-xs text-gray-400"
+                >
+                  (本地)
+                </span>
+              </TreeLine>
+            </span>
           </template>
         </el-tree-v2>
       </div>

@@ -661,58 +661,62 @@ export const getOperationLogs = async (req: AuthRequest, res: Response): Promise
     const queryParams: any[] = [];
 
     if (username) {
-      whereClause += ' AND username LIKE ?';
+      whereClause += ' AND u.username LIKE ?';
       queryParams.push(`%${username}%`);
     }
 
     if (module) {
-      whereClause += ' AND module LIKE ?';
+      whereClause += ' AND sl.module LIKE ?';
       queryParams.push(`%${module}%`);
     }
 
     if (status !== undefined && status !== '') {
-      whereClause += ' AND status = ?';
+      whereClause += ' AND sl.status = ?';
       queryParams.push(parseInt(status));
     }
 
     if (startTime) {
-      whereClause += ' AND operating_time >= ?';
+      whereClause += ' AND sl.operating_time >= ?';
       queryParams.push(startTime);
     }
 
     if (endTime) {
-      whereClause += ' AND operating_time <= ?';
+      whereClause += ' AND sl.operating_time <= ?';
       queryParams.push(endTime);
     }
 
     // 查询总数
     const [countResult] = await db.execute<RowDataPacket[]>(
-      `SELECT COUNT(*) as total FROM system_logs ${whereClause}`,
+      `SELECT COUNT(*) as total
+       FROM system_logs sl
+       LEFT JOIN users u ON sl.user_id = u.id
+       ${whereClause}`,
       queryParams
     );
     const total = countResult[0].total;
 
-    // 查询列表数据
+    // 查询列表数据（通过 JOIN users 表获取 username）
     const [rows] = await db.execute<RowDataPacket[]>(
       `SELECT
-        id,
-        user_id,
-        username,
-        module,
-        summary,
-        \`action\`,
-        ip_address,
-        address,
-        \`system\`,
-        browser,
-        status,
-        operating_time,
-        created_at
-       FROM system_logs
+        sl.id,
+        sl.user_id,
+        u.username,
+        sl.module,
+        sl.summary,
+        sl.\`action\`,
+        sl.ip_address,
+        sl.address,
+        sl.\`system\`,
+        sl.browser,
+        sl.status,
+        sl.operating_time,
+        sl.created_at
+       FROM system_logs sl
+       LEFT JOIN users u ON sl.user_id = u.id
        ${whereClause}
-       ORDER BY operating_time DESC
-       LIMIT ? OFFSET ?`,
-      [...queryParams, pageSize, offset]
+       ORDER BY sl.operating_time DESC
+       LIMIT ${pageSize} OFFSET ${offset}`,
+      queryParams
     );
 
     res.json({

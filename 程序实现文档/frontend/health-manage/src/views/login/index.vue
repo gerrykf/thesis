@@ -74,13 +74,16 @@ const onLogin = async (formEl: FormInstance | undefined) => {
 
             // 获取后端路由
             return initRouter().then(() => {
-              disabled.value = true;
-              router
-                .push(getTopMenu(true).path)
-                .then(() => {
-                  message("登录成功", { type: "success" });
-                })
-                .finally(() => (disabled.value = false));
+              // 获取用户权限列表
+              return userStore.getUserPermissions().then(() => {
+                disabled.value = true;
+                router
+                  .push(getTopMenu(true).path)
+                  .then(() => {
+                    message("登录成功", { type: "success" });
+                  })
+                  .finally(() => (disabled.value = false));
+              });
             });
           } else {
             message(res?.message || "登录失败", { type: "error" });

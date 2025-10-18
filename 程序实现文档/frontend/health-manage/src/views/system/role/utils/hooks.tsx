@@ -39,7 +39,7 @@ export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
   const isShow = ref(false); // 是否显示权限树
   const isEditMode = ref(false); // 是否处于编辑模式（控制父子联动）
   const treeSearchValue = ref(""); // 树搜索值
-  const isExpandAll = ref(false); // 是否展开所有
+  const isExpandAll = ref(true); // 是否展开所有
   const isSelectAll = ref(false); // 是否全选
   const expandedKeys = ref<number[]>([]); // 展开的节点
 
@@ -465,9 +465,15 @@ export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
 
   onMounted(async () => {
     onSearch();
-    // 加载菜单树
+    // 加载菜单树（包括静态路由和动态菜单，用于权限分配）
     try {
-      const { data } = await getAdminMenus();
+      // 添加参数：
+      // - include_static=true: 包含静态路由
+      // - for_permission_tree=true: 返回所有菜单（不受角色限制，用于权限分配）
+      const { data } = await getAdminMenus({
+        include_static: "true",
+        for_permission_tree: "true"
+      } as any);
 
       if (data && Array.isArray(data)) {
         // API返回的已经是树形结构，直接使用
@@ -476,7 +482,7 @@ export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
         // 获取所有节点ID（包括所有子节点）
         treeIds.value = getAllMenuIds(data);
 
-        console.log("menu data", data);
+        console.log("权限树菜单数据（所有菜单，包含静态路由）:", data);
         console.log("treeIds (所有节点):", treeIds.value);
         console.log("treeIds 总数:", treeIds.value.length);
       }

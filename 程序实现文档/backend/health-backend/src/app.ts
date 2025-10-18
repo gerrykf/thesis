@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 import { testConnection } from './config/database';
 import { errorHandler, notFound } from './middleware/errorHandler';
 import { requestLogger } from './middleware/logger';
+import { operationLogger } from './middleware/operationLogger';
 
 // 路由导入
 import authRoutes from './routes/authRoutes';
@@ -166,6 +167,9 @@ app.use('/api', (req, res, next) => {
   console.log(`API请求: ${req.method} ${req.originalUrl}`);
   next();
 });
+
+// 操作日志中间件（自动记录所有管理端操作）
+app.use(operationLogger);
 
 // API路由
 app.use('/api/auth', authRoutes);

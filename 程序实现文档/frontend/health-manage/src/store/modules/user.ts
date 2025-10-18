@@ -159,12 +159,13 @@ export const useUserStore = defineStore("pure-user", {
             if (response && response.data) {
               const menus = response.data;
 
-              // 提取所有权限标识
+              // 提取所有权限标识（从 auths 字段）
               const permissions: string[] = [];
               const extractPermissions = (menuList: any[]) => {
                 menuList.forEach(menu => {
-                  if (menu.permission) {
-                    permissions.push(menu.permission);
+                  // 权限标识存储在 auths 字段中
+                  if (menu.auths) {
+                    permissions.push(menu.auths);
                   }
                   if (menu.children && menu.children.length > 0) {
                     extractPermissions(menu.children);

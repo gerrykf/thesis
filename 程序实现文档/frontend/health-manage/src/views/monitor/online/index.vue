@@ -58,11 +58,7 @@ const {
       </el-form-item>
     </el-form>
 
-    <PureTableBar
-      title="在线用户列表"
-      :columns="columns"
-      @refresh="onSearch"
-    >
+    <PureTableBar title="在线用户列表" :columns="columns" @refresh="onSearch">
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
           align-whole="center"
