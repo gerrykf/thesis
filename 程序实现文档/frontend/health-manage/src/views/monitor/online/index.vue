@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useOnlineUsers } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { OnlinePermission } from "@/utils/rbac";
 
 import Plane from "~icons/ri/plane-line";
 import Refresh from "~icons/ep/refresh";
@@ -98,6 +99,7 @@ const {
             >
               <template #reference>
                 <el-button
+                  v-perms="[OnlinePermission.FORCE_LOGOUT]"
                   class="reset-margin"
                   link
                   type="primary"

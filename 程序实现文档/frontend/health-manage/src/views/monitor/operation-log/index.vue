@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useOperationLogs } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { OperationLogPermission } from "@/utils/rbac";
 
 import Delete from "~icons/ep/delete";
 import Refresh from "~icons/ep/refresh";
@@ -129,7 +130,11 @@ const getPickerShortcuts = () => {
       <template #buttons>
         <el-popconfirm title="确定要删除所有日志数据吗？" @confirm="clearAll">
           <template #reference>
-            <el-button type="danger" :icon="useRenderIcon(Delete)">
+            <el-button
+              v-perms="[OperationLogPermission.CLEAR_ALL]"
+              type="danger"
+              :icon="useRenderIcon(Delete)"
+            >
               清空日志
             </el-button>
           </template>
@@ -138,6 +143,7 @@ const getPickerShortcuts = () => {
       <template v-slot="{ size, dynamicColumns }">
         <div
           v-if="selectedNum > 0"
+          v-perms="[OperationLogPermission.PATCH]"
           v-motion-fade
           class="bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center"
         >

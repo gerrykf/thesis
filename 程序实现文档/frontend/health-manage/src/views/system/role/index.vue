@@ -5,6 +5,7 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { IconifyIconOffline } from "@/components/ReIcon";
 import TreeLine from "@/components/ReTreeLine";
+import { RolePermission } from "@/utils/rbac";
 
 import Search from "~icons/ri/search-line";
 import Refresh from "~icons/ep/refresh";
@@ -223,6 +224,7 @@ onMounted(() => {
       >
         <template #buttons>
           <el-button
+            v-perms="[RolePermission.ADD]"
             type="primary"
             :icon="useRenderIcon(AddFill)"
             @click="openDialog()"
@@ -254,6 +256,7 @@ onMounted(() => {
           >
             <template #operation="{ row }">
               <el-button
+                v-perms="[RolePermission.EDIT]"
                 class="reset-margin"
                 link
                 type="primary"
@@ -269,6 +272,7 @@ onMounted(() => {
               >
                 <template #reference>
                   <el-button
+                    v-perms="[RolePermission.DELETE]"
                     class="reset-margin"
                     link
                     type="primary"
@@ -280,6 +284,7 @@ onMounted(() => {
                 </template>
               </el-popconfirm>
               <el-button
+                v-perms="[RolePermission.PERMISSION]"
                 class="reset-margin"
                 link
                 type="primary"
@@ -397,10 +402,6 @@ onMounted(() => {
         >
           <template #default="{ node, data }">
             <span class="flex items-center gap-2">
-              <!-- 静态路由标识 -->
-              <el-tag v-if="data.is_static === 1" size="small" type="info">
-                静态
-              </el-tag>
               <!-- 菜单类型标识 (0:菜单 1:iframe 2:外链 3:按钮) -->
               <el-tag
                 v-if="data.menu_type !== undefined"
@@ -415,10 +416,10 @@ onMounted(() => {
                 <span>{{ node.label }}</span>
                 <!-- 路由来源标识 -->
                 <span
-                  v-if="data.router_source === 'local'"
+                  v-if="data.is_static === 1 && data.menu_type === 0"
                   class="text-xs text-gray-400"
                 >
-                  (本地)
+                  (静态)
                 </span>
               </TreeLine>
             </span>

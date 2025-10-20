@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useMenu } from "./utils/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { MenuPermission } from "@/utils/rbac";
 
 import Delete from "~icons/ep/delete";
 import EditPen from "~icons/ep/edit-pen";
@@ -74,6 +75,7 @@ function onFullscreen() {
     >
       <template #buttons>
         <el-button
+          v-perms="[MenuPermission.ADD_MENU]"
           type="primary"
           :icon="useRenderIcon(AddFill)"
           @click="openDialog()"
@@ -102,6 +104,7 @@ function onFullscreen() {
         >
           <template #operation="{ row }">
             <el-button
+              v-perms="[MenuPermission.EDIT]"
               class="reset-margin"
               link
               type="primary"
@@ -112,6 +115,8 @@ function onFullscreen() {
               修改
             </el-button>
             <el-button
+              v-if="row.menu_type !== 3"
+              v-perms="[MenuPermission.ADD]"
               class="reset-margin"
               link
               type="primary"
@@ -127,6 +132,7 @@ function onFullscreen() {
             >
               <template #reference>
                 <el-button
+                  v-perms="[MenuPermission.DELETE]"
                   class="reset-margin"
                   link
                   type="primary"

@@ -59,8 +59,8 @@
     <!-- 编辑用户对话框 -->
     <EditUserDialog
       v-model:visible="editDialog.visible"
+      v-model:form-values="editDialog.form"
       :loading="editDialog.loading"
-      :form="editDialog.form"
       :is-admin="isAdmin"
       :is-super-admin="isSuperAdmin"
       :is-editing-user-super-admin="isEditingUserSuperAdmin"

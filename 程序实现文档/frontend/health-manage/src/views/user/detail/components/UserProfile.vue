@@ -6,30 +6,33 @@
         <!-- 操作按钮组 -->
         <div class="action-buttons-header">
           <el-button
+            v-perms="[UserPermission.EDIT]"
+            size="small"
             type="primary"
             :icon="Edit"
             @click="$emit('edit-user')"
-            size="small"
           >
             编辑
           </el-button>
           <el-button
+            v-perms="[UserPermission.DISABLE]"
+            size="small"
             :type="userInfo.is_active ? 'warning' : 'success'"
             :icon="userInfo.is_active ? Lock : Unlock"
             :disabled="
               userInfo.role === 'admin' && userInfo.id === currentUserId
             "
             @click="$emit('toggle-status')"
-            size="small"
           >
             {{ userInfo.is_active ? "禁用" : "启用" }}
           </el-button>
           <el-button
+            v-perms="[UserPermission.DELETE]"
+            size="small"
             type="danger"
             :icon="Delete"
             :disabled="userInfo.role === 'admin'"
             @click="$emit('delete-user')"
-            size="small"
           >
             删除
           </el-button>
@@ -142,6 +145,7 @@ import type { UploadProps } from "element-plus";
 import type { UserInfo } from "../utils/types";
 import { formatDate, formatDateTime, getGenderText } from "../utils/helpers";
 import { getToken } from "@/utils/auth";
+import { UserPermission } from "@/utils/rbac";
 
 defineOptions({
   name: "UserProfile"
@@ -165,7 +169,9 @@ const windowWidth = ref(
 );
 
 // 上传配置 - 使用管理员专用接口
-const uploadAction = computed(() => `/api/admin/users/${props.userInfo.id}/avatar`);
+const uploadAction = computed(
+  () => `/api/admin/users/${props.userInfo.id}/avatar`
+);
 const uploadHeaders = computed(() => {
   const tokenData = getToken();
   return {
@@ -220,7 +226,7 @@ const descriptionColumn = computed(() => {
   if (width < 768) return 1; // 小平板：1列
   if (width < 992) return 2; // 平板：2列
   if (width < 1200) return 2; // 小桌面：2列
-  return; // 大桌面：3列
+  return 3; // 大桌面：3列
 });
 
 // 监听窗口大小变化

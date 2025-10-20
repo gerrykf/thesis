@@ -107,6 +107,7 @@
         >
           <template #default="{ row }">
             <el-button
+              v-perms="[FoodPermission.EDIT]"
               type="primary"
               size="small"
               :icon="Edit"
@@ -115,6 +116,7 @@
               编辑
             </el-button>
             <el-button
+              v-perms="[FoodPermission.DELETE]"
               type="danger"
               size="small"
               :icon="Delete"

@@ -18,11 +18,13 @@ export {
 // 导出权限相关
 export {
   HomePermission,
-  HealthPermission,
   FoodPermission,
-  DietPermission,
   UserPermission,
   RolePermission,
+  MenuPermission,
+  OnlinePermission,
+  LoginLogPermission,
+  OperationLogPermission,
   PermissionGroups,
   PermissionDescriptions,
   isPermissionInGroup,

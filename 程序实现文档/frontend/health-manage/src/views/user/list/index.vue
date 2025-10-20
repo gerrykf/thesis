@@ -80,7 +80,12 @@
           <span>用户列表</span>
           <div class="card-header-actions">
             <!-- v-perms="['user:add']" -->
-            <el-button type="success" :icon="Plus" @click="showAddUserDialog">
+            <el-button
+              v-perms="[UserPermission.ADD]"
+              type="success"
+              :icon="Plus"
+              @click="showAddUserDialog"
+            >
               添加用户
             </el-button>
             <el-button type="primary" :icon="Refresh" @click="loadUserList">
@@ -157,6 +162,7 @@
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <el-button
+              v-perms="[UserPermission.VIEW]"
               type="primary"
               size="small"
               :icon="View"
@@ -165,7 +171,7 @@
               查看
             </el-button>
             <el-button
-              v-if="isAdmin || isSuperAdmin"
+              v-perms="[UserPermission.DASHBOARD]"
               type="success"
               size="small"
               @click="viewUserAnalysis(row.id)"
@@ -173,6 +179,7 @@
               分析
             </el-button>
             <el-button
+              v-perms="[UserPermission.DISABLE]"
               :type="row.is_active ? 'warning' : 'success'"
               size="small"
               :disabled="row.role === 'admin' && row.id === currentUserId"
@@ -360,6 +367,7 @@ import {
 } from "../utils";
 import { postAdminUsers, getAdminRoles } from "@/api/admin";
 import { unwrap } from "@/utils/api";
+import { UserPermission } from "@/utils/rbac";
 
 defineOptions({
   name: "UserList"

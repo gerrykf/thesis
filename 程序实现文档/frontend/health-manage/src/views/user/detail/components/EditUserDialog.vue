@@ -10,24 +10,28 @@
   >
     <el-form
       ref="formRef"
-      :model="form"
+      :model="formInline"
       label-width="120px"
       :disabled="loading"
       class="edit-form"
     >
       <el-form-item label="昵称">
-        <el-input v-model="form.nickname" placeholder="请输入昵称" />
+        <el-input v-model="formInline.nickname" placeholder="请输入昵称" />
       </el-form-item>
       <el-form-item label="邮箱">
-        <el-input v-model="form.email" placeholder="请输入邮箱" type="email" />
+        <el-input
+          v-model="formInline.email"
+          placeholder="请输入邮箱"
+          type="email"
+        />
       </el-form-item>
       <el-form-item label="手机号">
-        <el-input v-model="form.phone" placeholder="请输入手机号" />
+        <el-input v-model="formInline.phone" placeholder="请输入手机号" />
       </el-form-item>
       <!-- 只有管理员和超级管理员才能看到角色选择框 -->
       <el-form-item v-if="isAdmin || isSuperAdmin" label="用户角色">
         <el-select
-          v-model="form.role_id"
+          v-model="formInline.role_id"
           placeholder="请选择角色"
           style="width: 100%"
           :disabled="isEditingUserSuperAdmin"
@@ -58,14 +62,14 @@
         </div>
       </el-form-item>
       <el-form-item label="性别">
-        <el-radio-group v-model="form.gender">
+        <el-radio-group v-model="formInline.gender">
           <el-radio label="male">男</el-radio>
           <el-radio label="female">女</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="生日">
         <el-date-picker
-          v-model="form.birth_date"
+          v-model="formInline.birth_date"
           type="date"
           placeholder="选择日期"
           style="width: 100%"
@@ -75,7 +79,7 @@
       </el-form-item>
       <el-form-item label="身高(cm)">
         <el-input-number
-          v-model="form.height"
+          v-model="formInline.height"
           :min="0"
           :max="300"
           :step="1"
@@ -84,7 +88,7 @@
       </el-form-item>
       <el-form-item label="目标体重(kg)">
         <el-input-number
-          v-model="form.target_weight"
+          v-model="formInline.target_weight"
           :min="0"
           :max="500"
           :step="0.1"
@@ -106,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type { EditUserForm, RoleOption } from "../utils/types";
 
 defineOptions({
@@ -116,7 +120,6 @@ defineOptions({
 defineProps<{
   visible: boolean;
   loading: boolean;
-  form: EditUserForm;
   isAdmin: boolean;
   isSuperAdmin: boolean;
   isEditingUserSuperAdmin: boolean;
@@ -127,6 +130,8 @@ defineEmits<{
   "update:visible": [value: boolean];
   submit: [];
 }>();
+
+const formInline = defineModel<EditUserForm>("formValues");
 
 // 检测是否为移动端
 const isMobile = computed(() => {

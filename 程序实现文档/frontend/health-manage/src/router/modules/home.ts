@@ -1,3 +1,5 @@
+import { HomePermission } from "@/utils/rbac";
+
 const { VITE_HIDE_HOME } = import.meta.env;
 const Layout = () => import("@/layout/index.vue");
 
@@ -18,7 +20,8 @@ export default {
       component: () => import("@/views/dashboard/index.vue"),
       meta: {
         title: "数据趋势",
-        showLink: VITE_HIDE_HOME === "true" ? false : true
+        showLink: VITE_HIDE_HOME === "true" ? false : true,
+        auths: [HomePermission.DASHBOARD]
       }
     }
     // {
