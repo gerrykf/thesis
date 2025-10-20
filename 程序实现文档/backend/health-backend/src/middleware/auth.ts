@@ -35,6 +35,22 @@ export const authenticateToken = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
     console.log('[Auth] Token 解码成功, userId:', decoded.userId);
 
+    // 检查 token 是否在黑名单中
+    const [blacklistRows] = await db.execute(
+      'SELECT id FROM token_blacklist WHERE token = ? AND expires_at > NOW()',
+      [token]
+    );
+
+    const blacklistTokens = blacklistRows as any[];
+    if (blacklistTokens.length > 0) {
+      console.log('[Auth] Token 在黑名单中，用户已被强制下线');
+      res.status(401).json({
+        success: false,
+        message: '您的账号已被强制下线，请重新登录'
+      });
+      return;
+    }
+
     // 验证用户是否存在且激活
     const [rows] = await db.execute(
       'SELECT id, username, role, is_active FROM users WHERE id = ?',

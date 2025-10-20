@@ -101,12 +101,33 @@ request.interceptors.response.use(
 
       switch (status) {
         case 401:
-          ElMessage.error("未授权，请重新登录");
-          // 清除本地存储
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          // 跳转到登录页
-          window.location.href = "/login";
+          // 检查是否是强制下线消息
+          const message = data?.message || "未授权，请重新登录";
+          if (message.includes("强制下线") || message.includes("已被")) {
+            ElMessage.error({
+              message: message,
+              duration: 3000,
+              showClose: true
+            });
+          } else {
+            ElMessage.error(message);
+          }
+
+          // 清除所有本地存储
+          localStorage.clear();
+          sessionStorage.clear();
+
+          // 清除 cookie 中的 token（如果有）
+          document.cookie.split(";").forEach(c => {
+            document.cookie = c
+              .replace(/^ +/, "")
+              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+          });
+
+          // 延迟跳转，让用户看到提示消息
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
           break;
         case 403:
           ElMessage.error("拒绝访问");

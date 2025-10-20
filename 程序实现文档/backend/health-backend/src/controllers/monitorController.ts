@@ -127,8 +127,8 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
        FROM online_users
        ${whereClause}
        ORDER BY login_time DESC
-       LIMIT ? OFFSET ?`,
-      [...queryParams, pageSize, offset]
+       LIMIT ${pageSize} OFFSET ${offset}`,
+      queryParams
     );
 
     res.json({
@@ -190,19 +190,34 @@ export const forceOfflineUser = async (req: AuthRequest, res: Response): Promise
   try {
     const { id } = req.params;
 
-    // 删除在线用户记录
-    const [result] = await db.execute<ResultSetHeader>(
-      'DELETE FROM online_users WHERE id = ?',
+    // 先查询在线用户信息，获取 token
+    const [rows] = await db.execute<RowDataPacket[]>(
+      'SELECT user_id, token, expires_at FROM online_users WHERE id = ?',
       [id]
     );
 
-    if (result.affectedRows === 0) {
+    if (rows.length === 0) {
       res.status(404).json({
         success: false,
         message: '在线用户不存在'
       });
       return;
     }
+
+    const onlineUser = rows[0];
+
+    // 将 token 加入黑名单
+    await db.execute(
+      `INSERT INTO token_blacklist (token, user_id, reason, expires_at)
+       VALUES (?, ?, '管理员强制下线', ?)`,
+      [onlineUser.token, onlineUser.user_id, onlineUser.expires_at]
+    );
+
+    // 删除在线用户记录
+    await db.execute(
+      'DELETE FROM online_users WHERE id = ?',
+      [id]
+    );
 
     res.json({
       success: true,

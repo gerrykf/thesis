@@ -456,8 +456,35 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       { expiresIn: (process.env.JWT_EXPIRES_IN as any) || "7d" }
     );
 
+    // 计算令牌过期时间 (默认7天)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
     // 记录登录成功日志
     await recordLoginLog(user.id, username, 1, '登录', null);
+
+    // 获取地址信息
+    const address = await getAddressFromIP(ipAddress);
+
+    // 记录在线用户
+    try {
+      // 先删除该用户的旧在线记录
+      await db.execute(
+        'DELETE FROM online_users WHERE user_id = ?',
+        [user.id]
+      );
+
+      // 插入新的在线用户记录
+      await db.execute(
+        `INSERT INTO online_users (
+          user_id, username, token, ip, address, \`system\`, browser,
+          login_time, last_active_time, expires_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
+        [user.id, username, token, ipAddress, address, system, browser, expiresAt]
+      );
+    } catch (error) {
+      console.error('记录在线用户失败:', error);
+      // 不影响登录流程
+    }
 
     // 返回用户信息（不包含密码）
     const { password: _, ...userWithoutPassword } = user;

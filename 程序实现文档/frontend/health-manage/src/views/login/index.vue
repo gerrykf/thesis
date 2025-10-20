@@ -21,6 +21,7 @@ import { ReImageVerify } from "@/components/ReImageVerify";
 import { ref, toRaw, reactive, watch, computed } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { startHeartbeat } from "@/utils/heartbeat";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -77,6 +78,10 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               // 获取用户权限列表
               return userStore.getUserPermissions().then(() => {
                 disabled.value = true;
+
+                // 启动心跳检测
+                startHeartbeat(30000); // 每30秒检测一次
+
                 router
                   .push(getTopMenu(true).path)
                   .then(() => {

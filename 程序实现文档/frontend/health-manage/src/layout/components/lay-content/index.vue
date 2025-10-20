@@ -207,7 +207,21 @@ const transitionMain = defineComponent({
   width: 100%;
 }
 
-.main-content {
-  margin: 24px;
+@media (max-width: 1200px) {
+  .main-content {
+    margin: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    margin: 8px;
+  }
 }
 </style>
