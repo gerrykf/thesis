@@ -100,14 +100,14 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
     let whereClause = 'WHERE expires_at > NOW()'; // 只显示未过期的在线用户
     const queryParams: any[] = [];
 
-    if (username) {
+    if (username && username.trim()) {
       whereClause += ' AND username LIKE ?';
-      queryParams.push(`%${username}%`);
+      queryParams.push(`%${username.trim()}%`);
     }
 
-    if (clientType) {
+    if (clientType && clientType.trim()) {
       whereClause += ' AND client_type = ?';
-      queryParams.push(clientType);
+      queryParams.push(clientType.trim());
     }
 
     // 查询总数
@@ -115,7 +115,7 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
       `SELECT COUNT(*) as total FROM online_users ${whereClause}`,
       queryParams
     );
-    const total = countResult[0].total;
+    const total = (countResult && countResult[0]) ? countResult[0].total : 0;
 
     // 查询列表数据
     const [rows] = await db.execute<RowDataPacket[]>(
@@ -141,8 +141,8 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
     res.json({
       success: true,
       data: {
-        list: rows,
-        total,
+        list: rows || [],
+        total: total || 0,
         page,
         pageSize
       }

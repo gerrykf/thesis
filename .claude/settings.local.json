@@ -109,7 +109,17 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYzLCJ1c2VybmFtZSI6InRlc3QwMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwOTM0MTY3LCJleHAiOjE3NjE1Mzg5Njd9.sYNXvqQMmlFMPh0jun2W77G6iqtZX5Ll72HrEylRTgQ\")",
       "Bash(echo \"=== 测试获取test01的菜单权限 ===\" curl -s \"http://localhost:3000/api/admin/menus\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
       "Bash(echo \"=== 1. 测试权限树接口（应包含静态路由）===\" curl -s \"http://localhost:3000/api/admin/menus?include_static=true&for_permission_tree=true\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
-      "Bash(__NEW_LINE__ curl -s \"http://localhost:3000/api/admin/menus?include_static=true&for_permission_tree=true\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")"
+      "Bash(__NEW_LINE__ curl -s \"http://localhost:3000/api/admin/menus?include_static=true&for_permission_tree=true\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(grep -E \"^CREATE TABLE|^  \\`\" /Users/gerry/LearnSpace/thesis/程序实现文档/db/health_management.sql)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc3Mzc2NywiZXhwIjoxNzYxMzc4NTY3fQ.SFIQUsMbpInjjj2X2fghucga7i6DDFQAaGZKwklVzS4\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=10\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDk0OTU2NSwiZXhwIjoxNzYxNTU0MzY1fQ.wW40LkdnINzACaMsN5QmBBQ5COIp78zRpeZuK-J3pVs\")",
+      "Bash(echo \"=== 测试1: 正常请求在线用户列表 ===\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=5\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(echo \"\" echo \"=== 测试2: 使用用户名筛选（不存在的用户，应返回空列表） ===\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=5&username=不存在的用户xyz\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(echo \"\" echo \"=== 测试3: 使用客户端类型筛选 ===\" curl -s \"http://localhost:3000/api/monitor/online-users?page=1&pageSize=5&client_type=admin\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\")",
+      "Bash(__NEW_LINE__ echo \"=== 测试2: 使用不存在的用户名筛选（应返回空列表而不是500错误） ===\")",
+      "Bash(__NEW_LINE__ echo \"=== 测试: 查询不存在的用户（英文） ===\")",
+      "Bash(__NEW_LINE__ echo \"=== 测试在线用户列表 ===\")",
+      "Bash(__NEW_LINE__ echo \"=== 测试1: 在线用户 - 不存在的username ===\")"
     ],
     "deny": [],
     "ask": []
