@@ -23,6 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 删除表（按依赖关系倒序删除）
 DROP TABLE IF EXISTS login_logs;
 DROP TABLE IF EXISTS online_users;
+DROP TABLE IF EXISTS token_blacklist;
 DROP TABLE IF EXISTS system_logs;
 DROP TABLE IF EXISTS user_goals;
 DROP TABLE IF EXISTS diet_records;
@@ -115,6 +116,8 @@ CREATE TABLE IF NOT EXISTS menus (
     show_link TINYINT DEFAULT 1 COMMENT '是否显示 0:隐藏 1:显示',
     show_parent TINYINT DEFAULT 0 COMMENT '是否显示父级 0:不显示 1:显示',
     status TINYINT DEFAULT 1 COMMENT '状态 0:禁用 1:启用',
+    is_static TINYINT DEFAULT 0 COMMENT '是否为静态路由 0:动态菜单 1:静态路由',
+    router_source VARCHAR(20) DEFAULT 'database' COMMENT '路由来源 local:本地静态路由 database:数据库动态路由',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
@@ -380,6 +383,7 @@ CREATE TABLE IF NOT EXISTS online_users (
     id INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     user_id INT NOT NULL COMMENT '用户ID',
     username VARCHAR(50) NOT NULL COMMENT '用户名',
+    client_type VARCHAR(20) NOT NULL DEFAULT 'h5' COMMENT '客户端类型: h5-前台, admin-后台',
     token VARCHAR(500) NOT NULL COMMENT 'JWT Token',
     ip VARCHAR(45) NOT NULL COMMENT '登录IP地址',
     address VARCHAR(200) NULL COMMENT '登录地点',
@@ -392,11 +396,29 @@ CREATE TABLE IF NOT EXISTS online_users (
     UNIQUE KEY uk_token (token(255)),
     INDEX idx_user_id (user_id),
     INDEX idx_username (username),
+    INDEX idx_client_type (client_type),
     INDEX idx_ip (ip),
     INDEX idx_expires_at (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='在线用户表';
+
 -- ================================
--- 13. 初始化菜单权限数据
+-- 13. 创建Token黑名单表 (token_blacklist)
+-- ================================
+CREATE TABLE IF NOT EXISTS token_blacklist (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+    token VARCHAR(500) NOT NULL COMMENT '被拉黑的JWT Token',
+    user_id INT NOT NULL COMMENT '用户ID',
+    reason VARCHAR(200) DEFAULT '强制下线' COMMENT '拉黑原因',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    expires_at TIMESTAMP NOT NULL COMMENT 'Token过期时间',
+
+    INDEX idx_token (token(255)),
+    INDEX idx_user_id (user_id),
+    INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Token黑名单表';
+
+-- ================================
+-- 14. 初始化菜单权限数据
 -- ================================
 
 -- 一级菜单
