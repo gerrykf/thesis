@@ -380,8 +380,8 @@ export const getLoginLogs = async (req: AuthRequest, res: Response): Promise<voi
        FROM login_logs
        ${whereClause}
        ORDER BY login_time DESC
-       LIMIT ? OFFSET ?`,
-      [...queryParams, pageSize, offset]
+       LIMIT ${pageSize} OFFSET ${offset}`,
+      queryParams
     );
 
     res.json({

@@ -1,7 +1,10 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
-import { getOnlineUsers, forceOfflineUser } from "@/api/monitor";
+import {
+  getMonitorOnlineUsers as getOnlineUsers,
+  deleteMonitorOnlineUsersId as forceOfflineUser
+} from "@/api/monitor";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 
@@ -79,7 +82,7 @@ export function useOnlineUsers() {
 
   async function handleOffline(row) {
     try {
-      await forceOfflineUser(row.id);
+      await forceOfflineUser({ id: row.id });
       message(`${row.username}已被强制下线`, { type: "success" });
       onSearch();
     } catch (error) {

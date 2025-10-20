@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { db } from "../config/database";
 import { AuthRequest } from "../middleware/auth";
+import { getAddressFromIP } from "../utils/ipAddress";
 import path from "path";
 import fs from "fs";
 
@@ -325,6 +326,50 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  *         description: 服务器内部错误
  */
 export const login = async (req: Request, res: Response): Promise<void> => {
+  // 提取请求信息用于登录日志
+  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '未知';
+  const userAgent = req.headers['user-agent'] || '';
+
+  // 提取系统和浏览器信息
+  let system = '未知';
+  let browser = '未知';
+  if (userAgent) {
+    if (userAgent.includes('Windows')) system = 'Windows';
+    else if (userAgent.includes('Mac')) system = 'MacOS';
+    else if (userAgent.includes('Linux')) system = 'Linux';
+    else if (userAgent.includes('Android')) system = 'Android';
+    else if (userAgent.includes('iOS')) system = 'iOS';
+
+    if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) browser = 'Chrome';
+    else if (userAgent.includes('Firefox')) browser = 'Firefox';
+    else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browser = 'Safari';
+    else if (userAgent.includes('Edge')) browser = 'Edge';
+  }
+
+  // 记录登录日志的辅助函数
+  const recordLoginLog = async (
+    userId: number | null,
+    username: string,
+    status: number,
+    behavior: string,
+    errorMessage: string | null = null
+  ) => {
+    try {
+      // 获取 IP 地址对应的地理位置
+      const address = await getAddressFromIP(ipAddress);
+
+      await db.execute(
+        `INSERT INTO login_logs (
+          user_id, username, ip, address, \`system\`, browser,
+          status, behavior, error_message, login_time
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [userId, username, ipAddress, address, system, browser, status, behavior, errorMessage]
+      );
+    } catch (error) {
+      console.error('记录登录日志失败:', error);
+    }
+  };
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -346,6 +391,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const users = rows as any[];
     if (users.length === 0) {
+      // 记录登录失败日志
+      await recordLoginLog(null, username, 0, '登录', '用户名不存在');
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -357,6 +404,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 检查账号是否被禁用
     if (!user.is_active) {
+      // 记录登录失败日志
+      await recordLoginLog(user.id, username, 0, '登录', '账号已被禁用');
       res.status(401).json({
         success: false,
         message: "账号已被禁用，请联系管理员",
@@ -367,6 +416,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 验证密码
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      // 记录登录失败日志
+      await recordLoginLog(user.id, username, 0, '登录', '密码错误');
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -404,6 +455,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       process.env.JWT_SECRET as string,
       { expiresIn: (process.env.JWT_EXPIRES_IN as any) || "7d" }
     );
+
+    // 记录登录成功日志
+    await recordLoginLog(user.id, username, 1, '登录', null);
 
     // 返回用户信息（不包含密码）
     const { password: _, ...userWithoutPassword } = user;

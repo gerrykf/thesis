@@ -3,9 +3,9 @@ import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
 import { getKeyList } from "@pureadmin/utils";
 import {
-  getLoginLogs,
-  batchDeleteLoginLogs,
-  clearAllLoginLogs
+  getMonitorLoginLogs as getLoginLogs,
+  postMonitorLoginLogsBatchDelete as batchDeleteLoginLogs,
+  deleteMonitorLoginLogsClear as clearAllLoginLogs
 } from "@/api/monitor";
 import { usePublicHooks } from "@/views/system/hooks";
 import type { PaginationProps } from "@pureadmin/table";
