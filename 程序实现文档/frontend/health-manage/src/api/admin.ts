@@ -135,9 +135,16 @@ export async function getAdminLogs(
 }
 
 /** 获取所有菜单 获取所有菜单列表（树形结构）(需要超级管理员权限) GET /api/admin/menus */
-export async function getAdminMenus(options?: { [key: string]: any }) {
+export async function getAdminMenus(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdminMenusParams,
+  options?: { [key: string]: any }
+) {
   return request<any>("/api/admin/menus", {
     method: "GET",
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
@@ -149,8 +156,8 @@ export async function postAdminMenus(
     parent_id?: number;
     /** 菜单名称 */
     title: string;
-    /** 菜单类型 */
-    type: "menu" | "button";
+    /** 菜单类型 (0:菜单 1:iframe 2:外链 3:按钮) */
+    menu_type?: 0 | 1 | 2 | 3;
     /** 路径 */
     path?: string;
     /** 组件路径 */
@@ -183,7 +190,8 @@ export async function putAdminMenusId(
   body: {
     parent_id?: number;
     title?: string;
-    type?: "menu" | "button";
+    /** 菜单类型 (0:菜单 1:iframe 2:外链 3:按钮) */
+    menu_type?: 0 | 1 | 2 | 3;
     path?: string;
     component?: string;
     icon?: string;

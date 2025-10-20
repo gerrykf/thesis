@@ -75,6 +75,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
 
             // 获取后端路由
             return initRouter().then(() => {
+              debugger;
               // 获取用户权限列表
               return userStore.getUserPermissions().then(() => {
                 disabled.value = true;

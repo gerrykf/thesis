@@ -471,9 +471,9 @@ export function useRole(treeRef: Ref, updateSelectAllState?: () => void) {
       // - include_static=true: 包含静态路由
       // - for_permission_tree=true: 返回所有菜单（不受角色限制，用于权限分配）
       const { data } = await getAdminMenus({
-        include_static: "true",
-        for_permission_tree: "true"
-      } as any);
+        include_static: true,
+        for_permission_tree: true
+      });
 
       if (data && Array.isArray(data)) {
         // API返回的已经是树形结构，直接使用

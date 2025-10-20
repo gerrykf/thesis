@@ -119,9 +119,12 @@ export const useUserStore = defineStore("pure-user", {
                 username: response.data.user?.username || "",
                 nickname: response.data.user?.nickname || "",
                 roles: [response.data.user?.role || "admin"], // 临时设为admin测试菜单
-                permissions: []
+                permissions: response.data.user?.permissions || [] // 从登录响应中获取权限列表
               };
               setToken(tokenData);
+
+              // 更新 store 中的权限信息
+              this.SET_PERMS(response.data.user?.permissions || []);
 
               // 构造返回数据格式
               const userResult: UserResult = {
@@ -154,19 +157,15 @@ export const useUserStore = defineStore("pure-user", {
     /** 获取用户权限菜单 */
     async getUserPermissions() {
       return new Promise<any>((resolve, reject) => {
-        getAdminMenus()
+        getAdminMenus({})
           .then(response => {
             if (response && response.data) {
               const menus = response.data;
 
               // 提取所有权限标识（从 auths 字段）
-              const permissions: string[] = [];
               const extractPermissions = (menuList: any[]) => {
                 menuList.forEach(menu => {
                   // 权限标识存储在 auths 字段中
-                  if (menu.auths) {
-                    permissions.push(menu.auths);
-                  }
                   if (menu.children && menu.children.length > 0) {
                     extractPermissions(menu.children);
                   }
@@ -176,17 +175,15 @@ export const useUserStore = defineStore("pure-user", {
 
               // 存储到 store 和 localStorage
               this.SET_USER_MENUS(menus);
-              this.SET_PERMS(permissions);
 
               // 更新 localStorage 中的权限信息
               const userInfo =
                 storageLocal().getItem<DataInfo<number>>(userKey);
               if (userInfo) {
-                userInfo.permissions = permissions;
                 storageLocal().setItem(userKey, userInfo);
               }
 
-              resolve({ menus, permissions });
+              resolve({ menus });
             } else {
               reject(new Error("获取用户权限失败"));
             }

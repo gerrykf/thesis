@@ -99,11 +99,11 @@ INSERT INTO menus (
 
 -- 用户列表的按钮权限
 INSERT INTO menus (parent_id, menu_type, title, auths, `rank`, is_static, router_source, status) VALUES
-(@user_list_id, 2, '查看', 'user.view', 1, 1, 'local', 1),
-(@user_list_id, 2, '新增', 'user.add', 2, 1, 'local', 1),
-(@user_list_id, 2, '编辑', 'user.edit', 3, 1, 'local', 1),
-(@user_list_id, 2, '删除', 'user.delete', 4, 1, 'local', 1),
-(@user_list_id, 2, '修改角色', 'user.role.change', 5, 1, 'local', 1)
+(@user_list_id, 3, '查看', 'user.view', 1, 1, 'local', 1),
+(@user_list_id, 3, '新增', 'user.add', 2, 1, 'local', 1),
+(@user_list_id, 3, '编辑', 'user.edit', 3, 1, 'local', 1),
+(@user_list_id, 3, '删除', 'user.delete', 4, 1, 'local', 1),
+(@user_list_id, 3, '修改角色', 'user.role.change', 5, 1, 'local', 1)
 ON DUPLICATE KEY UPDATE
   title = VALUES(title),
   auths = VALUES(auths),
@@ -147,10 +147,10 @@ SET @food_list_id = LAST_INSERT_ID();
 
 -- 食物列表的按钮权限
 INSERT INTO menus (parent_id, menu_type, title, auths, `rank`, is_static, router_source, status) VALUES
-(@food_list_id, 2, '查看', 'food.view', 1, 1, 'local', 1),
-(@food_list_id, 2, '新增', 'food.add', 2, 1, 'local', 1),
-(@food_list_id, 2, '编辑', 'food.edit', 3, 1, 'local', 1),
-(@food_list_id, 2, '删除', 'food.delete', 4, 1, 'local', 1)
+(@food_list_id, 3, '查看', 'food.view', 1, 1, 'local', 1),
+(@food_list_id, 3, '新增', 'food.add', 2, 1, 'local', 1),
+(@food_list_id, 3, '编辑', 'food.edit', 3, 1, 'local', 1),
+(@food_list_id, 3, '删除', 'food.delete', 4, 1, 'local', 1)
 ON DUPLICATE KEY UPDATE
   title = VALUES(title),
   auths = VALUES(auths),

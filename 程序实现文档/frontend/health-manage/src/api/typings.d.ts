@@ -200,6 +200,13 @@ declare namespace API {
     user_id?: number;
   };
 
+  type getAdminMenusParams = {
+    /** 是否包含静态路由菜单（用于权限树配置时需要） */
+    include_static?: true | false;
+    /** 是否用于权限树（如果是，返回所有菜单；否则只返回已授权的菜单） */
+    for_permission_tree?: true | false;
+  };
+
   type getAdminRolesIdMenusParams = {
     /** 角色ID */
     id: number;
@@ -586,6 +593,10 @@ declare namespace API {
     avatar?: string;
     /** 用户角色 */
     role?: "user" | "admin";
+    /** 角色ID */
+    role_id?: number;
+    /** 用户权限列表(权限标识数组) */
+    permissions?: string[];
     /** 账号状态 */
     is_active?: boolean;
     /** 创建时间 */

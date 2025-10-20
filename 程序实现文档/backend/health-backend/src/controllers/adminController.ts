@@ -2909,6 +2909,19 @@ export const toggleRoleStatus = async (
  *     description: 获取所有菜单列表（树形结构）(需要超级管理员权限)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: include_static
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *         description: 是否包含静态路由菜单（用于权限树配置时需要）
+ *       - in: query
+ *         name: for_permission_tree
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *         description: 是否用于权限树（如果是，返回所有菜单；否则只返回已授权的菜单）
  *     responses:
  *       200:
  *         description: 获取成功
@@ -3302,7 +3315,7 @@ export const getRoleMenus = async (
       return;
     }
 
-    // 获取角色的菜单ID列表
+    // 获取角色的菜单ID列表（包括静态路由和动态菜单）
     const [menuIds] = await db.execute(
       "SELECT menu_id FROM role_menus WHERE role_id = ?",
       [roleId]
@@ -3403,7 +3416,7 @@ export const updateRoleMenus = async (
         roleId,
       ]);
 
-      // 插入新的关联
+      // 插入新的关联（包括静态路由和动态菜单）
       if (menuIds.length > 0) {
         const values = menuIds.map((menuId) => `(${roleId}, ${menuId})`).join(", ");
         await connection.execute(
@@ -3412,6 +3425,8 @@ export const updateRoleMenus = async (
       }
 
       await connection.commit();
+
+      console.log(`角色 ${roleId} 的权限已更新，共 ${menuIds.length} 个菜单`);
 
       res.json({
         success: true,

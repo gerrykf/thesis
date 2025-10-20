@@ -51,6 +51,15 @@ import fs from "fs";
  *           type: string
  *           enum: [user, admin]
  *           description: 用户角色
+ *         role_id:
+ *          type: integer
+ *          description: 角色ID
+ *         permissions:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: 用户权限列表(权限标识数组)
+ *           example: ["user.view", "user.add", "user.edit"]
  *         is_active:
  *           type: boolean
  *           description: 账号状态
@@ -327,23 +336,28 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  */
 export const login = async (req: Request, res: Response): Promise<void> => {
   // 提取请求信息用于登录日志
-  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '未知';
-  const userAgent = req.headers['user-agent'] || '';
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.ip ||
+    "未知";
+  const userAgent = req.headers["user-agent"] || "";
 
   // 提取系统和浏览器信息
-  let system = '未知';
-  let browser = '未知';
+  let system = "未知";
+  let browser = "未知";
   if (userAgent) {
-    if (userAgent.includes('Windows')) system = 'Windows';
-    else if (userAgent.includes('Mac')) system = 'MacOS';
-    else if (userAgent.includes('Linux')) system = 'Linux';
-    else if (userAgent.includes('Android')) system = 'Android';
-    else if (userAgent.includes('iOS')) system = 'iOS';
+    if (userAgent.includes("Windows")) system = "Windows";
+    else if (userAgent.includes("Mac")) system = "MacOS";
+    else if (userAgent.includes("Linux")) system = "Linux";
+    else if (userAgent.includes("Android")) system = "Android";
+    else if (userAgent.includes("iOS")) system = "iOS";
 
-    if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) browser = 'Chrome';
-    else if (userAgent.includes('Firefox')) browser = 'Firefox';
-    else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browser = 'Safari';
-    else if (userAgent.includes('Edge')) browser = 'Edge';
+    if (userAgent.includes("Chrome") && !userAgent.includes("Edge"))
+      browser = "Chrome";
+    else if (userAgent.includes("Firefox")) browser = "Firefox";
+    else if (userAgent.includes("Safari") && !userAgent.includes("Chrome"))
+      browser = "Safari";
+    else if (userAgent.includes("Edge")) browser = "Edge";
   }
 
   // 记录登录日志的辅助函数
@@ -363,10 +377,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           user_id, username, ip, address, \`system\`, browser,
           status, behavior, error_message, login_time
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [userId, username, ipAddress, address, system, browser, status, behavior, errorMessage]
+        [
+          userId,
+          username,
+          ipAddress,
+          address,
+          system,
+          browser,
+          status,
+          behavior,
+          errorMessage,
+        ]
       );
     } catch (error) {
-      console.error('记录登录日志失败:', error);
+      console.error("记录登录日志失败:", error);
     }
   };
 
@@ -385,14 +409,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 查找用户
     const [rows] = await db.execute(
-      "SELECT id, username, password, nickname, email, phone, gender, birth_date, height, target_weight, avatar, role, is_active FROM users WHERE username = ?",
+      "SELECT id, username, password, nickname, email, phone, gender, birth_date, height, target_weight, avatar, role, role_id, is_active FROM users WHERE username = ?",
       [username]
     );
 
     const users = rows as any[];
     if (users.length === 0) {
       // 记录登录失败日志
-      await recordLoginLog(null, username, 0, '登录', '用户名不存在');
+      await recordLoginLog(null, username, 0, "登录", "用户名不存在");
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -405,7 +429,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 检查账号是否被禁用
     if (!user.is_active) {
       // 记录登录失败日志
-      await recordLoginLog(user.id, username, 0, '登录', '账号已被禁用');
+      await recordLoginLog(user.id, username, 0, "登录", "账号已被禁用");
       res.status(401).json({
         success: false,
         message: "账号已被禁用，请联系管理员",
@@ -417,7 +441,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       // 记录登录失败日志
-      await recordLoginLog(user.id, username, 0, '登录', '密码错误');
+      await recordLoginLog(user.id, username, 0, "登录", "密码错误");
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -460,19 +484,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     // 记录登录成功日志
-    await recordLoginLog(user.id, username, 1, '登录', null);
+    await recordLoginLog(user.id, username, 1, "登录", null);
 
     // 获取地址信息
     const address = await getAddressFromIP(ipAddress);
 
     // 获取客户端类型（从请求头中获取，默认为h5）
-    const clientType = (req.headers['x-client-type'] as string) || 'h5';
+    const clientType = (req.headers["x-client-type"] as string) || "h5";
 
     // 记录在线用户
     try {
       // 先删除该用户的旧在线记录（同一用户同一客户端类型只保留一条）
       await db.execute(
-        'DELETE FROM online_users WHERE user_id = ? AND client_type = ?',
+        "DELETE FROM online_users WHERE user_id = ? AND client_type = ?",
         [user.id, clientType]
       );
 
@@ -482,28 +506,82 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           user_id, username, client_type, token, ip, address, \`system\`, browser,
           login_time, last_active_time, expires_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
-        [user.id, username, clientType, token, ipAddress, address, system, browser, expiresAt]
+        [
+          user.id,
+          username,
+          clientType,
+          token,
+          ipAddress,
+          address,
+          system,
+          browser,
+          expiresAt,
+        ]
       );
     } catch (error) {
-      console.error('记录在线用户失败:', error);
+      console.error("记录在线用户失败:", error);
       // 不影响登录流程
     }
 
     // 返回用户信息（不包含密码）
     const { password: _, ...userWithoutPassword } = user;
 
-    // 添加 roles 数组字段供前端权限验证使用
-    const userWithRoles = {
-      ...userWithoutPassword,
-      roles: [user.role] // 将 role 字符串转换为数组
-    };
+    // 根据客户端类型决定返回的用户信息
+    let userResponse;
+
+    if (clientType === 'admin') {
+      // Admin端登录：查询用户角色对应的权限列表
+      let permissions: string[] = [];
+      try {
+        if (user.role_id) {
+          // 查询角色对应的菜单权限
+          const [roleMenus] = await db.execute(
+            `SELECT DISTINCT m.auths
+             FROM role_menus rm
+             JOIN menus m ON rm.menu_id = m.id
+             WHERE rm.role_id = ? AND m.status = 1 AND m.auths IS NOT NULL AND m.auths != ''`,
+            [user.role_id]
+          );
+
+          // 提取所有权限标识（auths字段可能包含多个权限，以逗号分隔）
+          const permissionSet = new Set<string>();
+          (roleMenus as any[]).forEach((menu) => {
+            if (menu.auths) {
+              // 处理可能的多个权限标识
+              const authList = menu.auths.split(',').map((auth: string) => auth.trim());
+              authList.forEach((auth: string) => {
+                if (auth) {
+                  permissionSet.add(auth);
+                }
+              });
+            }
+          });
+
+          permissions = Array.from(permissionSet);
+        }
+      } catch (error) {
+        console.error("获取用户权限失败:", error);
+        // 权限获取失败不影响登录，使用空权限列表
+      }
+
+      // Admin端：返回完整的角色和权限信息
+      userResponse = {
+        ...userWithoutPassword,
+        roles: [user.role], // 将 role 字符串转换为数组
+        role_id: user.role_id,
+        permissions, // 添加权限列表
+      };
+    } else {
+      // H5端登录：只返回基本用户信息，不包含角色和权限
+      userResponse = userWithoutPassword;
+    }
 
     res.json({
       success: true,
       message: "登录成功",
       data: {
         token,
-        user: userWithRoles,
+        user: userResponse,
       },
     });
   } catch (error) {
@@ -637,11 +715,11 @@ export const updateProfile = async (
         updates.push(`${field} = ?`);
 
         // 处理日期格式：将ISO 8601格式转换为MySQL DATE格式 (YYYY-MM-DD)
-        if (field === 'birth_date' && req.body[field]) {
+        if (field === "birth_date" && req.body[field]) {
           const date = new Date(req.body[field]);
           const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
           values.push(`${year}-${month}-${day}`);
         } else {
           values.push(req.body[field]);
@@ -757,10 +835,9 @@ export const updatePassword = async (
     const { oldPassword, newPassword } = req.body;
 
     // 查询用户当前密码
-    const [rows] = await db.execute(
-      "SELECT password FROM users WHERE id = ?",
-      [req.user?.userId]
-    );
+    const [rows] = await db.execute("SELECT password FROM users WHERE id = ?", [
+      req.user?.userId,
+    ]);
 
     const users = rows as any[];
     if (users.length === 0) {
@@ -788,10 +865,10 @@ export const updatePassword = async (
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // 更新密码
-    await db.execute(
-      "UPDATE users SET password = ? WHERE id = ?",
-      [hashedPassword, req.user?.userId]
-    );
+    await db.execute("UPDATE users SET password = ? WHERE id = ?", [
+      hashedPassword,
+      req.user?.userId,
+    ]);
 
     res.json({
       success: true,
@@ -870,23 +947,22 @@ export const uploadAvatar = async (
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
     // 查询用户旧头像
-    const [rows] = await db.execute(
-      "SELECT avatar FROM users WHERE id = ?",
-      [req.user?.userId]
-    );
+    const [rows] = await db.execute("SELECT avatar FROM users WHERE id = ?", [
+      req.user?.userId,
+    ]);
 
     const users = rows as any[];
     const oldAvatar = users[0]?.avatar;
 
     // 更新数据库中的头像路径
-    await db.execute(
-      "UPDATE users SET avatar = ? WHERE id = ?",
-      [avatarUrl, req.user?.userId]
-    );
+    await db.execute("UPDATE users SET avatar = ? WHERE id = ?", [
+      avatarUrl,
+      req.user?.userId,
+    ]);
 
     // 删除旧头像文件（如果存在且不是默认头像）
-    if (oldAvatar && oldAvatar.startsWith('/uploads/avatars/')) {
-      const oldAvatarPath = path.join(__dirname, '../../', oldAvatar);
+    if (oldAvatar && oldAvatar.startsWith("/uploads/avatars/")) {
+      const oldAvatarPath = path.join(__dirname, "../../", oldAvatar);
       if (fs.existsSync(oldAvatarPath)) {
         fs.unlinkSync(oldAvatarPath);
       }
