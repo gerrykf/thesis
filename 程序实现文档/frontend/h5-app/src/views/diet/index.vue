@@ -1,17 +1,19 @@
 <template>
   <div class="diet">
-    <van-nav-bar :title="t('utils.quickActions.dietRecord')" left-arrow @click-left="onClickLeft" fixed placeholder />
+    <van-nav-bar
+      :title="t('utils.quickActions.dietRecord')"
+      left-arrow
+      @click-left="onClickLeft"
+      fixed
+      placeholder
+    />
 
     <div class="content">
       <!-- 日期选择 -->
       <van-cell-group>
-        <van-cell
-          is-link
-          :value="selectedDate"
-          @click="showDatePicker = true"
-        >
+        <van-cell is-link :value="selectedDate" @click="showDatePicker = true">
           <template #title>
-            <span>{{ t('xuan-ze-ri-qi-0') }}</span>
+            <span>{{ t("xuan-ze-ri-qi-0") }}</span>
           </template>
         </van-cell>
       </van-cell-group>
@@ -19,20 +21,30 @@
       <!-- 营养摘要 -->
       <div class="summary-card" v-if="hasSummary">
         <div class="summary-item">
-          <span class="label">{{ t('re-liang') }}</span>
-          <span class="value">{{ t('summary-total_calories-or-or-0-kcal', [summary.total_calories || 0]) }}</span>
+          <span class="label">{{ t("re-liang") }}</span>
+          <span class="value">{{
+            t("summary-total_calories-or-or-0-kcal", [
+              summary.total_calories || 0,
+            ])
+          }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">{{ t('dan-bai-zhi') }}</span>
-          <span class="value">{{ t('summary-total_protein-or-or-0-g', [summary.total_protein || 0]) }}</span>
+          <span class="label">{{ t("dan-bai-zhi") }}</span>
+          <span class="value">{{
+            t("summary-total_protein-or-or-0-g", [summary.total_protein || 0])
+          }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">{{ t('zhi-fang') }}</span>
-          <span class="value">{{ t('summary-total_fat-or-or-0-g', [summary.total_fat || 0]) }}</span>
+          <span class="label">{{ t("zhi-fang") }}</span>
+          <span class="value">{{
+            t("summary-total_fat-or-or-0-g", [summary.total_fat || 0])
+          }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">{{ t('tan-shui') }}</span>
-          <span class="value">{{ t('summary-total_carbs-or-or-0-g', [summary.total_carbs || 0]) }}</span>
+          <span class="label">{{ t("tan-shui") }}</span>
+          <span class="value">{{
+            t("summary-total_carbs-or-or-0-g", [summary.total_carbs || 0])
+          }}</span>
         </div>
       </div>
 
@@ -41,8 +53,12 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">{{ t('zao-can') }}</span>
-            <span class="meal-calories">{{ t('getmealcalories-breakfast-kcal', [getMealCalories('breakfast')]) }}</span>
+            <span class="meal-title">{{ t("zao-can") }}</span>
+            <span class="meal-calories">{{
+              t("getmealcalories-breakfast-kcal", [
+                getMealCalories("breakfast"),
+              ])
+            }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
@@ -59,13 +75,17 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ t('item-quantity-g', [item.quantity]) }}</span>
+                <span class="food-quantity">{{
+                  t("item-quantity-g", [item.quantity])
+                }}</span>
               </div>
-              <div class="card-calories">{{ t('item-calories-kcal', [item.calories]) }}</div>
+              <div class="card-calories">
+                {{ t("item-calories-kcal", [item.calories]) }}
+              </div>
               <div class="card-nutrition">
-                <span>{{ t('dan-bai-itemprotein-g', [item.protein]) }}</span>
-                <span>{{ t('zhi-fang-itemfat-g', [item.fat]) }}</span>
-                <span>{{ t('tan-shui-itemcarbs-g', [item.carbs]) }}</span>
+                <span>{{ t("dan-bai-itemprotein-g", [item.protein]) }}</span>
+                <span>{{ t("zhi-fang-itemfat-g", [item.fat]) }}</span>
+                <span>{{ t("tan-shui-itemcarbs-g", [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -73,7 +93,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('breakfast')">
             <van-icon name="plus" />
-            <span>{{ t('tian-jia-shi-wu') }}</span>
+            <span>{{ t("tian-jia-shi-wu") }}</span>
           </div>
         </div>
       </div>
@@ -83,17 +103,15 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">{{ t('wu-can') }}</span>
-            <span class="meal-calories">{{ t('getmealcalories-lunch-kcal', [getMealCalories('lunch')]) }}</span>
+            <span class="meal-title">{{ t("wu-can") }}</span>
+            <span class="meal-calories">{{
+              t("getmealcalories-lunch-kcal", [getMealCalories("lunch")])
+            }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
           <div class="food-cards-grid" v-if="lunchRecords.length > 0">
-            <div
-              v-for="item in lunchRecords"
-              :key="item.id"
-              class="food-card"
-            >
+            <div v-for="item in lunchRecords" :key="item.id" class="food-card">
               <van-icon
                 name="cross"
                 class="delete-icon"
@@ -101,13 +119,17 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ t('item-quantity-g-0', [item.quantity]) }}</span>
+                <span class="food-quantity">{{
+                  t("item-quantity-g-0", [item.quantity])
+                }}</span>
               </div>
-              <div class="card-calories">{{ t('item-calories-kcal-0', [item.calories]) }}</div>
+              <div class="card-calories">
+                {{ t("item-calories-kcal-0", [item.calories]) }}
+              </div>
               <div class="card-nutrition">
-                <span>{{ t('dan-bai-itemprotein-g-0', [item.protein]) }}</span>
-                <span>{{ t('zhi-fang-itemfat-g-0', [item.fat]) }}</span>
-                <span>{{ t('tan-shui-itemcarbs-g-0', [item.carbs]) }}</span>
+                <span>{{ t("dan-bai-itemprotein-g-0", [item.protein]) }}</span>
+                <span>{{ t("zhi-fang-itemfat-g-0", [item.fat]) }}</span>
+                <span>{{ t("tan-shui-itemcarbs-g-0", [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -115,7 +137,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('lunch')">
             <van-icon name="plus" />
-            <span>{{ t('tian-jia-shi-wu-0') }}</span>
+            <span>{{ t("tian-jia-shi-wu-0") }}</span>
           </div>
         </div>
       </div>
@@ -125,17 +147,15 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">{{ t('wan-can') }}</span>
-            <span class="meal-calories">{{ t('getmealcalories-dinner-kcal', [getMealCalories('dinner')]) }}</span>
+            <span class="meal-title">{{ t("wan-can") }}</span>
+            <span class="meal-calories">{{
+              t("getmealcalories-dinner-kcal", [getMealCalories("dinner")])
+            }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
           <div class="food-cards-grid" v-if="dinnerRecords.length > 0">
-            <div
-              v-for="item in dinnerRecords"
-              :key="item.id"
-              class="food-card"
-            >
+            <div v-for="item in dinnerRecords" :key="item.id" class="food-card">
               <van-icon
                 name="cross"
                 class="delete-icon"
@@ -143,13 +163,17 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ t('item-quantity-g-1', [item.quantity]) }}</span>
+                <span class="food-quantity">{{
+                  t("item-quantity-g-1", [item.quantity])
+                }}</span>
               </div>
-              <div class="card-calories">{{ t('item-calories-kcal-1', [item.calories]) }}</div>
+              <div class="card-calories">
+                {{ t("item-calories-kcal-1", [item.calories]) }}
+              </div>
               <div class="card-nutrition">
-                <span>{{ t('dan-bai-itemprotein-g-1', [item.protein]) }}</span>
-                <span>{{ t('zhi-fang-itemfat-g-1', [item.fat]) }}</span>
-                <span>{{ t('tan-shui-itemcarbs-g-1', [item.carbs]) }}</span>
+                <span>{{ t("dan-bai-itemprotein-g-1", [item.protein]) }}</span>
+                <span>{{ t("zhi-fang-itemfat-g-1", [item.fat]) }}</span>
+                <span>{{ t("tan-shui-itemcarbs-g-1", [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -157,7 +181,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('dinner')">
             <van-icon name="plus" />
-            <span>{{ t('tian-jia-shi-wu-1') }}</span>
+            <span>{{ t("tian-jia-shi-wu-1") }}</span>
           </div>
         </div>
       </div>
@@ -167,17 +191,15 @@
         <div class="meal-card">
           <!-- 卡片标题 -->
           <div class="meal-card-header">
-            <span class="meal-title">{{ t('jia-can') }}</span>
-            <span class="meal-calories">{{ t('getmealcalories-snack-kcal', [getMealCalories('snack')]) }}</span>
+            <span class="meal-title">{{ t("jia-can") }}</span>
+            <span class="meal-calories">{{
+              t("getmealcalories-snack-kcal", [getMealCalories("snack")])
+            }}</span>
           </div>
 
           <!-- 食物卡片网格 -->
           <div class="food-cards-grid" v-if="snackRecords.length > 0">
-            <div
-              v-for="item in snackRecords"
-              :key="item.id"
-              class="food-card"
-            >
+            <div v-for="item in snackRecords" :key="item.id" class="food-card">
               <van-icon
                 name="cross"
                 class="delete-icon"
@@ -185,13 +207,17 @@
               />
               <div class="card-header">
                 <span class="food-name">{{ item.food_name }}</span>
-                <span class="food-quantity">{{ t('item-quantity-g-2', [item.quantity]) }}</span>
+                <span class="food-quantity">{{
+                  t("item-quantity-g-2", [item.quantity])
+                }}</span>
               </div>
-              <div class="card-calories">{{ t('item-calories-kcal-2', [item.calories]) }}</div>
+              <div class="card-calories">
+                {{ t("item-calories-kcal-2", [item.calories]) }}
+              </div>
               <div class="card-nutrition">
-                <span>{{ t('dan-bai-itemprotein-g-2', [item.protein]) }}</span>
-                <span>{{ t('zhi-fang-itemfat-g-2', [item.fat]) }}</span>
-                <span>{{ t('tan-shui-itemcarbs-g-2', [item.carbs]) }}</span>
+                <span>{{ t("dan-bai-itemprotein-g-2", [item.protein]) }}</span>
+                <span>{{ t("zhi-fang-itemfat-g-2", [item.fat]) }}</span>
+                <span>{{ t("tan-shui-itemcarbs-g-2", [item.carbs]) }}</span>
               </div>
             </div>
           </div>
@@ -199,7 +225,7 @@
           <!-- 添加按钮 -->
           <div class="add-food-btn" @click="showAddFood('snack')">
             <van-icon name="plus" />
-            <span>{{ t('tian-jia-shi-wu-2') }}</span>
+            <span>{{ t("tian-jia-shi-wu-2") }}</span>
           </div>
         </div>
       </div>
@@ -225,10 +251,15 @@
     >
       <div class="add-food-dialog" v-if="showAddFoodDialog">
         <div class="dialog-header">
-          <van-button plain @click="showAddFoodDialog = false">{{ t('common.cancel') }}</van-button>
-          <span class="title">{{ t('tian-jia-shi-wu-3') }}</span>
+          <van-button plain @click="showAddFoodDialog = false">{{
+            t("common.cancel")
+          }}</van-button>
+          <span class="title">{{ t("tian-jia-shi-wu-3") }}</span>
           <van-button plain type="primary" @click="onConfirmAdd">
-            {{ t('que-ding') }}<span v-if="selectedFoods.length > 0">{{ t('selectedfoods-length', [selectedFoods.length]) }}</span>
+            {{ t("que-ding")
+            }}<span v-if="selectedFoods.length > 0">{{
+              t("selectedfoods-length", [selectedFoods.length])
+            }}</span>
           </van-button>
         </div>
 
@@ -239,7 +270,13 @@
             :placeholder="t('sou-suo-shi-wu')"
             @search="onSearchFood"
             @clear="onSearchFood"
-          />
+            @click-right-icon="onSearchFood"
+            :left-icon="''"
+          >
+            <template #right-icon>
+              <van-icon name="search" />
+            </template>
+          </van-search>
 
           <!-- 食物列表容器 -->
           <div class="food-list-section" ref="listContainerRef">
@@ -267,7 +304,13 @@
                 </template>
                 <template #label>
                   <span class="food-info">
-                    {{ t('foodcategory-mei-100g-foodcaloriesper100g-kcal', [food.category, food.calories_per_100g]) }} </span>
+                    {{
+                      t("foodcategory-mei-100g-foodcaloriesper100g-kcal", [
+                        food.category,
+                        food.calories_per_100g,
+                      ])
+                    }}
+                  </span>
                 </template>
               </van-cell>
             </van-list>
@@ -277,15 +320,29 @@
         <!-- 已选食物列表和营养汇总 -->
         <div v-if="selectedFoods.length > 0" class="selected-section">
           <div class="selected-header">
-            <span class="title">{{ t('yi-xuan-shi-wu-selectedfoodslength', [selectedFoods.length]) }}</span>
-            <span class="total-calories">{{ t('zong-ji-totalnutritioncalories-kcal', [totalNutrition.calories]) }}</span>
+            <span class="title">{{
+              t("yi-xuan-shi-wu-selectedfoodslength", [selectedFoods.length])
+            }}</span>
+            <span class="total-calories">{{
+              t("zong-ji-totalnutritioncalories-kcal", [
+                totalNutrition.calories,
+              ])
+            }}</span>
           </div>
 
           <div class="selected-list">
-            <div v-for="item in selectedFoods" :key="item.food.id" class="selected-item">
+            <div
+              v-for="item in selectedFoods"
+              :key="item.food.id"
+              class="selected-item"
+            >
               <div class="item-info">
                 <span class="name">{{ item.food.name }}</span>
-                <van-icon name="cross" @click="removeSelectedFood(item.food.id!)" class="remove-btn" />
+                <van-icon
+                  name="cross"
+                  @click="removeSelectedFood(item.food.id!)"
+                  class="remove-btn"
+                />
               </div>
               <div class="item-quantity">
                 <van-stepper
@@ -304,20 +361,28 @@
           <!-- 营养汇总 -->
           <div class="nutrition-total">
             <div class="total-item">
-              <span class="label">{{ t('re-liang') }}</span>
-              <span class="value">{{ t('totalnutrition-calories-kcal', [totalNutrition.calories]) }}</span>
+              <span class="label">{{ t("re-liang") }}</span>
+              <span class="value">{{
+                t("totalnutrition-calories-kcal", [totalNutrition.calories])
+              }}</span>
             </div>
             <div class="total-item">
-              <span class="label">{{ t('dan-bai-zhi') }}</span>
-              <span class="value">{{ t('totalnutrition-protein-g', [totalNutrition.protein]) }}</span>
+              <span class="label">{{ t("dan-bai-zhi") }}</span>
+              <span class="value">{{
+                t("totalnutrition-protein-g", [totalNutrition.protein])
+              }}</span>
             </div>
             <div class="total-item">
-              <span class="label">{{ t('zhi-fang') }}</span>
-              <span class="value">{{ t('totalnutrition-fat-g', [totalNutrition.fat]) }}</span>
+              <span class="label">{{ t("zhi-fang") }}</span>
+              <span class="value">{{
+                t("totalnutrition-fat-g", [totalNutrition.fat])
+              }}</span>
             </div>
             <div class="total-item">
-              <span class="label">{{ t('tan-shui') }}</span>
-              <span class="value">{{ t('totalnutrition-carbs-g', [totalNutrition.carbs]) }}</span>
+              <span class="label">{{ t("tan-shui") }}</span>
+              <span class="value">{{
+                t("totalnutrition-carbs-g", [totalNutrition.carbs])
+              }}</span>
             </div>
           </div>
         </div>
@@ -327,118 +392,140 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { showSuccessToast, showLoadingToast, closeToast, showToast, showConfirmDialog } from 'vant'
-import { getDietRecords, postDietRecords, deleteDietRecordsId, getDietSummary } from '@/api/diet'
-import { getFoods } from '@/api/food'
-import { useI18n } from 'vue-i18n'
+import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { useRouter } from "vue-router";
+import {
+  showSuccessToast,
+  showLoadingToast,
+  closeToast,
+  showToast,
+  showConfirmDialog,
+} from "vant";
+import {
+  getDietRecords,
+  postDietRecords,
+  deleteDietRecordsId,
+  getDietSummary,
+} from "@/api/diet";
+import { getFoods } from "@/api/food";
+import { useI18n } from "vue-i18n";
 
-const {t} = useI18n()
+const { t } = useI18n();
 
-const router = useRouter()
+const router = useRouter();
 
-type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 // 日期相关
-const selectedDate = ref(formatDate())
-const showDatePicker = ref(false)
+const selectedDate = ref(formatDate());
+const showDatePicker = ref(false);
 const currentDate = ref([
   String(new Date().getFullYear()),
   String(new Date().getMonth() + 1),
-  String(new Date().getDate())
-])
-const minDate = new Date(2020, 0, 1)
-const maxDate = new Date()
+  String(new Date().getDate()),
+]);
+const minDate = new Date(2020, 0, 1);
+const maxDate = new Date();
 
 // 饮食记录
-const dietRecords = ref<API.DietRecord[]>([])
+const dietRecords = ref<API.DietRecord[]>([]);
 const summary = ref<{
-  total_calories?: number
-  total_protein?: number
-  total_fat?: number
-  total_carbs?: number
-  meal_breakdown?: Record<string, any>
-}>({})
+  total_calories?: number;
+  total_protein?: number;
+  total_fat?: number;
+  total_carbs?: number;
+  meal_breakdown?: Record<string, any>;
+}>({});
 
 // 添加食物相关
-const showAddFoodDialog = ref(false)
-const currentMealType = ref<MealType>('breakfast')
-const searchKeyword = ref('')
-const foodList = ref<API.Food[]>([])
-const foodLoading = ref(false)
-const foodFinished = ref(false)
-const foodPage = ref(1)
+const showAddFoodDialog = ref(false);
+const currentMealType = ref<MealType>("breakfast");
+const searchKeyword = ref("");
+const foodList = ref<API.Food[]>([]);
+const foodLoading = ref(false);
+const foodFinished = ref(false);
+const foodPage = ref(1);
 
 // 多选食物相关
 interface SelectedFoodItem {
-  food: API.Food
-  quantity: string
+  food: API.Food;
+  quantity: string;
 }
-const selectedFoods = ref<SelectedFoodItem[]>([])
+const selectedFoods = ref<SelectedFoodItem[]>([]);
 
 // 格式化日期
 function formatDate() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 // 格式化日期数组
 function formatDateArray(value: any) {
-  const selectedValues = value.selectedValues || value
-  return `${selectedValues[0]}-${String(selectedValues[1]).padStart(2, '0')}-${String(selectedValues[2]).padStart(2, '0')}`
+  const selectedValues = value.selectedValues || value;
+  return `${selectedValues[0]}-${String(selectedValues[1]).padStart(
+    2,
+    "0"
+  )}-${String(selectedValues[2]).padStart(2, "0")}`;
 }
 
 // 按餐次分组的记录
-const breakfastRecords = computed(() => dietRecords.value.filter(r => r.meal_type === 'breakfast'))
-const lunchRecords = computed(() => dietRecords.value.filter(r => r.meal_type === 'lunch'))
-const dinnerRecords = computed(() => dietRecords.value.filter(r => r.meal_type === 'dinner'))
-const snackRecords = computed(() => dietRecords.value.filter(r => r.meal_type === 'snack'))
+const breakfastRecords = computed(() =>
+  dietRecords.value.filter((r) => r.meal_type === "breakfast")
+);
+const lunchRecords = computed(() =>
+  dietRecords.value.filter((r) => r.meal_type === "lunch")
+);
+const dinnerRecords = computed(() =>
+  dietRecords.value.filter((r) => r.meal_type === "dinner")
+);
+const snackRecords = computed(() =>
+  dietRecords.value.filter((r) => r.meal_type === "snack")
+);
 
 // 是否有摘要数据
 const hasSummary = computed(() => {
-  return (summary.value.total_calories || 0) > 0
-})
+  return (summary.value.total_calories || 0) > 0;
+});
 
 // 获取某餐次的热量
 function getMealCalories(mealType: MealType) {
-  const records = dietRecords.value.filter(r => r.meal_type === mealType)
-  const total = records.reduce((sum, r) => sum + (Number(r.calories) || 0), 0)
-  return total.toFixed(0)
+  const records = dietRecords.value.filter((r) => r.meal_type === mealType);
+  const total = records.reduce((sum, r) => sum + (Number(r.calories) || 0), 0);
+  return total.toFixed(0);
 }
 
 // 计算已选食物的总营养
 const totalNutrition = computed(() => {
-  let calories = 0
-  let protein = 0
-  let fat = 0
-  let carbs = 0
+  let calories = 0;
+  let protein = 0;
+  let fat = 0;
+  let carbs = 0;
 
-  selectedFoods.value.forEach(item => {
-    const q = parseFloat(item.quantity) || 0
+  selectedFoods.value.forEach((item) => {
+    const q = parseFloat(item.quantity) || 0;
     if (q > 0) {
-      const factor = q / 100
-      calories += (item.food.calories_per_100g || 0) * factor
-      protein += (item.food.protein_per_100g || 0) * factor
-      fat += (item.food.fat_per_100g || 0) * factor
-      carbs += (item.food.carbs_per_100g || 0) * factor
+      const factor = q / 100;
+      calories += (item.food.calories_per_100g || 0) * factor;
+      protein += (item.food.protein_per_100g || 0) * factor;
+      fat += (item.food.fat_per_100g || 0) * factor;
+      carbs += (item.food.carbs_per_100g || 0) * factor;
     }
-  })
+  });
 
   return {
     calories: calories.toFixed(1),
     protein: protein.toFixed(1),
     fat: fat.toFixed(1),
-    carbs: carbs.toFixed(1)
-  }
-})
+    carbs: carbs.toFixed(1),
+  };
+});
 
 // 检查食物是否已选中
 function isFoodSelected(foodId: number) {
-  return selectedFoods.value.some(item => item.food.id === foodId)
+  return selectedFoods.value.some((item) => item.food.id === foodId);
 }
 
 // 加载饮食记录
@@ -446,13 +533,13 @@ async function loadDietRecords() {
   try {
     const response = await getDietRecords({
       date: selectedDate.value,
-      limit: 100
-    })
+      limit: 100,
+    });
 
-    const records = (response as any).data?.records || []
-    dietRecords.value = records
+    const records = (response as any).data?.records || [];
+    dietRecords.value = records;
   } catch (error) {
-    console.error('加载饮食记录失败:', error)
+    console.error("加载饮食记录失败:", error);
   }
 }
 
@@ -460,177 +547,194 @@ async function loadDietRecords() {
 async function loadSummary() {
   try {
     const response = await getDietSummary({
-      date: selectedDate.value
-    })
+      date: selectedDate.value,
+    });
 
-    summary.value = (response as any).data || {}
+    summary.value = (response as any).data || {};
   } catch (error) {
-    console.error('加载营养摘要失败:', error)
+    console.error("加载营养摘要失败:", error);
   }
 }
 
 // 加载食物列表
 async function onLoadFood() {
-  console.log('onLoadFood 被调用', { loading: foodLoading.value, page: foodPage.value, finished: foodFinished.value })
+  console.log("onLoadFood 被调用", {
+    loading: foodLoading.value,
+    page: foodPage.value,
+    finished: foodFinished.value,
+  });
 
   // 只检查 finished 状态,List 组件会管理 loading
   if (foodFinished.value) {
-    console.log('已完成,跳过加载')
-    return
+    console.log("已完成,跳过加载");
+    return;
   }
 
   try {
-    console.log('开始请求食物列表:', { page: foodPage.value, search: searchKeyword.value })
+    console.log("开始请求食物列表:", {
+      page: foodPage.value,
+      search: searchKeyword.value,
+    });
 
     const response = await getFoods({
       page: foodPage.value,
       limit: 20,
-      search: searchKeyword.value
-    })
+      search: searchKeyword.value,
+    });
 
-    console.log('食物列表响应:', response)
-    const foods = (response as any).data?.foods || []
-    const pagination = (response as any).data?.pagination || {}
-    console.log('解析到的食物数量:', foods.length, '分页信息:', pagination)
+    console.log("食物列表响应:", response);
+    const foods = (response as any).data?.foods || [];
+    const pagination = (response as any).data?.pagination || {};
+    console.log("解析到的食物数量:", foods.length, "分页信息:", pagination);
 
     if (foods.length > 0) {
-      foodList.value.push(...foods)
-      foodPage.value++
-      console.log('食物列表更新完成:', {
+      foodList.value.push(...foods);
+      foodPage.value++;
+      console.log("食物列表更新完成:", {
         total: foodList.value.length,
         nextPage: foodPage.value,
         currentPage: pagination.page,
-        totalPages: pagination.totalPages
-      })
+        totalPages: pagination.totalPages,
+      });
     }
 
     // 根据分页信息判断是否还有更多数据
-    if (foods.length === 0 || (pagination.page >= pagination.totalPages)) {
-      foodFinished.value = true
-      console.log('没有更多数据了')
+    if (foods.length === 0 || pagination.page >= pagination.totalPages) {
+      foodFinished.value = true;
+      console.log("没有更多数据了");
     }
   } catch (error) {
-    console.error('加载食物列表失败:', error)
-    showToast(t('jia-zai-shu-ju-shi-bai'))
+    console.error("加载食物列表失败:", error);
+    showToast(t("jia-zai-shu-ju-shi-bai"));
   } finally {
     // 使用 finally 确保 loading 总是被重置
     // 等待 DOM 更新完成
-    await nextTick()
-    foodLoading.value = false
-    console.log('加载完成，重置 loading 状态')
+    await nextTick();
+    foodLoading.value = false;
+    console.log("加载完成，重置 loading 状态");
   }
 }
 
 // 搜索食物
 function onSearchFood() {
-  foodList.value = []
-  foodPage.value = 1
-  foodFinished.value = false
-  onLoadFood()
+  foodList.value = [];
+  foodPage.value = 1;
+  foodFinished.value = false;
+  onLoadFood();
 }
 
 // 切换食物选择状态
 function onToggleFood(food: API.Food) {
-  const index = selectedFoods.value.findIndex(item => item.food.id === food.id)
+  const index = selectedFoods.value.findIndex(
+    (item) => item.food.id === food.id
+  );
 
   if (index >= 0) {
     // 已选中，移除
-    selectedFoods.value.splice(index, 1)
+    selectedFoods.value.splice(index, 1);
   } else {
     // 未选中，添加
     selectedFoods.value.push({
       food,
-      quantity: '100' // 默认100g
-    })
+      quantity: "100", // 默认100g
+    });
   }
 }
 
 // 更新食物数量
 function updateQuantity(foodId: number, quantity: string) {
-  const item = selectedFoods.value.find(item => item.food.id === foodId)
+  const item = selectedFoods.value.find((item) => item.food.id === foodId);
   if (item) {
-    item.quantity = quantity
+    item.quantity = quantity;
   }
 }
 
 // 移除已选食物
 function removeSelectedFood(foodId: number) {
-  const index = selectedFoods.value.findIndex(item => item.food.id === foodId)
+  const index = selectedFoods.value.findIndex(
+    (item) => item.food.id === foodId
+  );
   if (index >= 0) {
-    selectedFoods.value.splice(index, 1)
+    selectedFoods.value.splice(index, 1);
   }
 }
 
 // 显示添加食物对话框
 function showAddFood(mealType: MealType) {
-  console.log('showAddFood 被调用', mealType)
-  currentMealType.value = mealType
-  selectedFoods.value = []
-  searchKeyword.value = ''
+  console.log("showAddFood 被调用", mealType);
+  currentMealType.value = mealType;
+  selectedFoods.value = [];
+  searchKeyword.value = "";
 
   // 重置状态
-  foodList.value = []
-  foodPage.value = 1
-  foodFinished.value = false
-  foodLoading.value = false
-  console.log('重置状态完成:', {
+  foodList.value = [];
+  foodPage.value = 1;
+  foodFinished.value = false;
+  foodLoading.value = false;
+  console.log("重置状态完成:", {
     listLength: foodList.value.length,
     page: foodPage.value,
     finished: foodFinished.value,
-    loading: foodLoading.value
-  })
+    loading: foodLoading.value,
+  });
 
-  showAddFoodDialog.value = true
+  showAddFoodDialog.value = true;
 }
 
 // 弹窗完全打开后触发加载
 function onDialogOpened() {
-  console.log('弹窗已打开，List 组件会自动检测滚动')
+  console.log("弹窗已打开，List 组件会自动检测滚动");
   // List 组件移除了 immediate-check=false,会自动检测并触发 load 事件
 }
 
 // 确认添加
 async function onConfirmAdd() {
   if (selectedFoods.value.length === 0) {
-    showToast(t('qing-xuan-ze-zhi-shao-yi-ge-shi-wu'))
-    return
+    showToast(t("qing-xuan-ze-zhi-shao-yi-ge-shi-wu"));
+    return;
   }
 
   // 验证所有食物都有数量
-  const invalidItems = selectedFoods.value.filter(item => !item.quantity || parseFloat(item.quantity) <= 0)
+  const invalidItems = selectedFoods.value.filter(
+    (item) => !item.quantity || parseFloat(item.quantity) <= 0
+  );
   if (invalidItems.length > 0) {
-    showToast(t('qing-wei-suo-you-shi-wu-shu-ru-shi-yong-liang'))
-    return
+    showToast(t("qing-wei-suo-you-shi-wu-shu-ru-shi-yong-liang"));
+    return;
   }
 
   showLoadingToast({
-    message: t('tian-jia-zhong'),
+    message: t("tian-jia-zhong"),
     forbidClick: true,
-    duration: 0
-  })
+    duration: 0,
+  });
 
   try {
     // 批量添加所有选中的食物
     await Promise.all(
-      selectedFoods.value.map(item =>
+      selectedFoods.value.map((item) =>
         postDietRecords({
           food_id: item.food.id!,
           record_date: selectedDate.value,
           meal_type: currentMealType.value,
-          quantity: parseFloat(item.quantity)
+          quantity: parseFloat(item.quantity),
         })
       )
-    )
+    );
 
-    closeToast()
-    showSuccessToast( t('cheng-gong-tian-jia-selectedfoodsvaluelength-ge-shi-wu', [selectedFoods.value.length]) )
-    showAddFoodDialog.value = false
+    closeToast();
+    showSuccessToast(
+      t("cheng-gong-tian-jia-selectedfoodsvaluelength-ge-shi-wu", [
+        selectedFoods.value.length,
+      ])
+    );
+    showAddFoodDialog.value = false;
 
     // 重新加载数据
-    await Promise.all([loadDietRecords(), loadSummary()])
+    await Promise.all([loadDietRecords(), loadSummary()]);
   } catch (error: any) {
-    closeToast()
-    showToast(error.message || t('tian-jia-shi-bai'))
+    closeToast();
+    showToast(error.message || t("tian-jia-shi-bai"));
   }
 }
 
@@ -638,57 +742,57 @@ async function onConfirmAdd() {
 async function onDeleteRecord(id: number) {
   try {
     await showConfirmDialog({
-      title: t('ti-shi'),
-      message: t('que-ding-yao-shan-chu-zhe-tiao-ji-lu-ma')
-    })
+      title: t("ti-shi"),
+      message: t("que-ding-yao-shan-chu-zhe-tiao-ji-lu-ma"),
+    });
 
     showLoadingToast({
-      message: t('shan-chu-zhong'),
+      message: t("shan-chu-zhong"),
       forbidClick: true,
-      duration: 0
-    })
+      duration: 0,
+    });
 
-    await deleteDietRecordsId({ id })
+    await deleteDietRecordsId({ id });
 
-    closeToast()
-    showSuccessToast(t('shan-chu-cheng-gong'))
+    closeToast();
+    showSuccessToast(t("shan-chu-cheng-gong"));
 
     // 重新加载数据
-    await Promise.all([loadDietRecords(), loadSummary()])
+    await Promise.all([loadDietRecords(), loadSummary()]);
   } catch (error: any) {
-    if (error !== 'cancel') {
-      closeToast()
-      showToast(error.message || t('shan-chu-shi-bai'))
+    if (error !== "cancel") {
+      closeToast();
+      showToast(error.message || t("shan-chu-shi-bai"));
     }
   }
 }
 
 // 日期确认
 function onDateConfirm(value: any) {
-  selectedDate.value = formatDateArray(value)
-  showDatePicker.value = false
+  selectedDate.value = formatDateArray(value);
+  showDatePicker.value = false;
 }
 
 // 返回
 function onClickLeft() {
-  router.back()
+  router.back();
 }
 
 // 监听日期变化
 watch(selectedDate, () => {
-  loadDietRecords()
-  loadSummary()
-})
+  loadDietRecords();
+  loadSummary();
+});
 
 // 初始化
 onMounted(() => {
-  loadDietRecords()
-  loadSummary()
-})
+  loadDietRecords();
+  loadSummary();
+});
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@use "@/styles/variables.scss" as *;
 
 .diet {
   min-height: 100vh;
@@ -752,7 +856,11 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 8px $space-sm;
-    background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--gradient-header-start) 0%,
+      var(--gradient-header-end) 100%
+    );
     border-bottom: 1px solid $border-color;
 
     .meal-title {
@@ -988,7 +1096,11 @@ onMounted(() => {
       align-items: center;
       padding: 4px $space-sm;
       border-bottom: 1px solid $border-color;
-      background: linear-gradient(135deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--gradient-header-start) 0%,
+        var(--gradient-header-end) 100%
+      );
 
       .title {
         font-size: $font-size-xs;
