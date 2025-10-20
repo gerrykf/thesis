@@ -11,6 +11,7 @@ import { loginMessages } from './options'
 import { postAuthLogin } from '@/api/auth'
 import type { ErrorResponse } from '@/types/request'
 import { useUserStore } from '@/stores/user'
+import { startHeartbeat } from '@/utils/heartbeat'
 
 /**
  * 登录表单管理Hook
@@ -74,6 +75,9 @@ export function useLoginForm() {
         if (result.data.user) {
           userStore.setUserInfo(result.data.user)
         }
+
+        // 启动心跳检测
+        startHeartbeat(30000) // 每30秒检测一次
 
         showSuccessToast(result.message || loginMessages.success)
 

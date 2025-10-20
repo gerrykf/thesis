@@ -465,21 +465,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 获取地址信息
     const address = await getAddressFromIP(ipAddress);
 
+    // 获取客户端类型（从请求头中获取，默认为h5）
+    const clientType = (req.headers['x-client-type'] as string) || 'h5';
+
     // 记录在线用户
     try {
-      // 先删除该用户的旧在线记录
+      // 先删除该用户的旧在线记录（同一用户同一客户端类型只保留一条）
       await db.execute(
-        'DELETE FROM online_users WHERE user_id = ?',
-        [user.id]
+        'DELETE FROM online_users WHERE user_id = ? AND client_type = ?',
+        [user.id, clientType]
       );
 
       // 插入新的在线用户记录
       await db.execute(
         `INSERT INTO online_users (
-          user_id, username, token, ip, address, \`system\`, browser,
+          user_id, username, client_type, token, ip, address, \`system\`, browser,
           login_time, last_active_time, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
-        [user.id, username, token, ipAddress, address, system, browser, expiresAt]
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
+        [user.id, username, clientType, token, ipAddress, address, system, browser, expiresAt]
       );
     } catch (error) {
       console.error('记录在线用户失败:', error);

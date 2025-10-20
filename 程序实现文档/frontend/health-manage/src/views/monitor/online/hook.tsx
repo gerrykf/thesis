@@ -10,7 +10,8 @@ import type { PaginationProps } from "@pureadmin/table";
 
 export function useOnlineUsers() {
   const form = reactive({
-    username: ""
+    username: "",
+    client_type: ""
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -30,6 +31,16 @@ export function useOnlineUsers() {
       label: "用户名",
       prop: "username",
       minWidth: 120
+    },
+    {
+      label: "客户端类型",
+      prop: "client_type",
+      minWidth: 100,
+      cellRenderer: ({ row }) => (
+        <el-tag type={row.client_type === "admin" ? "primary" : "success"}>
+          {row.client_type === "admin" ? "后台" : "H5前台"}
+        </el-tag>
+      )
     },
     {
       label: "登录 IP",

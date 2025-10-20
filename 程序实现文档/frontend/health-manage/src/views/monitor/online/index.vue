@@ -43,6 +43,18 @@ const {
           class="w-[180px]!"
         />
       </el-form-item>
+      <el-form-item label="客户端类型" prop="client_type">
+        <el-select
+          v-model="form.client_type"
+          placeholder="请选择客户端类型"
+          clearable
+          class="w-[180px]!"
+        >
+          <el-option label="全部" value="" />
+          <el-option label="H5前台" value="h5" />
+          <el-option label="后台" value="admin" />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"

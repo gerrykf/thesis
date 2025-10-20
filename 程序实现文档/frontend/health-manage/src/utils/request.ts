@@ -6,6 +6,7 @@ import type {
 } from "axios";
 import { ElMessage } from "element-plus";
 import { getToken } from "@/utils/auth";
+import router from "@/router";
 
 // 扩展 AxiosInstance 类型，使其返回解包后的数据
 interface CustomAxiosInstance extends AxiosInstance {
@@ -121,12 +122,15 @@ request.interceptors.response.use(
           document.cookie.split(";").forEach(c => {
             document.cookie = c
               .replace(/^ +/, "")
-              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+              .replace(
+                /=.*/,
+                "=;expires=" + new Date().toUTCString() + ";path=/"
+              );
           });
 
           // 延迟跳转，让用户看到提示消息
           setTimeout(() => {
-            window.location.href = "/login";
+            router.replace({ path: "/login" });
           }, 1000);
           break;
         case 403:

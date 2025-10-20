@@ -80,7 +80,14 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDc4MTQxNSwiZXhwIjoxNzYxMzg2MjE1fQ.r1NVXWP9q7o3v1G4ji_MyBRhTdoL2f6Q6Z7EEG4P4j4\")",
       "Bash(echo \"=== 测试：更新角色权限 ===\" curl -s -X PUT \"http://localhost:3000/api/admin/roles/4/menus\" -H \"Authorization: Bearer $TOKEN\" -H \"X-Client-Type: admin\" -H \"Content-Type: application/json\" -d '{\"\"\"\"menuIds\"\"\"\":[10,14,16,30,31,32,33]}')",
       "Bash(echo \"\" echo \"=== 查询最新的操作日志 ===\" sleep 2 mysql -h localhost -P 3307 -u root -p000000 health_management -e \"\nSELECT id, user_id, module, summary, action, method, url, status, operating_time \nFROM system_logs \nORDER BY id DESC \nLIMIT 3;\")",
-      "Bash(__NEW_LINE__ echo \"\")"
+      "Bash(__NEW_LINE__ echo \"\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJ1c2VybmFtZSI6InNhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc2MDkyOTYxMSwiZXhwIjoxNzYxNTM0NDExfQ.5G22NxGqj3qmCpyJe9EgaJomM7AlNGf6_9Zb_U_eZVE\")",
+      "Bash(__NEW_LINE__ echo \"=== 筛选H5用户 ===\")",
+      "Bash(__NEW_LINE__ echo -e \"\\n\\n=== 筛选Admin用户 ===\")",
+      "Bash(__NEW_LINE__ echo \"=== 强制下线 test01 (ID=9) ===\")",
+      "Bash(TEST01_TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYzLCJ1c2VybmFtZSI6InRlc3QwMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYwOTMwNjgwLCJleHAiOjE3NjE1MzU0ODB9.97u7Ltg12r_XGVenbNxUGRpHFyC18bNCQB4r2R-tuPI\")",
+      "Bash(echo \"=== 3. 使用test01的token访问API（应该返回401）===\" curl -v \"http://localhost:3000/api/auth/profile\" -H \"Authorization: Bearer $TEST01_TOKEN\" -H \"X-Client-Type: h5\")",
+      "Bash(__NEW_LINE__ curl -s -w \"\\nHTTP Status: %{http_code}\\n\" \"http://localhost:3000/api/auth/profile\" -H \"Authorization: Bearer $TEST01_TOKEN\" -H \"X-Client-Type: h5\")"
     ],
     "deny": [],
     "ask": []

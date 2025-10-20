@@ -1,11 +1,10 @@
 /**
- * 用户在线心跳检测
+ * H5用户在线心跳检测
  * 定期检查用户是否被强制下线
  */
 
 import router from "@/router";
-import { getToken } from "@/utils/auth";
-import { ElMessage } from "element-plus";
+import { showToast } from "vant";
 
 let heartbeatTimer: number | null = null;
 let isCheckingHeartbeat = false;
@@ -14,8 +13,8 @@ let isCheckingHeartbeat = false;
  * 检查用户在线状态
  */
 async function checkOnlineStatus(): Promise<boolean> {
-  const tokenData = getToken();
-  if (!tokenData?.accessToken) {
+  const token = localStorage.getItem("token");
+  if (!token) {
     return false;
   }
 
@@ -23,8 +22,8 @@ async function checkOnlineStatus(): Promise<boolean> {
     const response = await fetch("/api/auth/profile", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${tokenData.accessToken}`,
-        "X-Client-Type": "admin"
+        Authorization: `Bearer ${token}`,
+        "X-Client-Type": "h5"
       }
     });
 
@@ -34,10 +33,9 @@ async function checkOnlineStatus(): Promise<boolean> {
       const message = data?.message || "您的账号已被强制下线";
 
       // 显示强制下线消息
-      ElMessage.error({
+      showToast({
         message: message,
-        duration: 3000,
-        showClose: true
+        duration: 3000
       });
 
       // 清除所有本地存储
@@ -46,7 +44,7 @@ async function checkOnlineStatus(): Promise<boolean> {
 
       // 延迟跳转到登录页
       setTimeout(() => {
-        router.replace({ path: "/login" });
+        router.replace("/login");
       }, 1000);
 
       return false;

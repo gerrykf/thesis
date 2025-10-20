@@ -57,12 +57,25 @@ request.interceptors.response.use(
 
       switch (status) {
         case 401:
-          showToast(i18n.global.t("http.error.401"));
+          // 检查是否是强制下线消息
+          const message = data?.message || i18n.global.t("http.error.401");
+          if (message.includes("强制下线") || message.includes("已被")) {
+            showToast({
+              message: message,
+              duration: 3000
+            });
+          } else {
+            showToast(message);
+          }
+
           // 清除本地存储
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          // 跳转到登录页
-          router.push("/login");
+          localStorage.clear();
+          sessionStorage.clear();
+
+          // 延迟跳转到登录页
+          setTimeout(() => {
+            router.replace("/login");
+          }, 1000);
           break;
         case 403:
           showToast(i18n.global.t("http.error.403"));

@@ -92,6 +92,7 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 10;
     const username = req.query.username as string;
+    const clientType = req.query.client_type as string;
 
     const offset = (page - 1) * pageSize;
 
@@ -102,6 +103,11 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
     if (username) {
       whereClause += ' AND username LIKE ?';
       queryParams.push(`%${username}%`);
+    }
+
+    if (clientType) {
+      whereClause += ' AND client_type = ?';
+      queryParams.push(clientType);
     }
 
     // 查询总数
@@ -117,6 +123,7 @@ export const getOnlineUsers = async (req: AuthRequest, res: Response): Promise<v
         id,
         user_id,
         username,
+        client_type,
         ip,
         address,
         \`system\`,

@@ -28,9 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
+import { startHeartbeat, stopHeartbeat } from "@/utils/heartbeat";
 const { t } = useI18n();
 
 const active = ref(0);
@@ -40,13 +41,25 @@ const theme = ref<"light" | "dark">("light");
 // 根据路由 meta 判断是否隐藏 Footer
 const hideFooter = computed(() => route.meta.hideFooter as boolean);
 
-// 初始化主题
+// 初始化主题和心跳检测
 onMounted(() => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     theme.value = "dark";
     document.documentElement.setAttribute("data-theme", "dark");
   }
+
+  // 如果用户已登录，启动心跳检测
+  const token = localStorage.getItem("token");
+  if (token) {
+    console.log("[App] 用户已登录，启动心跳检测");
+    startHeartbeat(30000); // 每30秒检测一次
+  }
+});
+
+// 组件卸载时停止心跳
+onUnmounted(() => {
+  stopHeartbeat();
 });
 
 // 监听主题变化
