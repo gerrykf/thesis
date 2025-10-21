@@ -3,7 +3,8 @@
     "allow": [
       "mcp__ide__getDiagnostics",
       "Bash(npm install swiper)",
-      "Bash(pnpm add swiper)"
+      "Bash(pnpm add swiper)",
+      "Read(//Users/gerry/LearnSpace/thesis/程序实现文档/backend/health-backend/**)"
     ],
     "deny": [],
     "ask": []

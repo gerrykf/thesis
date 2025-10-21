@@ -45,10 +45,12 @@ const foodValidation = [
 ];
 
 // 路由定义
-router.post('/', requireAdmin, foodValidation, createFood);
+// 允许所有登录用户添加食物，方便用户自定义食物库
+router.post('/', foodValidation, createFood);
 router.get('/', getFoods);
 router.get('/categories', getFoodCategories);
 router.get('/:id', getFoodById);
+// 更新和删除仍需要管理员权限
 router.put('/:id', requireAdmin, foodValidation, updateFood);
 router.delete('/:id', requireAdmin, deleteFood);
 

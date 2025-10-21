@@ -219,6 +219,16 @@ export const createFood = async (
 
     const createdBy = req.user?.userId;
 
+    console.log('创建食物请求数据:', {
+      name,
+      name_en,
+      category,
+      brand,
+      calories_per_100g,
+      createdBy,
+      userId: req.user?.userId
+    });
+
     const [result] = await db.execute(
       `INSERT INTO foods
        (name, name_en, category, brand, calories_per_100g, protein_per_100g, fat_per_100g,
@@ -226,9 +236,9 @@ export const createFood = async (
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
-        name_en,
+        name_en || null,
         category,
-        brand,
+        brand || null,
         calories_per_100g,
         protein_per_100g || 0,
         fat_per_100g || 0,
@@ -236,8 +246,8 @@ export const createFood = async (
         fiber_per_100g || 0,
         sodium_per_100g || 0,
         sugar_per_100g || 0,
-        barcode,
-        createdBy,
+        barcode || null,
+        createdBy || null,
       ]
     );
 
