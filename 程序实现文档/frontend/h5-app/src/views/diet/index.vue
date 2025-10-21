@@ -278,6 +278,41 @@
             </template>
           </van-search>
 
+          <!-- 食物分类选择 -->
+          <div class="category-section" v-if="foodCategories.length > 0">
+            <Swiper
+              ref="categorySwiperRef"
+              :modules="swiperModules"
+              :slides-per-view="'auto'"
+              :space-between="8"
+              :free-mode="true"
+              class="category-swiper"
+            >
+              <SwiperSlide class="category-slide">
+                <div
+                  class="category-item"
+                  :class="{ active: selectedCategory === '' }"
+                  @click="onSelectCategory('', 0)"
+                >
+                  {{ t("全部") }}
+                </div>
+              </SwiperSlide>
+              <SwiperSlide
+                v-for="(item, index) in foodCategories"
+                :key="item.category"
+                class="category-slide"
+              >
+                <div
+                  class="category-item"
+                  :class="{ active: selectedCategory === item.category }"
+                  @click="onSelectCategory(item.category!, index + 1)"
+                >
+                  {{ item.category }} ({{ item.count }})
+                </div>
+              </SwiperSlide>
+            </Swiper>
+          </div>
+
           <!-- 食物列表容器 -->
           <div class="food-list-section" ref="listContainerRef">
             <van-list
@@ -287,6 +322,7 @@
               @load="onLoadFood"
               :offset="300"
             >
+              <template #finished> 123 </template>
               <van-cell
                 v-for="food in foodList"
                 :key="food.id"
@@ -407,8 +443,12 @@ import {
   deleteDietRecordsId,
   getDietSummary,
 } from "@/api/diet";
-import { getFoods } from "@/api/food";
+import { getFoods, getFoodsCategories } from "@/api/food";
 import { useI18n } from "vue-i18n";
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/vue";
+import { FreeMode } from "swiper/modules";
+import "swiper/swiper.css";
 
 const { t } = useI18n();
 
@@ -445,6 +485,14 @@ const foodList = ref<API.Food[]>([]);
 const foodLoading = ref(false);
 const foodFinished = ref(false);
 const foodPage = ref(1);
+
+// 食物分类相关
+const foodCategories = ref<{ category?: string; count?: number }[]>([]);
+const selectedCategory = ref<string>("");
+
+// Swiper 模块和引用
+const swiperModules = [FreeMode];
+const categorySwiperRef = ref<any>(null);
 
 // 多选食物相关
 interface SelectedFoodItem {
@@ -580,6 +628,7 @@ async function onLoadFood() {
       page: foodPage.value,
       limit: 20,
       search: searchKeyword.value,
+      category: selectedCategory.value || undefined,
     });
 
     console.log("食物列表响应:", response);
@@ -617,6 +666,71 @@ async function onLoadFood() {
 
 // 搜索食物
 function onSearchFood() {
+  foodList.value = [];
+  foodPage.value = 1;
+  foodFinished.value = false;
+  onLoadFood();
+}
+
+// 获取食物分类列表
+async function loadFoodCategories() {
+  try {
+    const response = await getFoodsCategories();
+    const categories = (response as any).data || [];
+    foodCategories.value = categories;
+  } catch (error) {
+    console.error("获取分类失败:", error);
+  }
+}
+
+// 选择分类
+function onSelectCategory(category: string, index?: number) {
+  selectedCategory.value = category;
+
+  // 智能居中：前几个靠左，中间居中，最后几个靠右
+  if (categorySwiperRef.value && index !== undefined) {
+    nextTick(() => {
+      const swiper = categorySwiperRef.value?.$el?.swiper;
+      if (!swiper) return;
+
+      const clickedSlide = swiper.slides[index];
+      if (!clickedSlide) return;
+
+      // 获取容器和 slide 信息
+      const swiperWidth = swiper.width; // 容器宽度
+      const slideLeft = clickedSlide.offsetLeft; // slide 左边距离
+      const slideWidth = clickedSlide.offsetWidth; // slide 宽度
+      const totalWidth = swiper.virtualSize; // 所有 slides 的总宽度
+
+      // 计算居中所需的偏移量（让 slide 中心对齐容器中心）
+      const centerOffset = slideLeft - (swiperWidth / 2 - slideWidth / 2);
+
+      // 计算最大可滑动距离
+      const maxTranslate = totalWidth - swiperWidth;
+
+      // 智能调整：
+      let targetTranslate;
+      if (centerOffset <= 0) {
+        // 前几个标签，保持左对齐
+        targetTranslate = 0;
+      } else if (centerOffset >= maxTranslate) {
+        // 最后几个标签，保持右对齐
+        targetTranslate = maxTranslate;
+      } else {
+        // 中间标签，居中显示
+        targetTranslate = centerOffset;
+      }
+
+      // 设置过渡动画并滑动到目标位置
+      swiper.setTranslate(-targetTranslate);
+      swiper.transitionStart();
+      setTimeout(() => {
+        swiper.transitionEnd();
+      }, 300);
+    });
+  }
+
+  // 重置列表并重新加载
   foodList.value = [];
   foodPage.value = 1;
   foodFinished.value = false;
@@ -665,6 +779,7 @@ function showAddFood(mealType: MealType) {
   currentMealType.value = mealType;
   selectedFoods.value = [];
   searchKeyword.value = "";
+  selectedCategory.value = ""; // 重置分类选择
 
   // 重置状态
   foodList.value = [];
@@ -677,6 +792,9 @@ function showAddFood(mealType: MealType) {
     finished: foodFinished.value,
     loading: foodLoading.value,
   });
+
+  // 加载分类列表
+  loadFoodCategories();
 
   showAddFoodDialog.value = true;
 }
@@ -1042,6 +1160,48 @@ onMounted(() => {
 
       .van-search__content {
         padding-left: $space-xs;
+      }
+    }
+
+    // 食物分类选择
+    .category-section {
+      background: $white;
+      padding: 6px 0;
+      border-bottom: 1px solid $border-color;
+      flex-shrink: 0;
+
+      .category-swiper {
+        padding: 0 $space-sm;
+        transition: transform 0.3s ease-out;
+
+        .category-slide {
+          width: auto;
+        }
+
+        .category-item {
+          display: inline-block;
+          padding: 4px 12px;
+          background: $background-color;
+          color: $text-color-2;
+          font-size: $font-size-xs;
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.3s;
+          border: 1px solid transparent;
+          white-space: nowrap;
+
+          &:active {
+            transform: scale(0.95);
+          }
+
+          &.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: $white;
+            font-weight: 500;
+            border-color: transparent;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+          }
+        }
       }
     }
 

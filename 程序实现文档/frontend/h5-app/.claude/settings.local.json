@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm install swiper)",
+      "Bash(pnpm add swiper)"
     ],
     "deny": [],
     "ask": []
