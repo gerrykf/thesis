@@ -12,150 +12,31 @@
 
     <div class="content">
       <!-- 欢迎区域 -->
-      <div class="welcome-section">
-        <div class="welcome-row">
-          <h2>{{ greeting }}，{{ userName }}</h2>
-          <p class="date">{{ currentDate }} {{ weekday }}</p>
-        </div>
-      </div>
+      <WelcomeSection />
 
       <!-- 健康建议 - 迷你版轮播 -->
-      <div v-if="healthTips.length > 0" class="mini-tips">
-        <van-swipe
-          :autoplay="3000"
-          :show-indicators="false"
-          :loop="true"
-          class="tips-swipe"
-        >
-          <van-swipe-item v-for="(tip, index) in healthTips" :key="index">
-            <div class="mini-tip-item">
-              <van-icon name="bulb-o" class="tip-icon" />
-              <span class="tip-text">{{ tip }}</span>
-            </div>
-          </van-swipe-item>
-        </van-swipe>
-      </div>
+      <HealthTipsSwiper :health-tips="healthTips" />
 
       <!-- 今日打卡状态 -->
-      <div class="check-in-card" data-v-step="1">
-        <div class="card-header">
-          <div class="title-row">
-            <h3>{{ t('jin-ri-da-ka') }}</h3>
-            <van-tag v-if="hasCheckedIn" type="success" size="medium"
-              >{{ t('yi-da-ka') }}</van-tag
-            >
-            <van-tag v-else type="warning" size="medium">{{ t('qu-da-ka') }}</van-tag>
-          </div>
-        </div>
-
-        <!-- 已打卡：显示简要数据 - 网格布局 -->
-        <div v-if="hasCheckedIn" class="checked-in-data">
-          <div class="data-grid">
-            <div class="data-card mood">
-              <div class="card-icon">{{ moodIcon }}</div>
-              <div class="card-info">
-                <div class="card-value">{{ moodDisplay }}</div>
-              </div>
-            </div>
-            <div class="data-card weight">
-              <div class="card-icon">⚖️</div>
-              <div class="card-info">
-                <div class="card-value">
-                  {{ todayData.weight }}<span class="unit">kg</span>
-                </div>
-              </div>
-            </div>
-            <div class="data-card exercise" v-if="todayData.exercise">
-              <div class="card-icon">🏃</div>
-              <div class="card-info">
-                <div class="card-value">{{ exerciseDisplay }}</div>
-                <div class="card-extra">{{ exerciseTypeDisplay }}</div>
-              </div>
-            </div>
-            <div class="data-card sleep">
-              <div class="card-icon">😴</div>
-              <div class="card-info">
-                <div class="card-value">{{ sleepDisplay }}</div>
-                <div class="card-extra">{{ sleepQualityText }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 未打卡：显示提示 -->
-        <div v-else class="not-checked-in">
-          <div class="tip-icon">📝</div>
-          <p class="tip-text">{{ t('jin-tian-huan-mei-you-da-kao-ji-lu-yi-xia-ba') }}</p>
-          <van-button type="primary" size="small" round @click="goToHealth">
-            {{ t('li-ji-da-ka') }} </van-button>
-        </div>
-      </div>
+      <CheckInCard
+        :has-checked-in="hasCheckedIn"
+        :today-data="todayData"
+        @go-to-health="goToHealth"
+      />
 
       <!-- 今日摄入量 -->
-      <div class="nutrition-card" data-v-step="2">
-        <div class="card-header">
-          <h3>{{ t('jin-ri-she-ru') }}</h3>
-          <span class="view-more" @click="goToDiet">{{ t('cha-kan-xiang-qing') }}</span>
-        </div>
-
-        <div v-if="hasNutritionData" class="nutrition-data">
-          <!-- 热量进度条 -->
-          <div class="nutrition-item calories">
-            <div class="item-header">
-              <span class="label">{{ t('re-liang') }}</span>
-              <span class="value"
-                >{{ todayCalories }} <span class="unit">kcal</span></span
-              >
-            </div>
-            <van-progress
-              :percentage="caloriesProgress"
-              :pivot-text="caloriesProgress + '%'"
-              color="linear-gradient(to right, #ff6034, #ee0a24)"
-              track-color="#f5f5f5"
-            />
-          </div>
-
-          <!-- 三大营养素 -->
-          <div class="macros-grid">
-            <div class="macro-item protein">
-              <div class="macro-icon">💪</div>
-              <div class="macro-label">{{ t('dan-bai-zhi') }}</div>
-              <div class="macro-value">{{ t('todayprotein-g', [todayProtein]) }}</div>
-            </div>
-            <div class="macro-item carbs">
-              <div class="macro-icon">🍚</div>
-              <div class="macro-label">{{ t('tan-shui') }}</div>
-              <div class="macro-value">{{ t('todaycarbs-g', [todayCarbs]) }}</div>
-            </div>
-            <div class="macro-item fat">
-              <div class="macro-icon">🥑</div>
-              <div class="macro-label">{{ t('zhi-fang') }}</div>
-              <div class="macro-value">{{ t('todayfat-g', [todayFat]) }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="no-nutrition-data">
-          <div class="empty-icon">🍴</div>
-          <p class="empty-text">{{ t('jin-tian-huan-mei-you-yin-shi-ji-lu') }}</p>
-          <van-button type="primary" size="small" round @click="goToDiet">
-            {{ t('tian-jia-ji-lu') }} </van-button>
-        </div>
-      </div>
+      <NutritionCard
+        :nutrition-data="nutritionData"
+        @go-to-diet="goToDiet"
+      />
 
       <!-- 快捷操作 -->
-      <div class="quick-actions" data-v-step="3">
-        <van-grid :column-num="4" :border="false" :gutter="6">
-          <van-grid-item icon="add-o" :text="t('da-ka')" @click="goToHealth" />
-          <van-grid-item icon="goods-collect-o" :text="t('yin-shi')" @click="goToDiet" />
-          <van-grid-item
-            icon="chart-trending-o"
-            :text="t('fen-xi')"
-            @click="goToAnalysis"
-          />
-          <van-grid-item icon="setting-o" :text="t('mu-biao')" @click="goToGoals" />
-        </van-grid>
-      </div>
+      <QuickActions
+        @go-to-health="goToHealth"
+        @go-to-diet="goToDiet"
+        @go-to-analysis="goToAnalysis"
+        @go-to-goals="goToGoals"
+      />
     </div>
   </div>
 </template>
@@ -163,21 +44,18 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onActivated, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
 import { getDietSummary } from "@/api/diet";
-import {
-  formatChineseDate,
-  getWeekday,
-  getGreeting,
-  generateHealthTips,
-  useTodayData,
-} from "./utils";
+import { generateHealthTips, useTodayData } from "./utils";
 import { useI18n } from "vue-i18n";
+import WelcomeSection from "./components/WelcomeSection.vue";
+import HealthTipsSwiper from "./components/HealthTipsSwiper.vue";
+import CheckInCard from "./components/CheckInCard.vue";
+import NutritionCard from "./components/NutritionCard.vue";
+import QuickActions from "./components/QuickActions.vue";
 
-const {t} = useI18n();
+const { t } = useI18n();
 
 const router = useRouter();
-const userStore = useUserStore();
 const instance = getCurrentInstance();
 
 // Vue3 Tour 引导配置
@@ -254,13 +132,6 @@ function checkAndStartTour() {
   }
 }
 
-const greeting = computed(() => getGreeting());
-const currentDate = computed(() => formatChineseDate());
-const weekday = computed(() => getWeekday());
-
-// 从 Pinia store 获取用户名
-const userName = computed(() => userStore.nickname);
-
 // 使用今日数据 Hook
 const { todayData, hasCheckedInToday, refreshData } = useTodayData();
 
@@ -305,100 +176,9 @@ onActivated(() => {
   refreshAllData();
 });
 
-// 是否有营养数据
-const hasNutritionData = computed(() => {
-  return (nutritionData.value.total_calories || 0) > 0;
-});
-
-// 今日热量
-const todayCalories = computed(() => {
-  return Math.round(nutritionData.value.total_calories || 0);
-});
-
-// 今日蛋白质
-const todayProtein = computed(() => {
-  return Math.round(nutritionData.value.total_protein || 0);
-});
-
-// 今日碳水
-const todayCarbs = computed(() => {
-  return Math.round(nutritionData.value.total_carbs || 0);
-});
-
-// 今日脂肪
-const todayFat = computed(() => {
-  return Math.round(nutritionData.value.total_fat || 0);
-});
-
-// 热量进度百分比（假设目标是2000kcal）
-const caloriesProgress = computed(() => {
-  const target = 2000;
-  const current = nutritionData.value.total_calories || 0;
-  return Math.min(Math.round((current / target) * 100), 100);
-});
-
 // 是否已打卡 - 使用 hook 返回的标记
 const hasCheckedIn = computed(() => {
   return hasCheckedInToday.value;
-});
-
-// 格式化运动时长显示
-const exerciseDisplay = computed(() => {
-  const minutes = todayData.value.exercise;
-  if (!minutes) return t('wei-yun-dong');
-  if (minutes >= 60) {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (remainingMinutes === 0) {
-      return t('hours-xiao-shi', [hours]);
-    }
-    return t('hours-xiao-shi-remainingminutes-fen-zhong', [hours, remainingMinutes]);
-  }
-  return t('minutes-fen-zhong', [minutes]);
-});
-
-// 运动类型显示
-const exerciseTypeDisplay = computed(() => {
-  return todayData.value.exercise_type || t('qi-ta-yun-dong');
-});
-
-// 睡眠时长显示
-const sleepDisplay = computed(() => {
-  const hours = todayData.value.sleep;
-  return hours ? t('hours-xiao-shi-0', [hours]) : t('wei-ji-lu');
-});
-
-// 睡眠质量文本
-const sleepQualityText = computed(() => {
-  const qualityMap: Record<string, string> = {
-    excellent: t('you-xiu'),
-    good: t('liang-hao'),
-    fair: t('yi-ban'),
-    poor: t('jiao-cha'),
-  };
-  return qualityMap[todayData.value.sleep_quality || ""] || t('wei-ping-jia');
-});
-
-// 心情状态显示
-const moodDisplay = computed(() => {
-  const moodMap: Record<string, string> = {
-    excellent: t('xin-qing-hen-hao'),
-    good: t('xin-qing-bu-cuo'),
-    fair: t('xin-qing-yi-ban'),
-    poor: t('xin-qing-qian-jia'),
-  };
-  return moodMap[todayData.value.mood || ""] || t('wei-ji-lu-0');
-});
-
-// 心情图标
-const moodIcon = computed(() => {
-  const iconMap: Record<string, string> = {
-    excellent: "😄",
-    good: "😊",
-    fair: "😐",
-    poor: "😔",
-  };
-  return iconMap[todayData.value.mood || ""] || "😶";
 });
 
 function goToHealth() {
@@ -420,7 +200,6 @@ function goToAnalysis() {
 
 <style scoped lang="scss">
 @use "@/styles/variables.scss" as *;
-@use "@/styles/mixins.scss" as *;
 
 .home {
   min-height: 100vh;
@@ -430,279 +209,6 @@ function goToAnalysis() {
 .content {
   padding: $space-sm;
   padding-bottom: 70px;
-}
-
-// 迷你健康建议轮播
-.mini-tips {
-  margin-bottom: $space-sm;
-
-  .tips-swipe {
-    height: 40px;
-
-    :deep(.van-swipe__track) {
-      height: 100%;
-    }
-
-    :deep(.van-swipe-item) {
-      height: 100%;
-    }
-  }
-
-  .mini-tip-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px $space-sm;
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-    border-radius: $radius-sm;
-    font-size: $font-size-xs;
-    color: #333;
-    line-height: 1.4;
-    height: 100%;
-
-    .tip-icon {
-      font-size: 20px;
-      color: #f39c12;
-      flex-shrink: 0;
-    }
-
-    .tip-text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #333;
-    }
-  }
-}
-
-.welcome-section {
-  margin-bottom: $space-xs;
-
-  .welcome-row {
-    display: flex;
-    align-items: baseline;
-    gap: $space-sm;
-    flex-wrap: wrap;
-  }
-
-  h2 {
-    font-size: $font-size-lg;
-    margin: 0;
-    color: $text-color;
-    white-space: nowrap;
-  }
-
-  .date {
-    color: $text-color-2;
-    font-size: $font-size-xs;
-    margin: 0;
-    white-space: nowrap;
-  }
-}
-
-.check-in-card {
-  background: $white;
-  border-radius: $radius-md;
-  padding: $space-md;
-  margin-bottom: $space-sm;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-  .card-header {
-    margin-bottom: $space-sm;
-
-    .title-row {
-      @include flex-between;
-      align-items: center;
-
-      h3 {
-        font-size: $font-size-base;
-        color: $text-color;
-      }
-    }
-  }
-
-  .checked-in-data {
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 4px 6px;
-    }
-
-    .data-card {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px;
-      background: $background-color;
-      border-radius: $radius-sm;
-      transition: all 0.3s;
-      margin: 4px 0;
-
-      &:active {
-        transform: scale(0.98);
-      }
-
-      .card-icon {
-        font-size: 35px;
-        flex-shrink: 0;
-      }
-
-      .card-info {
-        flex: 1;
-        min-width: 0;
-
-        .card-value {
-          font-size: $font-size-base;
-          color: $text-color;
-          font-weight: 600;
-          line-height: 1.2;
-
-          .unit {
-            font-size: $font-size-xs;
-            font-weight: 400;
-            color: $text-color-2;
-            margin-left: 1px;
-          }
-        }
-
-        .card-extra {
-          font-size: $font-size-xs;
-          color: $text-color-3;
-          line-height: 1.3;
-          margin-top: 3px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          word-break: break-all;
-        }
-      }
-    }
-  }
-
-  .not-checked-in {
-    text-align: center;
-    padding: $space-md 0;
-
-    .tip-icon {
-      font-size: 46px;
-      margin-bottom: $space-xs;
-    }
-
-    .tip-text {
-      font-size: $font-size-sm;
-      color: $text-color-2;
-      margin-bottom: $space-md;
-    }
-  }
-}
-
-.quick-actions {
-  margin-bottom: $space-sm;
-
-  :deep(.van-grid) {
-    .van-grid-item__content {
-      padding: $space-sm 6px;
-      background: $white;
-      border-radius: $radius-md;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s;
-
-      &:active {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-    }
-
-    .van-grid-item__icon {
-      font-size: 35px;
-      color: $primary-color;
-    }
-
-    .van-grid-item__text {
-      margin-top: 6px;
-      font-size: $font-size-xs;
-      color: $text-color;
-      font-weight: 500;
-    }
-  }
-}
-
-.tips-section {
-  margin-bottom: $space-lg;
-
-  .section-header {
-    @include flex-between;
-    align-items: center;
-    margin-bottom: $space-md;
-
-    h3 {
-      font-size: $font-size-lg;
-      color: $text-color;
-      margin: 0;
-    }
-
-    .tip-count {
-      font-size: $font-size-sm;
-      color: $text-color-3;
-      padding: 4px $space-sm;
-      background: $background-color;
-      border-radius: $radius-md;
-    }
-  }
-
-  .tips-list {
-    display: flex;
-    flex-direction: column;
-    gap: $space-sm;
-
-    .tip-card {
-      display: flex;
-      align-items: flex-start;
-      gap: $space-md;
-      padding: $space-md;
-      background: linear-gradient(135deg, #f5f7fa 0%, #f0f4f8 100%);
-      border-radius: $radius-lg;
-      border-left: 3px solid $primary-color;
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateX(4px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      }
-
-      .tip-icon {
-        flex-shrink: 0;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: $primary-color;
-        border-radius: 50%;
-        color: $white;
-
-        :deep(.van-icon) {
-          font-size: 16px;
-        }
-      }
-
-      .tip-content {
-        flex: 1;
-        min-width: 0;
-
-        .tip-text {
-          margin: 0;
-          font-size: $font-size-base;
-          color: $text-color;
-          line-height: 1.6;
-          word-break: break-all;
-        }
-      }
-    }
-  }
 }
 
 // Vue3 Tour 自定义样式
@@ -788,110 +294,6 @@ function goToAnalysis() {
 
     &--dark {
       border-color: $white !important;
-    }
-  }
-}
-
-.nutrition-card {
-  background: $white;
-  border-radius: $radius-md;
-  padding: $space-md;
-  margin-bottom: $space-sm;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-  .card-header {
-    @include flex-between;
-    align-items: center;
-    margin-bottom: $space-sm;
-
-    h3 {
-      font-size: $font-size-base;
-      color: $text-color;
-    }
-
-    .view-more {
-      font-size: $font-size-xs;
-      color: $primary-color;
-      cursor: pointer;
-
-      &:active {
-        opacity: 0.7;
-      }
-    }
-  }
-
-  .nutrition-data {
-    .nutrition-item {
-      margin-bottom: $space-sm;
-
-      .item-header {
-        @include flex-between;
-        margin-bottom: 4px;
-
-        .label {
-          font-size: $font-size-sm;
-          color: $text-color-2;
-        }
-
-        .value {
-          font-size: $font-size-lg;
-          color: $text-color;
-          font-weight: 600;
-
-          .unit {
-            font-size: $font-size-xs;
-            font-weight: 400;
-            color: $text-color-2;
-            margin-left: 2px;
-          }
-        }
-      }
-    }
-
-    .macros-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: $space-xs;
-
-      .macro-item {
-        text-align: center;
-        padding: $space-sm;
-        background: $background-color;
-        border-radius: $radius-sm;
-
-        .macro-icon {
-          font-size: 24px;
-          margin-bottom: 2px;
-        }
-
-        .macro-label {
-          font-size: $font-size-xs;
-          color: $text-color-2;
-          margin-bottom: 2px;
-        }
-
-        .macro-value {
-          font-size: $font-size-base;
-          color: $text-color;
-          font-weight: 600;
-        }
-      }
-    }
-  }
-
-  .no-nutrition-data {
-    text-align: center;
-    padding: $space-md 0;
-
-    .empty-icon {
-      font-size: 32px;
-      margin-bottom: $space-xs;
-    }
-
-    .empty-text {
-      font-size: $font-size-sm;
-      color: $text-color-2;
-      margin-bottom: $space-md;
     }
   }
 }
