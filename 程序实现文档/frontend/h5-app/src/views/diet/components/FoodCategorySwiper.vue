@@ -48,7 +48,7 @@ interface Props {
   selectedCategory: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
   select: [category: string];
