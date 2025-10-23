@@ -12,7 +12,7 @@
         <van-button plain size="small" @click="$emit('update:show', false)">
           {{ t("common.cancel") }}
         </van-button>
-        <span class="title">{{ t("添加新食物") }}</span>
+        <span class="title">{{ t("tian-jia-xin-shi-wu-0") }}</span>
         <van-button
           plain
           size="small"
@@ -29,39 +29,49 @@
         <van-form ref="formRef">
           <!-- 基本信息 -->
           <div class="form-section">
-            <div class="section-title">{{ t("基本信息") }}</div>
+            <div class="section-title">{{ t("ji-ben-xin-xi") }}</div>
             <van-cell-group inset>
               <van-field
                 v-model="formData.name"
-                :label="t('食物名称')"
-                :placeholder="t('请输入食物名称')"
+                :label="t('food-name')"
+                :placeholder="t('qing-shu-ru-shi-wu-ming-cheng')"
                 required
-                :rules="[{ required: true, message: t('请输入食物名称') }]"
+                :rules="[
+                  {
+                    required: true,
+                    message: t('qing-shu-ru-shi-wu-ming-cheng'),
+                  },
+                ]"
               />
               <van-field
                 v-model="formData.name_en"
-                :label="t('英文名称')"
-                :placeholder="t('请输入英文名称（可选）')"
+                :label="t('english-name')"
+                :placeholder="t('qing-shu-ru-shi-wu-ying-wen-ming-cheng')"
               />
               <van-field
                 v-model="formData.category"
-                :label="t('食物分类')"
-                :placeholder="t('请选择或输入分类')"
+                :label="t('food-category')"
+                :placeholder="t('qin-xuan-zhe-huo-shu-ru-fen-lei')"
                 required
-                :rules="[{ required: true, message: t('请选择或输入分类') }]"
+                :rules="[
+                  {
+                    required: true,
+                    message: t('qin-xuan-zhe-huo-shu-ru-fen-lei'),
+                  },
+                ]"
                 is-link
                 readonly
                 @click="showCategoryPicker = true"
               />
               <van-field
                 v-model="formData.brand"
-                :label="t('品牌')"
-                :placeholder="t('请输入品牌（可选）')"
+                :label="t('brand')"
+                :placeholder="t('qing-shu-ru-pin-pai-ke-xuan')"
               />
               <van-field
                 v-model="formData.barcode"
-                :label="t('条形码')"
-                :placeholder="t('请输入条形码（可选）')"
+                :label="t('tiao-xing-ma')"
+                :placeholder="t('qing-shu-ru-tiao-xing-ma-ke-xuan')"
               />
             </van-cell-group>
           </div>
@@ -72,11 +82,11 @@
             <van-cell-group inset>
               <van-field
                 v-model="formData.calories_per_100g"
-                :label="t('热量(kcal)')"
-                :placeholder="t('请输入热量')"
+                :label="t('re-liang')"
+                :placeholder="t('qin-shu-ru-re-liang')"
                 type="number"
                 required
-                :rules="[{ required: true, message: t('请输入热量') }]"
+                :rules="[{ required: true, message: t('qin-shu-ru-re-liang') }]"
               >
                 <template #button>
                   <span class="unit">kcal</span>
@@ -84,8 +94,8 @@
               </van-field>
               <van-field
                 v-model="formData.protein_per_100g"
-                :label="t('蛋白质(g)')"
-                :placeholder="t('请输入蛋白质含量')"
+                :label="t('protein')"
+                :placeholder="t('qin-shu-ru-dan-bai-zhi-han-liang')"
                 type="number"
               >
                 <template #button>
@@ -94,8 +104,8 @@
               </van-field>
               <van-field
                 v-model="formData.fat_per_100g"
-                :label="t('脂肪(g)')"
-                :placeholder="t('请输入脂肪含量')"
+                :label="t('fits')"
+                :placeholder="t('qing-shu-ru-zhifang-han-liang')"
                 type="number"
               >
                 <template #button>
@@ -104,7 +114,7 @@
               </van-field>
               <van-field
                 v-model="formData.carbs_per_100g"
-                :label="t('碳水化合物(g)')"
+                :label="t('carbs')"
                 :placeholder="t('请输入碳水含量')"
                 type="number"
               >
@@ -114,7 +124,7 @@
               </van-field>
               <van-field
                 v-model="formData.fiber_per_100g"
-                :label="t('膳食纤维(g)')"
+                :label="t('shan-shi-qian-wei')"
                 :placeholder="t('请输入纤维含量')"
                 type="number"
               >
@@ -124,8 +134,8 @@
               </van-field>
               <van-field
                 v-model="formData.sugar_per_100g"
-                :label="t('糖(g)')"
-                :placeholder="t('请输入糖含量')"
+                :label="t('tang')"
+                :placeholder="t('qing-shu-ru-tang-han-liang')"
                 type="number"
               >
                 <template #button>
@@ -134,8 +144,8 @@
               </van-field>
               <van-field
                 v-model="formData.sodium_per_100g"
-                :label="t('钠(mg)')"
-                :placeholder="t('请输入钠含量')"
+                :label="t('na')"
+                :placeholder="t('qing-shu-ru-na-han-liang')"
                 type="number"
               >
                 <template #button>
@@ -158,7 +168,7 @@
         <template #toolbar>
           <div class="picker-toolbar">
             <van-button size="small" @click="showCategoryInput = true">
-              {{ t("自定义分类") }}
+              {{ t("zi-ding-yi-fen-lei") }}
             </van-button>
           </div>
         </template>
@@ -168,13 +178,13 @@
     <!-- 自定义分类输入 -->
     <van-dialog
       v-model:show="showCategoryInput"
-      :title="t('输入自定义分类')"
+      :title="t('shu-ru-zi-ding-yi-fen-lei')"
       show-cancel-button
       @confirm="onCustomCategoryConfirm"
     >
       <van-field
         v-model="customCategory"
-        :placeholder="t('请输入分类名称')"
+        :placeholder="t('qing-shu-ru-fen-lei-ming-cheng')"
         style="padding: 16px"
       />
     </van-dialog>
@@ -252,15 +262,15 @@ async function handleSubmit() {
   try {
     // 验证必填字段
     if (!formData.value.name.trim()) {
-      showToast(t("请输入食物名称"));
+      showToast(t("qing-shu-ru-shi-wu-ming-cheng"));
       return;
     }
     if (!formData.value.category.trim()) {
-      showToast(t("请选择或输入分类"));
+      showToast(t("qing-xuan-ze-huo-shu-ru-fen-lei"));
       return;
     }
     if (!formData.value.calories_per_100g) {
-      showToast(t("请输入热量"));
+      showToast(t("qing-shu-ru-re-liang"));
       return;
     }
 
@@ -305,7 +315,7 @@ async function handleSubmit() {
     // 提交到服务器
     await postFoods(submitData);
 
-    showSuccessToast(t("添加成功"));
+    showSuccessToast(t("tian-jia-cheng-gong"));
 
     // 重置表单
     resetForm();
@@ -314,7 +324,7 @@ async function handleSubmit() {
     emit("update:show", false);
     emit("success");
   } catch (error: any) {
-    showToast(error.message || t("添加失败"));
+    showToast(error.message || t("tian-jia-shi-bai"));
   } finally {
     submitting.value = false;
   }

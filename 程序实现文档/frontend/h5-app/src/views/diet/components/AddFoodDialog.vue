@@ -48,10 +48,12 @@
           <!-- 空状态 -->
           <van-empty
             v-if="foodList.length === 0 && !foodLoading && foodFinished"
-            :description="t('暂无数据')"
+            :description="t('common.noData')"
           >
             <div class="empty-action">
-              <p class="empty-text">{{ t("没有找到相关食物") }}</p>
+              <p class="empty-text">
+                {{ t("mei-you-zhao-dao-xiang-guan-shi-wu") }}
+              </p>
               <van-button
                 type="primary"
                 round
@@ -59,7 +61,7 @@
                 class="empty-add-btn"
               >
                 <van-icon name="plus" />
-                {{ t("添加新食物") }}
+                {{ t("tian-jia-xin-shi-wu") }}
               </van-button>
             </div>
           </van-empty>
@@ -76,8 +78,12 @@
               <div class="finished-text">
                 <div class="empty-hint">
                   <van-icon name="search" class="search-icon" />
-                  <p class="hint-title">{{ t("没有找到你想要的?") }}</p>
-                  <p class="hint-desc">{{ t("试试添加新食物吧") }}</p>
+                  <p class="hint-title">
+                    {{ t("mei-you-zhao-dao-ni-xiang-yao-de") }}
+                  </p>
+                  <p class="hint-desc">
+                    {{ t("shi-shi-tian-jia-xin-shi-wu-ba") }}
+                  </p>
                 </div>
                 <van-button
                   type="primary"
@@ -87,7 +93,7 @@
                   class="add-food-btn"
                 >
                   <van-icon name="plus" />
-                  {{ t("添加新食物") }}
+                  {{ t("tian-jia-xin-shi-wu-0") }}
                 </van-button>
               </div>
             </template>
