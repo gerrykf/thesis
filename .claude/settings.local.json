@@ -119,7 +119,9 @@
       "Bash(__NEW_LINE__ echo \"=== 测试2: 使用不存在的用户名筛选（应返回空列表而不是500错误） ===\")",
       "Bash(__NEW_LINE__ echo \"=== 测试: 查询不存在的用户（英文） ===\")",
       "Bash(__NEW_LINE__ echo \"=== 测试在线用户列表 ===\")",
-      "Bash(__NEW_LINE__ echo \"=== 测试1: 在线用户 - 不存在的username ===\")"
+      "Bash(__NEW_LINE__ echo \"=== 测试1: 在线用户 - 不存在的username ===\")",
+      "Bash(for file in \"E:\\workspace\\thesis\\程序实现文档\\backend\\health-backend\\src\\controllers\"/*Controller.ts)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
