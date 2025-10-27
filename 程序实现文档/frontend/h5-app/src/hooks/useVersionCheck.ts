@@ -33,7 +33,7 @@ interface VersionCheckOptions {
  */
 export function useVersionCheck(options: VersionCheckOptions = {}) {
   const {
-    interval = 30000, // 默认 30 秒
+    interval = 10000, // 默认 30 秒
     immediate = true,
     mode = "etag",
   } = options;
@@ -203,7 +203,7 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
 
   // 组件挂载时开始轮询
   onMounted(() => {
-    // 只在生产环境启用test
+    // 只在生产环境启用
     if (import.meta.env.MODE === "production") {
       startPolling();
     } else {
