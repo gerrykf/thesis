@@ -34,8 +34,8 @@ interface VersionCheckOptions {
 export function useVersionCheck(options: VersionCheckOptions = {}) {
   const {
     interval = 10000, // 默认 30 秒
-    immediate = true,
-    mode = "hash",
+    immediate = true, // 默认 true
+    mode = "hash", // 默认 'hash'，因为 ETag 可能被 CDN 或服务器配置影响
   } = options;
 
   // 是否有更新
