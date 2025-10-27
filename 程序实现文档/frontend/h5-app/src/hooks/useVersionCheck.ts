@@ -35,7 +35,7 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
   const {
     interval = 10000, // 默认 30 秒
     immediate = true,
-    mode = "etag",
+    mode = "hash",
   } = options;
 
   // 是否有更新
