@@ -203,7 +203,7 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
 
   // 组件挂载时开始轮询
   onMounted(() => {
-    // 只在生产环境启用
+    // 只在生产环境启用test
     if (import.meta.env.MODE === "production") {
       startPolling();
     } else {
