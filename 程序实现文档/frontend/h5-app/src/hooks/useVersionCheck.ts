@@ -204,11 +204,11 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
   // 组件挂载时开始轮询
   onMounted(() => {
     // 只在生产环境启用
-    // if (import.meta.env.MODE === 'production') {
-    startPolling();
-    // } else {
-    //   console.log('[VersionCheck] 开发环境，跳过版本检查')
-    // }
+    if (import.meta.env.MODE === "production") {
+      startPolling();
+    } else {
+      console.log("[VersionCheck] 开发环境，跳过版本检查");
+    }
   });
 
   // 组件卸载时停止轮询
