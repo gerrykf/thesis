@@ -202,7 +202,7 @@ const totalNutrition = computed(() => {
     grid-template-columns: repeat(4, 1fr);
     gap: 0;
     padding: 8px $space-xs;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(180deg, var(--gradient-primary-start) 10%, var(--gradient-primary-end) 40%);
 
     .total-item {
       text-align: center;
@@ -210,14 +210,14 @@ const totalNutrition = computed(() => {
       .label {
         display: block;
         font-size: $font-size-xs;
-        color: rgba(255, 255, 255, 0.8);
+        color: $text-color-2;
         margin-bottom: 2px;
       }
 
       .value {
         display: block;
         font-size: $font-size-sm;
-        color: $white;
+        color: $text-color;
         font-weight: bold;
       }
     }

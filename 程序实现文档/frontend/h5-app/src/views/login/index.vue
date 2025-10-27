@@ -12,7 +12,7 @@
     <div class="content">
       <!-- Logo 区域 -->
       <div class="logo-section">
-        <div class="logo-icon">🏃</div>
+        <div class="logo-icon">🏃‍♂️</div>
         <h1 class="app-name">{{ t('login.appName') }}</h1>
         <p class="app-desc">{{ t('login.appDesc') }}</p>
       </div>
@@ -162,7 +162,7 @@ function onSelectLanguage(action: { value: SupportLocale }) {
 
 .login {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #3e84ed 10%, #8db9fb 40%);
 }
 
 .content {

@@ -22,7 +22,7 @@
         <van-progress
           :percentage="checkedRate"
           stroke-width="8"
-          color="linear-gradient(90deg, #667eea 0%, #764ba2 100%)"
+          color="linear-gradient(90deg, #3e84ed 0%, #8db9fb 100%)"
           track-color="rgba(255, 255, 255, 0.3)"
           :show-pivot="false"
         />
@@ -326,12 +326,12 @@ onActivated(() => {
 }
 
 .stats-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, var(--gradient-primary-start) 10%, var(--gradient-primary-end) 40%);
   margin: $space-md 0;
   padding: $space-lg;
   border-radius: $radius-lg;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  color: $white;
+  box-shadow: 0 4px 12px rgba(25, 137, 250, 0.3);
+  color: $text-color;
 
   .stats-header {
     display: flex;
@@ -430,7 +430,7 @@ onActivated(() => {
       }
 
       &.checked {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-color);
 
         .day-number {
           color: $white;
@@ -448,7 +448,7 @@ onActivated(() => {
       }
 
       &.checked:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-color);
         opacity: 0.9;
       }
 

@@ -19,60 +19,7 @@
       </div>
 
       <!-- 数据概览卡片 -->
-      <div v-if="overview" class="overview-card">
-        <div class="overview-header">
-          <h3>{{ t("shu-ju-gai-lan") }}</h3>
-          <span class="overview-period">{{
-            t("zui-jin-activetab-tian", [activeTab])
-          }}</span>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-icon">⚖️</div>
-            <div class="stat-info">
-              <div class="stat-label">{{ t("ping-jun-ti-zhong") }}</div>
-              <div class="stat-value">
-                {{ formatNumber(overview.avg_weight) }}
-                <span class="unit">kg</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">🏃</div>
-            <div class="stat-info">
-              <div class="stat-label">{{ t("ping-jun-yun-dong") }}</div>
-              <div class="stat-value">
-                {{ formatNumber(overview.avg_exercise_duration) }}
-                <span class="unit">{{ t("fen-zhong") }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">😴</div>
-            <div class="stat-info">
-              <div class="stat-label">{{ t("ping-jun-shui-mian") }}</div>
-              <div class="stat-value">
-                {{ formatNumber(overview.avg_sleep_hours) }}
-                <span class="unit">{{ t("xiao-shi") }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-info">
-              <div class="stat-label">{{ t("ping-jun-re-liang") }}</div>
-              <div class="stat-value">
-                {{ formatNumber(overview.avg_daily_calories) }}
-                <span class="unit">kcal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <overview-card :overview="overview" :days="Number(activeTab)" />
 
       <!-- 图表区域 -->
       <div class="charts-section">
@@ -96,6 +43,7 @@ import {
   getStatsSleepQuality,
   getStatsOverview,
 } from "@/api/stats";
+import OverviewCard from "./components/OverviewCard.vue";
 import WeightChart from "./components/WeightChart.vue";
 import NutritionChart from "./components/NutritionChart.vue";
 import ExerciseChart from "./components/ExerciseChart.vue";
@@ -239,14 +187,6 @@ async function loadAllData() {
     });
   }
 }
-
-/**
- * 格式化数字
- */
-function formatNumber(value?: number): string {
-  if (!value || typeof value !== "number" || isNaN(value)) return "0";
-  return value.toFixed(1);
-}
 </script>
 
 <style scoped lang="scss">
@@ -282,80 +222,8 @@ function formatNumber(value?: number): string {
   }
 }
 
-.overview-card {
-  background: $white;
-  border-radius: $radius-lg;
-  padding: $space-lg;
+:deep(.overview-card) {
   margin: 0 $space-md $space-lg;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-
-  .overview-header {
-    @include flex-between;
-    align-items: center;
-    margin-bottom: $space-lg;
-
-    h3 {
-      font-size: $font-size-lg;
-      color: $text-color;
-      margin: 0;
-    }
-
-    .overview-period {
-      font-size: $font-size-sm;
-      color: $text-color-3;
-      padding: 4px $space-sm;
-      background: $background-color;
-      border-radius: $radius-md;
-    }
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: $space-md;
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: $space-md;
-      padding: $space-md;
-      background: linear-gradient(
-        135deg,
-        var(--gradient-header-start) 0%,
-        var(--gradient-header-end) 100%
-      );
-      border-radius: $radius-md;
-
-      .stat-icon {
-        font-size: 32px;
-        flex-shrink: 0;
-      }
-
-      .stat-info {
-        flex: 1;
-        min-width: 0;
-
-        .stat-label {
-          font-size: $font-size-sm;
-          color: $text-color-2;
-          margin-bottom: 4px;
-        }
-
-        .stat-value {
-          font-size: $font-size-lg;
-          font-weight: 600;
-          color: $text-color;
-
-          .unit {
-            font-size: $font-size-xs;
-            font-weight: 400;
-            color: $text-color-3;
-            margin-left: 2px;
-          }
-        }
-      }
-    }
-  }
 }
 
 .charts-section {

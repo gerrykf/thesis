@@ -24,6 +24,11 @@
         }}</van-tabbar-item>
       </van-tabbar>
     </div>
+    <UpdateNotification
+      :show="hasUpdate"
+      @ignore="ignoreUpdate"
+      @update="applyUpdate"
+    />
   </van-config-provider>
 </template>
 
@@ -32,7 +37,12 @@ import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { startHeartbeat, stopHeartbeat } from "@/utils/heartbeat";
+import UpdateNotification from "./components/UpdateNotification.vue";
+import { useVersionCheck } from "./hooks/useVersionCheck";
+
 const { t } = useI18n();
+
+const { hasUpdate, ignoreUpdate, applyUpdate } = useVersionCheck();
 
 const active = ref(0);
 const route = useRoute();

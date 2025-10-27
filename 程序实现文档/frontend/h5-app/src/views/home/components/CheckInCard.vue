@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="data-card weight">
-          <div class="card-icon">⚖️</div>
+          <div class="card-icon">⚖</div>
           <div class="card-info">
             <div class="card-value">
               {{ todayData.weight }}<span class="unit">kg</span>
@@ -28,7 +28,7 @@
           </div>
         </div>
         <div class="data-card exercise" v-if="todayData.exercise">
-          <div class="card-icon">🏃</div>
+          <div class="card-icon">🏃‍♂️</div>
           <div class="card-info">
             <div class="card-value">{{ exerciseDisplay }}</div>
             <div class="card-extra">{{ exerciseTypeDisplay }}</div>

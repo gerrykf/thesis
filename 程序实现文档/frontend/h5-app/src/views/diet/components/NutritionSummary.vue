@@ -54,22 +54,22 @@ const hasSummary = computed(() => {
 @use "@/styles/variables.scss" as *;
 
 .summary-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, var(--gradient-primary-start) 10%, var(--gradient-primary-end) 40%);
   border-radius: $radius-md;
   padding: $space-md;
   margin-bottom: $space-sm;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: $space-xs;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(25, 137, 250, 0.3);
 
   .summary-item {
     text-align: center;
-    color: $white;
+    color: $text-color;
 
     .label {
       font-size: $font-size-xs;
-      opacity: 0.9;
+      color: $text-color-2;
       display: block;
       margin-bottom: 2px;
     }
@@ -78,6 +78,7 @@ const hasSummary = computed(() => {
       font-size: $font-size-base;
       font-weight: bold;
       display: block;
+      color: $text-color;
     }
   }
 }

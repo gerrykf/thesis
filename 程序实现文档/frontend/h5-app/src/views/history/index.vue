@@ -605,7 +605,7 @@ function getMealTypeText(type: string): string {
       font-size: $font-size-xs;
       padding: 4px $space-sm;
       border-radius: $radius-sm;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--primary-color);
       color: $white;
     }
   }
@@ -702,7 +702,7 @@ function getMealTypeText(type: string): string {
     @include flex-between;
     align-items: center;
     padding: $space-sm $space-md;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: $white;
 
     .date-info {
@@ -744,7 +744,7 @@ function getMealTypeText(type: string): string {
         @include flex-between;
         align-items: center;
         padding: $space-sm $space-md;
-        background: rgba(102, 126, 234, 0.08);
+        background: rgba(25, 137, 250, 0.08);
         border-bottom: 1px solid $border-color;
 
         .meal-icon {

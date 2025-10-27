@@ -115,7 +115,7 @@ const { formData, loading, handleRegister, goToLogin } = useRegisterForm();
 
 .register {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #3e84ed 10%, #8db9fb 40%);
 }
 
 .content {

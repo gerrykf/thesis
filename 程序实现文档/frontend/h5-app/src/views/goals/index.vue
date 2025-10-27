@@ -42,7 +42,7 @@
                 :percentage="getProgressPercentage(goal)"
                 :show-pivot="false"
                 :stroke-width="8"
-                color="#667eea"
+                color="#1989fa"
               />
               <div class="progress-text">
                 <span class="current"
@@ -577,7 +577,7 @@ function goBack() {
   color: $white;
 
   &.type-weight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
   }
 
   &.type-exercise {

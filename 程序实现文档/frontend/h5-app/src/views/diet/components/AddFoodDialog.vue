@@ -274,7 +274,7 @@ function handleAddSuccess() {
         .empty-add-btn {
           padding: 0 $space-xl;
           height: 40px;
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 4px 12px rgba(25, 137, 250, 0.3);
 
           :deep(.van-icon) {
             margin-right: $space-xs;
@@ -317,8 +317,8 @@ function handleAddSuccess() {
       padding: $space-xl $space-lg;
       background: linear-gradient(
         180deg,
-        rgba(102, 126, 234, 0.03) 0%,
-        rgba(118, 75, 162, 0.05) 100%
+        rgba(25, 137, 250, 0.03) 10%,
+        rgba(187, 222, 251, 0.05) 40%
       );
 
       .empty-hint {
@@ -351,7 +351,7 @@ function handleAddSuccess() {
         height: 44px;
         font-size: $font-size-base;
         font-weight: 500;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 12px rgba(25, 137, 250, 0.3);
 
         :deep(.van-icon) {
           margin-right: $space-xs;

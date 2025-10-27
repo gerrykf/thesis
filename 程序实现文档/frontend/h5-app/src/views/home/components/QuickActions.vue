@@ -42,11 +42,11 @@ const emit = defineEmits<{
 @use "@/styles/variables.scss" as *;
 
 .quick-actions {
-  margin-bottom: $space-sm;
+  margin-bottom: $space-md;
 
   :deep(.van-grid) {
     .van-grid-item__content {
-      padding: $space-sm 6px;
+      padding: 9px 6px;
       background: $white;
       border-radius: $radius-md;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -59,12 +59,12 @@ const emit = defineEmits<{
     }
 
     .van-grid-item__icon {
-      font-size: 35px;
+      font-size: 28px;
       color: $primary-color;
     }
 
     .van-grid-item__text {
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: $font-size-xs;
       color: $text-color;
       font-weight: 500;

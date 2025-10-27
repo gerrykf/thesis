@@ -4,7 +4,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm install swiper)",
       "Bash(pnpm add swiper)",
-      "Read(//Users/gerry/LearnSpace/thesis/程序实现文档/backend/health-backend/**)"
+      "Read(//Users/gerry/LearnSpace/thesis/程序实现文档/backend/health-backend/**)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:h5:*)"
     ],
     "deny": [],
     "ask": []

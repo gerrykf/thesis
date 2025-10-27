@@ -71,8 +71,12 @@ $font-size-xl: 20px;
 
 ### 渐变背景
 ```scss
-@include gradient-bg(#667eea, #764ba2);           // 默认135度
-@include gradient-bg(#667eea, #764ba2, 90deg);    // 自定义角度
+// 推荐使用CSS变量
+background: linear-gradient(180deg, var(--gradient-primary-start) 10%, var(--gradient-primary-end) 40%);
+
+// 或使用mixin（使用新的蓝色渐变）
+@include gradient-bg(#3e84ed, #8db9fb);           // 默认135度
+@include gradient-bg(#3e84ed, #8db9fb, 180deg);   // 自定义角度
 ```
 
 ### 按钮样式

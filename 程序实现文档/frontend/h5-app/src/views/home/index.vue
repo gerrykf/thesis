@@ -14,8 +14,15 @@
       <!-- 欢迎区域 -->
       <WelcomeSection />
 
-      <!-- 健康建议 - 迷你版轮播 -->
-      <HealthTipsSwiper :health-tips="healthTips" />
+      <!-- 健康建议 - 迷你版轮播 (所有目标完成后隐藏) -->
+      <HealthTipsSwiper v-if="!allGoalsCompleted" :health-tips="healthTips" />
+
+      <!-- 鼓励提示 -->
+      <EncouragementTips
+        :has-checked-in="hasCheckedIn"
+        :today-data="todayData"
+        :nutrition-data="nutritionData"
+      />
 
       <!-- 今日打卡状态 -->
       <CheckInCard
@@ -37,6 +44,22 @@
         @go-to-analysis="goToAnalysis"
         @go-to-goals="goToGoals"
       />
+
+      <!-- 近7天健康分析 -->
+      <div class="analysis-section">
+        <div class="section-header">
+          <h3>{{ t("jin-qi-tian-jian-kang-fen-xi") }}</h3>
+          <span class="view-more" @click="goToAnalysis">{{
+            t("cha-kan-xiang-qing")
+          }}</span>
+        </div>
+
+        <!-- 数据概览 -->
+        <OverviewCard :overview="analysisOverview" :days="7" />
+
+        <!-- 营养分析图表 -->
+        <NutritionChart :data="nutritionChartData" />
+      </div>
     </div>
   </div>
 </template>
@@ -45,13 +68,20 @@
 import { computed, ref, onMounted, onActivated, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import { getDietSummary } from "@/api/diet";
+import {
+  getStatsOverview,
+  getStatsCaloriesTrend,
+} from "@/api/stats";
 import { generateHealthTips, useTodayData } from "./utils";
 import { useI18n } from "vue-i18n";
 import WelcomeSection from "./components/WelcomeSection.vue";
 import HealthTipsSwiper from "./components/HealthTipsSwiper.vue";
+import EncouragementTips from "./components/EncouragementTips.vue";
 import CheckInCard from "./components/CheckInCard.vue";
 import NutritionCard from "./components/NutritionCard.vue";
 import QuickActions from "./components/QuickActions.vue";
+import OverviewCard from "@/views/analysis/components/OverviewCard.vue";
+import NutritionChart from "@/views/analysis/components/NutritionChart.vue";
 
 const { t } = useI18n();
 
@@ -145,6 +175,25 @@ const nutritionData = ref<{
   total_carbs?: number;
 }>({});
 
+// 7天数据概览
+const analysisOverview = ref<{
+  avg_weight?: number;
+  avg_exercise_duration?: number;
+  avg_sleep_hours?: number;
+  avg_daily_calories?: number;
+}>();
+
+// 7天营养图表数据
+const nutritionChartData = ref<
+  Array<{
+    record_date: string;
+    total_calories: number;
+    total_protein: number;
+    total_fat: number;
+    total_carbs: number;
+  }>
+>([]);
+
 // 加载今日营养数据
 async function loadNutritionData() {
   try {
@@ -159,14 +208,46 @@ async function loadNutritionData() {
   }
 }
 
+// 加载7天分析数据
+async function load7DaysAnalysisData() {
+  try {
+    const [overviewRes, nutritionRes] = await Promise.all([
+      getStatsOverview({ days: 7 }),
+      getStatsCaloriesTrend({ days: 7 }),
+    ]);
+
+    // 处理概览数据
+    if ((overviewRes as any).data) {
+      analysisOverview.value = (overviewRes as any).data;
+    }
+
+    // 处理营养图表数据
+    if ((nutritionRes as any).data) {
+      nutritionChartData.value = ((nutritionRes as any).data || []).map(
+        (item: any) => ({
+          record_date: item.record_date,
+          total_calories: Number(item.total_calories || 0),
+          total_protein: Number(item.total_protein || 0),
+          total_fat: Number(item.total_fat || 0),
+          total_carbs: Number(item.total_carbs || 0),
+        })
+      );
+    }
+  } catch (error) {
+    console.error("加载7天分析数据失败:", error);
+  }
+}
+
 // 刷新所有数据
 function refreshAllData() {
   refreshData();
   loadNutritionData();
+  load7DaysAnalysisData();
 }
 
 onMounted(() => {
   loadNutritionData();
+  load7DaysAnalysisData();
   // 检查并启动引导
   checkAndStartTour();
 });
@@ -179,6 +260,19 @@ onActivated(() => {
 // 是否已打卡 - 使用 hook 返回的标记
 const hasCheckedIn = computed(() => {
   return hasCheckedInToday.value;
+});
+
+// 判断所有目标是否完成
+const allGoalsCompleted = computed(() => {
+  return (
+    hasCheckedInToday.value &&
+    todayData.value.exercise &&
+    todayData.value.exercise > 0 &&
+    todayData.value.sleep &&
+    todayData.value.sleep >= 7 &&
+    nutritionData.value.total_calories &&
+    nutritionData.value.total_calories > 0
+  );
 });
 
 function goToHealth() {
@@ -200,6 +294,7 @@ function goToAnalysis() {
 
 <style scoped lang="scss">
 @use "@/styles/variables.scss" as *;
+@use "@/styles/mixins.scss" as *;
 
 .home {
   min-height: 100vh;
@@ -209,6 +304,42 @@ function goToAnalysis() {
 .content {
   padding: $space-sm;
   padding-bottom: 70px;
+}
+
+.analysis-section {
+  margin-top: $space-md;
+
+  .section-header {
+    @include flex-between;
+    align-items: center;
+    padding: 0 $space-xs;
+    margin-bottom: $space-md;
+
+    h3 {
+      font-size: $font-size-lg;
+      color: $text-color;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .view-more {
+      font-size: $font-size-xs;
+      color: $primary-color;
+      cursor: pointer;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  :deep(.overview-card) {
+    margin-bottom: $space-md;
+  }
+
+  :deep(.chart-card) {
+    margin-bottom: 0;
+  }
 }
 
 // Vue3 Tour 自定义样式

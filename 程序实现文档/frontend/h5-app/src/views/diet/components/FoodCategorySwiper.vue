@@ -132,11 +132,11 @@ function handleSelectCategory(category: string, index: number) {
       }
 
       &.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-color);
         color: $white;
         font-weight: 500;
         border-color: transparent;
-        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 2px 6px rgba(25, 137, 250, 0.3);
       }
     }
   }

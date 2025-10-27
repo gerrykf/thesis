@@ -20,6 +20,24 @@
   --gradient-header-start: #f5f7fa;
   --gradient-header-end: #c3cfe2;
 
+  // 主题渐变色（用于卡片、按钮等 - 浅蓝色）
+  --gradient-primary-start: #e3f2fd;
+  --gradient-primary-end: #bbdefb;
+
+  // 健康数据卡片渐变色（浅绿色）
+  --gradient-health-start: #e8f5e9;
+  --gradient-health-end: #c8e6c9;
+
+  // 统计卡片渐变色 - 每种数据不同颜色
+  --gradient-weight-start: #e3f2fd;    // 体重 - 蓝色
+  --gradient-weight-end: #bbdefb;
+  --gradient-exercise-start: #fff3e0;  // 运动 - 橙色
+  --gradient-exercise-end: #ffcc80;
+  --gradient-sleep-start: #f3e5f5;     // 睡眠 - 薰衣草紫
+  --gradient-sleep-end: #e1bee7;
+  --gradient-calorie-start: #ffebee;   // 热量 - 红橙色
+  --gradient-calorie-end: #ffcdd2;
+
   // Vant 组件变量
   --van-primary-color: #1989fa;
   --van-success-color: #07c160;
@@ -132,6 +150,24 @@
   --gradient-header-start: #3a3a3a;
   --gradient-header-end: #2a2a2a;
 
+  // 主题渐变色（深色模式 - 深蓝色）
+  --gradient-primary-start: #1e3a5f;
+  --gradient-primary-end: #2c5282;
+
+  // 健康数据卡片渐变色（深绿色）
+  --gradient-health-start: #1b5e20;
+  --gradient-health-end: #2e7d32;
+
+  // 统计卡片渐变色 - 深色模式
+  --gradient-weight-start: #1a237e;    // 体重 - 深蓝
+  --gradient-weight-end: #283593;
+  --gradient-exercise-start: #e65100;  // 运动 - 深橙
+  --gradient-exercise-end: #ef6c00;
+  --gradient-sleep-start: #4a148c;     // 睡眠 - 深紫
+  --gradient-sleep-end: #6a1b9a;
+  --gradient-calorie-start: #b71c1c;   // 热量 - 深红
+  --gradient-calorie-end: #c62828;
+
   // Vant 组件变量 - 深色主题
   --van-primary-color: #3a9bff;
   --van-success-color: #2ecc71;
@@ -239,9 +275,12 @@
 body {
   font-family: $font-family;
   font-size: $font-size-base;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
   background-color: $background-color;
   color: $text-color;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -380,7 +419,7 @@ body {
 
 // 卡片样式
 .data-card {
-  @include gradient-bg(#667eea, #764ba2);
+  background: linear-gradient(180deg, var(--gradient-primary-start) 10%, var(--gradient-primary-end) 40%);
   border-radius: $radius-md;
   padding: $space-lg;
   margin: $space-md 0;

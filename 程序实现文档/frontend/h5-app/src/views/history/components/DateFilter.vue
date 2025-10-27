@@ -339,17 +339,17 @@ initDatePickerValue();
     align-items: center;
     gap: 12px;
     padding: 8px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: #fff;
     border-radius: 16px;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 2px 6px rgba(25, 137, 250, 0.25);
 
     &:active {
       transform: scale(0.96);
-      box-shadow: 0 1px 3px rgba(102, 126, 234, 0.25);
+      box-shadow: 0 1px 3px rgba(25, 137, 250, 0.25);
     }
 
     .van-icon {
@@ -425,11 +425,7 @@ initDatePickerValue();
         }
 
         &.active {
-          background: linear-gradient(
-            135deg,
-            rgba(102, 126, 234, 0.1) 0%,
-            rgba(118, 75, 162, 0.1) 100%
-          );
+          background: rgba(25, 137, 250, 0.1);
           border-color: $primary-color;
 
           .option-label {
