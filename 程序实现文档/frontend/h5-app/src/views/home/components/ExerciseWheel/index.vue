@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { getRandomExerciseTypes, type ExerciseType } from "@/constants/exerciseTypes";
+import { getRandomExerciseTypes } from "@/constants/exerciseTypes";
 
 const { t } = useI18n();
 
