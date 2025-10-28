@@ -3,12 +3,12 @@
     <van-nav-bar :title="t('jin-ri-gai-lan')" fixed placeholder />
 
     <!-- Vue3 Tour 引导 -->
-    <v-tour
+    <!-- <v-tour
       name="homeTour"
       :steps="tourSteps"
       :callbacks="tourCallbacks"
       :options="tourOptions"
-    ></v-tour>
+    ></v-tour> -->
 
     <div class="content">
       <!-- 欢迎区域 -->
@@ -32,10 +32,7 @@
       />
 
       <!-- 今日摄入量 -->
-      <NutritionCard
-        :nutrition-data="nutritionData"
-        @go-to-diet="goToDiet"
-      />
+      <NutritionCard :nutrition-data="nutritionData" @go-to-diet="goToDiet" />
 
       <!-- 快捷操作 -->
       <QuickActions
@@ -68,10 +65,7 @@
 import { computed, ref, onMounted, onActivated, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import { getDietSummary } from "@/api/diet";
-import {
-  getStatsOverview,
-  getStatsCaloriesTrend,
-} from "@/api/stats";
+import { getStatsOverview, getStatsCaloriesTrend } from "@/api/stats";
 import { generateHealthTips, useTodayData } from "./utils";
 import { useI18n } from "vue-i18n";
 import WelcomeSection from "./components/WelcomeSection.vue";
@@ -93,10 +87,11 @@ const tourSteps = ref([
   {
     target: '[data-v-step="1"]',
     header: {
-      title: t('jin-ri-da-ka-0'),
+      title: t("jin-ri-da-ka-0"),
     },
-    content:
-      t('zai-zhe-li-cha-kan-jin-tian-de-jian-kang-da-ka-shu-ju-bao-kuo-ti-zhong-yun-dong-shui-mian-he-xin-qing-zhuang-tai-dian-ji-li-ji-da-ka-an-niu-kai-shi-ji-lu'),
+    content: t(
+      "zai-zhe-li-cha-kan-jin-tian-de-jian-kang-da-ka-shu-ju-bao-kuo-ti-zhong-yun-dong-shui-mian-he-xin-qing-zhuang-tai-dian-ji-li-ji-da-ka-an-niu-kai-shi-ji-lu"
+    ),
     params: {
       placement: "bottom",
       highlight: true,
@@ -105,10 +100,11 @@ const tourSteps = ref([
   {
     target: '[data-v-step="2"]',
     header: {
-      title: t('jin-ri-she-ru-0'),
+      title: t("jin-ri-she-ru-0"),
     },
-    content:
-      t('zhe-li-xian-shi-jin-tian-de-yin-shi-ying-yang-she-ru-qing-kuang-bao-kuo-ka-lu-li-dan-bai-zhi-tan-shui-he-zhi-fang-dian-ji-tian-jia-ji-lu-kai-shi-ji-lu-yin-shi'),
+    content: t(
+      "zhe-li-xian-shi-jin-tian-de-yin-shi-ying-yang-she-ru-qing-kuang-bao-kuo-ka-lu-li-dan-bai-zhi-tan-shui-he-zhi-fang-dian-ji-tian-jia-ji-lu-kai-shi-ji-lu-yin-shi"
+    ),
     params: {
       placement: "bottom",
       highlight: true,
@@ -117,10 +113,11 @@ const tourSteps = ref([
   {
     target: '[data-v-step="3"]',
     header: {
-      title: t('kuai-jie-cao-zuo'),
+      title: t("kuai-jie-cao-zuo"),
     },
-    content:
-      t('tong-guo-kuai-jie-an-niu-kuai-su-fang-wen-ge-ge-gong-neng-da-ka-ji-lu-jian-kang-shu-ju-yin-shi-guan-li-ying-yang-she-ru-fen-xi-cha-kan-shu-ju-qu-shi-mu-biao-she-zhi-jian-kang-ji-hua'),
+    content: t(
+      "tong-guo-kuai-jie-an-niu-kuai-su-fang-wen-ge-ge-gong-neng-da-ka-ji-lu-jian-kang-shu-ju-yin-shi-guan-li-ying-yang-she-ru-fen-xi-cha-kan-shu-ju-qu-shi-mu-biao-she-zhi-jian-kang-ji-hua"
+    ),
     params: {
       placement: "top",
       highlight: true,
@@ -131,10 +128,10 @@ const tourSteps = ref([
 const tourOptions = ref({
   useKeyboardNavigation: true,
   labels: {
-    buttonSkip: t('tiao-guo'),
-    buttonPrevious: t('shang-yi-bu'),
-    buttonNext: t('xia-yi-bu'),
-    buttonStop: t('wan-cheng'),
+    buttonSkip: t("tiao-guo"),
+    buttonPrevious: t("shang-yi-bu"),
+    buttonNext: t("xia-yi-bu"),
+    buttonStop: t("wan-cheng"),
   },
 });
 
@@ -148,6 +145,10 @@ const tourCallbacks = ref({
     localStorage.setItem("homeTourCompleted", "true");
   },
 });
+
+console.log("tourSteps:", tourSteps.value);
+console.log("tourOptions:", tourOptions.value);
+console.log("tourCallbacks:", tourCallbacks.value);
 
 // 检查是否需要显示引导
 function checkAndStartTour() {
