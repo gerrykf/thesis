@@ -1,6 +1,6 @@
 <template>
   <van-config-provider :theme="theme">
-    <div class="app">
+    <div :class="['app', { hideFooter }]">
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />
@@ -24,10 +24,7 @@
         }}</van-tabbar-item>
       </van-tabbar>
     </div>
-    <UpdateNotification
-      v-model:show="hasUpdate"
-      @update="applyUpdate"
-    />
+    <UpdateNotification v-model:show="hasUpdate" @update="applyUpdate" />
   </van-config-provider>
 </template>
 
@@ -100,6 +97,11 @@ window.addEventListener("storage", (e) => {
   min-height: 100vh;
   background: var(--white);
   position: relative;
+
+  &.hideFooter {
+    padding-bottom: 0 !important;
+    height: calc(100vh - 66px);
+  }
 }
 
 /* PC端居中效果 */

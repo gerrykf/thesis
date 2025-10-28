@@ -3,14 +3,16 @@
     <van-nav-bar :title="t('history.title')" fixed placeholder />
 
     <div class="content">
-      <!-- 时间筛选按钮 -->
-      <div class="filter-bar">
-        <div class="filter-icon" @click="showFilterPopup = true">
-          <van-icon name="clock-o" />
-        </div>
-      </div>
-
       <van-tabs v-model:active="activeTab" @change="onTabChange">
+        <template #nav-right>
+          <van-icon name="clock-o" @click="showFilterPopup = true" />
+          <!-- 时间筛选按钮 -->
+          <div class="filter-bar">
+            <div class="filter-icon" @click="showFilterPopup = true">
+              <van-icon name="clock-o" />
+            </div>
+          </div>
+        </template>
         <!-- 健康打卡 Tab -->
         <van-tab :title="t('utils.quickActions.healthCheckIn')">
           <van-pull-refresh
@@ -550,7 +552,6 @@ function getMealTypeText(type: string): string {
     position: sticky;
     top: 46px;
     z-index: 99;
-    width: calc(100% - 40px); // 留出右侧时间按钮的位置
   }
 
   // 时间筛选按钮 - 在右上角
@@ -565,7 +566,6 @@ function getMealTypeText(type: string): string {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: $radius-md;
 
     .filter-icon {
       width: 44px;
