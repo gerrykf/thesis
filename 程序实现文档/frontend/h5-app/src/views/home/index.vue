@@ -3,12 +3,12 @@
     <van-nav-bar :title="t('jin-ri-gai-lan')" fixed placeholder />
 
     <!-- Vue3 Tour 引导 -->
-    <!-- <v-tour
+    <v-tour
       name="homeTour"
       :steps="tourSteps"
       :callbacks="tourCallbacks"
       :options="tourOptions"
-    ></v-tour> -->
+    ></v-tour>
 
     <div class="content">
       <!-- 欢迎区域 -->
@@ -127,6 +127,7 @@ const tourSteps = ref([
 
 const tourOptions = ref({
   useKeyboardNavigation: true,
+  enableScrolling: false, // 禁用自动滚动，改用手动控制
   labels: {
     buttonSkip: t("tiao-guo"),
     buttonPrevious: t("shang-yi-bu"),
@@ -135,12 +136,64 @@ const tourOptions = ref({
   },
 });
 
+// 将目标元素滚动到视口中央
+function scrollElementToCenter(stepIndex: number) {
+  const stepNumber = stepIndex + 1; // 步骤从1开始
+  console.log(`📍 Scrolling to center for step ${stepNumber} (index: ${stepIndex})`);
+
+  const target = document.querySelector(`[data-v-step="${stepNumber}"]`);
+  console.log("🎯 Target element:", target);
+
+  if (target) {
+    const targetRect = target.getBoundingClientRect();
+    const targetTop = targetRect.top + window.scrollY;
+    const targetHeight = targetRect.height;
+    const windowHeight = window.innerHeight;
+
+    // 计算滚动位置：将元素中心对齐到视口中心
+    const scrollTo = targetTop - (windowHeight / 2) + (targetHeight / 2);
+
+    console.log(`📏 Scroll calculation:`, {
+      targetTop,
+      targetHeight,
+      windowHeight,
+      scrollTo: Math.max(0, scrollTo)
+    });
+
+    window.scrollTo({
+      top: Math.max(0, scrollTo), // 确保不会滚动到负数位置
+      behavior: 'smooth'
+    });
+  } else {
+    console.log(`❌ Target element [data-v-step="${stepNumber}"] not found`);
+  }
+}
+
 const tourCallbacks = ref({
+  onStart: () => {
+    console.log("🚀 Tour started");
+    // 开始时将第一步居中
+    setTimeout(() => scrollElementToCenter(0), 100);
+  },
+  onNextStep: (currentStep: number) => {
+    console.log(`➡️ Moving to next step (current: ${currentStep})`);
+    // 下一步居中
+    const nextStep = currentStep + 1;
+    setTimeout(() => scrollElementToCenter(nextStep), 100);
+  },
+  onPreviousStep: (currentStep: number) => {
+    console.log(`⬅️ Moving to previous step (current: ${currentStep})`);
+    // 上一步居中
+    const prevStep = currentStep - 1;
+    setTimeout(() => scrollElementToCenter(prevStep), 100);
+  },
   onStop: () => {
+    console.log("🏁 Tour stopped");
     // 引导结束后,标记用户已完成引导
     localStorage.setItem("homeTourCompleted", "true");
   },
   onSkip: () => {
+    console.log("⏭️ Tour skipped");
     // 跳过引导也标记为已完成
     localStorage.setItem("homeTourCompleted", "true");
   },

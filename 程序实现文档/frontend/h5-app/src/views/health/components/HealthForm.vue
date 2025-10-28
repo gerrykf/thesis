@@ -171,6 +171,7 @@ import {
 } from "vant";
 import { postHealthRecords, getHealthRecords } from "@/api/health";
 import { useI18n } from "vue-i18n";
+import { getLotteryResult, clearLotteryResult } from "@/constants/exerciseTypes";
 
 const {t} = useI18n();
 
@@ -237,7 +238,8 @@ function onToggleExerciseType(value: string) {
 
 // 更新运动类型字符串
 function updateExerciseTypeString() {
-  const types = selectedExerciseTypes.value.filter((t) => t !== "自定义");
+  const customLabel = t('zi-ding-yi');
+  const types = selectedExerciseTypes.value.filter((t) => t !== customLabel);
 
   // 如果有自定义内容，添加到数组中
   if (showCustomExercise.value && customExerciseType.value.trim()) {
@@ -536,6 +538,9 @@ async function onSubmit() {
 
       showSuccessToast(t('da-ka-cheng-gong'));
 
+      // 清除抽奖结果
+      clearLotteryResult();
+
       setTimeout(() => {
         router.push("/health");
       }, 1000);
@@ -589,6 +594,19 @@ async function loadLastWeight() {
   }
 }
 
+// 加载抽奖结果并自动选择运动类型
+function loadLotteryResult() {
+  const lotteryResult = getLotteryResult();
+  if (lotteryResult && lotteryResult.value) {
+    // 自动选择抽奖中的运动类型
+    if (!selectedExerciseTypes.value.includes(lotteryResult.value)) {
+      selectedExerciseTypes.value.push(lotteryResult.value);
+      updateExerciseTypeString();
+    }
+    console.log("已自动选择抽奖运动类型:", lotteryResult.value);
+  }
+}
+
 // 初始化表单数据的函数
 async function initializeForm() {
   // 从路由参数获取日期和ID
@@ -616,6 +634,11 @@ async function initializeForm() {
   } else {
     // 没有传入日期参数，新建打卡时也加载上次体重
     await loadLastWeight();
+  }
+
+  // 如果没有已有记录的运动类型，尝试加载抽奖结果
+  if (!formData.value.exercise_type) {
+    loadLotteryResult();
   }
 }
 

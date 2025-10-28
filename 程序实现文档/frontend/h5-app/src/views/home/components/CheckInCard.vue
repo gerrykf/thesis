@@ -6,7 +6,9 @@
         <van-tag v-if="hasCheckedIn" type="success" size="medium">{{
           t("yi-da-ka")
         }}</van-tag>
-        <van-tag v-else type="warning" size="medium">{{ t("qu-da-ka") }}</van-tag>
+        <van-tag v-else type="warning" size="medium">{{
+          t("qu-da-ka")
+        }}</van-tag>
       </div>
     </div>
 
@@ -47,19 +49,87 @@
     <!-- 未打卡：显示提示 -->
     <div v-else class="not-checked-in">
       <div class="tip-icon">📝</div>
-      <p class="tip-text">{{ t("jin-tian-huan-mei-you-da-kao-ji-lu-yi-xia-ba") }}</p>
-      <van-button type="primary" size="small" round @click="emit('go-to-health')">
+      <p class="tip-text">
+        {{ t("jin-tian-huan-mei-you-da-kao-ji-lu-yi-xia-ba") }}
+      </p>
+      <p class="exercise-tip" @click="showExerciseWheel = true">
+        <span class="tip-link">{{
+          t("jin-tian-bu-zhi-dao-duan-lian-shen-me-yun-dong")
+        }}</span>
+        <span class="tip-icon-arrow">🎰</span>
+      </p>
+      <van-button
+        type="primary"
+        size="small"
+        round
+        @click="emit('go-to-health')"
+      >
         {{ t("li-ji-da-ka") }}
       </van-button>
     </div>
+
+    <!-- 运动轮盘 -->
+    <ExerciseWheel
+      v-if="showExerciseWheel"
+      @close="showExerciseWheel = false"
+      @result="handleWheelResult"
+    />
+
+    <!-- 抽奖结果 -->
+    <ExerciseResult
+      v-if="showExerciseResult && selectedExercise"
+      :exercise="selectedExercise"
+      @close="handleResultClose"
+      @reSelect="handleReSelect"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ExerciseWheel from "./ExerciseWheel/index.vue";
+import ExerciseResult from "./ExerciseWheel/ExerciseResult.vue";
 
 const { t } = useI18n();
+
+interface ExerciseOption {
+  icon: string;
+  labelKey: string;
+  descKey: string;
+  color: string;
+  value: string;
+}
+
+// 运动轮盘显示状态
+const showExerciseWheel = ref(false);
+const showExerciseResult = ref(false);
+const selectedExercise = ref<ExerciseOption | null>(null);
+
+// 处理轮盘抽奖结果
+function handleWheelResult(exercise: ExerciseOption) {
+  selectedExercise.value = exercise;
+  showExerciseWheel.value = false;
+
+  // 轮盘关闭后，延迟一下再显示结果弹窗
+  setTimeout(() => {
+    showExerciseResult.value = true;
+  }, 300);
+}
+
+// 处理结果弹窗关闭
+function handleResultClose() {
+  showExerciseResult.value = false;
+  selectedExercise.value = null;
+}
+
+// 处理再抽一次
+function handleReSelect() {
+  showExerciseResult.value = false;
+  setTimeout(() => {
+    showExerciseWheel.value = true;
+  }, 300);
+}
 
 interface TodayData {
   mood?: string;
@@ -91,7 +161,10 @@ const exerciseDisplay = computed(() => {
     if (remainingMinutes === 0) {
       return t("hours-xiao-shi", [hours]);
     }
-    return t("hours-xiao-shi-remainingminutes-fen-zhong", [hours, remainingMinutes]);
+    return t("hours-xiao-shi-remainingminutes-fen-zhong", [
+      hours,
+      remainingMinutes,
+    ]);
   }
   return t("minutes-fen-zhong", [minutes]);
 });
@@ -229,6 +302,9 @@ const moodIcon = computed(() => {
   .not-checked-in {
     text-align: center;
     padding: $space-md 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     .tip-icon {
       font-size: 46px;
@@ -238,8 +314,44 @@ const moodIcon = computed(() => {
     .tip-text {
       font-size: $font-size-sm;
       color: $text-color-2;
-      margin-bottom: $space-md;
+      margin-bottom: $space-xs;
     }
+
+    .exercise-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: $font-size-sm;
+      margin-bottom: $space-md;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      .tip-link {
+        color: $primary-color;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .tip-icon-arrow {
+        font-size: 18px;
+        animation: bounce 1.5s infinite;
+      }
+
+      &:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 </style>
