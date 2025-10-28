@@ -33,7 +33,7 @@ interface VersionCheckOptions {
  */
 export function useVersionCheck(options: VersionCheckOptions = {}) {
   const {
-    interval = 30000, // 默认 30 秒
+    interval = 5100, // 默认 30 秒
     immediate = true, // 默认 true
     mode = "hash", // 默认 'hash'，因为 ETag 可能被 CDN 或服务器配置影响
   } = options;
@@ -145,6 +145,7 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
         hasUpdate.value = true;
 
         // 停止轮询
+        stopPolling();
       }
     } catch (error) {
       console.error("[VersionCheck] 检查版本失败:", error);
@@ -156,11 +157,9 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
   /**
    * 开始轮询检查
    */
-  function startPolling(stop = true) {
-    if (stop) {
-      // 清除旧的定时器
-      stopPolling();
-    }
+  function startPolling() {
+    // 清除旧的定时器
+    stopPolling();
 
     // 立即执行一次检查
     if (immediate) {
@@ -184,23 +183,6 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
       timer = null;
       console.log("[VersionCheck] 停止轮询检查");
     }
-  }
-
-  /**
-   * 忽略本次更新（继续使用旧版本）
-   */
-  function ignoreUpdate() {
-    hasUpdate.value = false;
-
-    let timerId: any = null;
-    // 稍后重新开始轮询
-    timerId = setTimeout(() => {
-      startPolling(false);
-      if (timerId) {
-        clearTimeout(timerId);
-        timerId = null;
-      }
-    }, interval);
   }
 
   /**
@@ -233,7 +215,6 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
     checkVersion,
     startPolling,
     stopPolling,
-    ignoreUpdate,
     applyUpdate,
   };
 }

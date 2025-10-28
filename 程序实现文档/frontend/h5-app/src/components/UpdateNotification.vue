@@ -62,13 +62,6 @@
             <!-- 按钮组 -->
             <div class="update-actions">
               <van-button
-                class="action-btn secondary"
-                @click="onIgnore"
-                :disabled="loading"
-              >
-                {{ t("zan-bu-geng-xin") }}
-              </van-button>
-              <van-button
                 type="primary"
                 class="action-btn primary"
                 @click="onUpdate"
@@ -98,7 +91,6 @@ const { t } = useI18n();
 const show = defineModel<boolean>("show");
 
 const emit = defineEmits<{
-  ignore: [];
   update: [];
 }>();
 
@@ -107,10 +99,6 @@ const loading = ref(false);
 function onOverlayClick() {
   // 点击遮罩层不关闭，强制用户做出选择
   return;
-}
-
-function onIgnore() {
-  emit("ignore");
 }
 
 async function onUpdate() {
@@ -166,7 +154,7 @@ async function onUpdate() {
         rgba(25, 137, 250, 0.15) 0%,
         rgba(187, 222, 251, 0.1) 100%
       );
-      animation: float 6s ease-in-out infinite;
+      animation: float 3s ease-in-out infinite;
 
       &.circle-1 {
         width: 100px;
@@ -254,6 +242,7 @@ async function onUpdate() {
       font-size: $font-size-base;
       font-weight: 500;
       transition: all 0.3s ease;
+      animation: pulse 2s ease-in-out infinite;
 
       &.secondary {
         background: $background-color;
@@ -333,7 +322,7 @@ async function onUpdate() {
     transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-10px) scale(1.05);
+    transform: translateY(-15px) scale(1.1);
   }
 }
 
@@ -344,7 +333,7 @@ async function onUpdate() {
     box-shadow: 0 8px 24px rgba(25, 137, 250, 0.3);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.1);
     box-shadow: 0 12px 32px rgba(25, 137, 250, 0.4);
   }
 }

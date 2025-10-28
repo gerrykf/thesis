@@ -26,7 +26,6 @@
     </div>
     <UpdateNotification
       v-model:show="hasUpdate"
-      @ignore="ignoreUpdate"
       @update="applyUpdate"
     />
   </van-config-provider>
@@ -42,7 +41,7 @@ import { useVersionCheck } from "./hooks/useVersionCheck";
 
 const { t } = useI18n();
 
-const { hasUpdate, ignoreUpdate, applyUpdate } = useVersionCheck();
+const { hasUpdate, applyUpdate } = useVersionCheck();
 
 const active = ref(0);
 const route = useRoute();
