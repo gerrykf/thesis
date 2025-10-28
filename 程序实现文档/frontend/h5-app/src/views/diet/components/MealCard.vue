@@ -93,8 +93,8 @@ const mealCaloriesText = computed(() => {
     padding: 8px $space-sm;
     background: linear-gradient(
       135deg,
-      var(--gradient-header-start) 0%,
-      var(--gradient-header-end) 100%
+      var(--gradient-health-start) 0%,
+      var(--gradient-health-end) 100%
     );
     border-bottom: 1px solid $border-color;
 

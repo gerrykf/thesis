@@ -1,12 +1,5 @@
 <template>
   <div class="date-filter">
-    <!-- 筛选按钮 -->
-    <div class="filter-trigger" @click="showPopup = true">
-      <van-icon name="filter-o" />
-      <span class="trigger-text">{{ currentFilterText }}</span>
-      <van-icon name="arrow-down" />
-    </div>
-
     <!-- 筛选弹窗 -->
     <van-popup
       v-model:show="showPopup"
@@ -42,13 +35,13 @@
             <div class="date-row">
               <span class="date-label">{{ t("kai-shi-ri-qi") }}</span>
               <div class="date-input" @click="showStartDatePicker = true">
-                {{ formattedStartDate || t('select') }}
+                {{ formattedStartDate || t("select") }}
               </div>
             </div>
             <div class="date-row">
               <span class="date-label">{{ t("jie-shu-ri-qi") }}</span>
               <div class="date-input" @click="showEndDatePicker = true">
-                {{ formattedEndDate || t('select') }}
+                {{ formattedEndDate || t("select") }}
               </div>
             </div>
           </div>
@@ -93,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -113,6 +106,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: { startDate: string; endDate: string }): void;
   (e: "change", value: { startDate: string; endDate: string }): void;
   (e: "clear"): void;
+  (e: "close"): void;
 }>();
 
 // 弹窗状态
@@ -143,60 +137,6 @@ const quickOptions: QuickOption[] = [
   { value: "month", label: t("zui-jin-30-tian"), icon: "📈", days: 30 },
   { value: "custom", label: t("zi-ding-yi"), icon: "⚙️" },
 ];
-
-// 当前筛选文本
-const currentFilterText = computed(() => {
-  if (!props.modelValue?.startDate || !props.modelValue?.endDate) {
-    return t("shai-xuan-ri-qi");
-  }
-
-  const start = props.modelValue.startDate;
-  const end = props.modelValue.endDate;
-
-  // 如果是同一天
-  if (start === end) {
-    const today = formatDate(new Date());
-    if (start === today) {
-      return t("jin-tian-0");
-    }
-    return formatDisplayDate(start);
-  }
-
-  // 检查是否是本周
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const monday = new Date(today);
-  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  monday.setDate(today.getDate() - daysFromMonday);
-
-  const weekStart = formatDate(monday);
-  const weekEnd = formatDate(today);
-
-  if (start === weekStart && end === weekEnd) {
-    return t("ben-zhou-0");
-  }
-
-  // 检查是否是最近7天
-  const sevenDaysAgo = new Date(today);
-  sevenDaysAgo.setDate(today.getDate() - 6);
-  const sevenDaysStart = formatDate(sevenDaysAgo);
-
-  if (start === sevenDaysStart && end === weekEnd) {
-    return t("zui-jin-7-tian-0");
-  }
-
-  // 检查是否是最近30天
-  const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 29);
-  const thirtyDaysStart = formatDate(thirtyDaysAgo);
-
-  if (start === thirtyDaysStart && end === weekEnd) {
-    return t("zui-jin-30-tian-0");
-  }
-
-  // 自定义范围
-  return `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`;
-});
 
 // 格式化显示日期
 const formattedStartDate = computed(() => {
@@ -237,6 +177,7 @@ function formatDisplayDate(dateStr: string): string {
  */
 function handleQuickSelect(option: QuickOption) {
   selectedQuickOption.value = option.value;
+  localStorage.setItem("historyDateFilterOption", option.value);
 
   if (option.value !== "custom") {
     const today = new Date();
@@ -325,8 +266,111 @@ function initDatePickerValue() {
   endDatePickerValue.value = [...startDatePickerValue.value];
 }
 
+/**
+ * 根据日期范围识别对应的快捷选项
+ */
+function detectQuickOption(start: string, end: string): string {
+  if (!start || !end) return "";
+
+  if (selectedQuickOption.value === "custom") {
+    return "custom";
+  }
+
+  const today = new Date();
+  const todayStr = formatDate(today);
+
+  // 今天
+  if (start === todayStr && end === todayStr) {
+    return "today";
+  }
+
+  // 本周（周一到今天）
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  monday.setDate(today.getDate() - daysFromMonday);
+  const weekStart = formatDate(monday);
+
+  if (start === weekStart && end === todayStr) {
+    return "currentWeek";
+  }
+
+  // 最近7天
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+  const sevenDaysStart = formatDate(sevenDaysAgo);
+
+  if (start === sevenDaysStart && end === todayStr) {
+    return "week";
+  }
+
+  // 最近30天
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 29);
+  const thirtyDaysStart = formatDate(thirtyDaysAgo);
+
+  if (start === thirtyDaysStart && end === todayStr) {
+    return "month";
+  }
+
+  // 自定义
+  return "custom";
+}
+
 // 初始化
 initDatePickerValue();
+
+// 组件挂载时自动打开弹窗
+onMounted(() => {
+  showPopup.value = true;
+
+  // 初始化日期值为当前选中的值
+  if (props.modelValue) {
+    tempStartDate.value = props.modelValue.startDate || "";
+    tempEndDate.value = props.modelValue.endDate || "";
+
+    console.log("📅 DateFilter mounted with dates:", {
+      startDate: props.modelValue.startDate,
+      endDate: props.modelValue.endDate,
+    });
+
+    const localOption = localStorage.getItem("historyDateFilterOption");
+    if (localOption) {
+      selectedQuickOption.value = localOption;
+    } else {
+      // 自动识别并选中对应的快捷选项
+      selectedQuickOption.value = detectQuickOption(
+        props.modelValue.startDate || "",
+        props.modelValue.endDate || ""
+      );
+      console.log("🔍 Detected option:", selectedQuickOption.value);
+    }
+
+    // 如果是自定义选项，初始化日期选择器的值
+    if (
+      selectedQuickOption.value === "custom" &&
+      props.modelValue.startDate &&
+      props.modelValue.endDate
+    ) {
+      const startParts = props.modelValue.startDate.split("-");
+      if (startParts.length === 3) {
+        startDatePickerValue.value = startParts;
+      }
+
+      const endParts = props.modelValue.endDate.split("-");
+      if (endParts.length === 3) {
+        endDatePickerValue.value = endParts;
+      }
+    }
+  }
+});
+
+// 监听弹窗关闭
+watch(showPopup, (newVal) => {
+  if (!newVal) {
+    emit("close");
+  }
+});
 </script>
 
 <style scoped lang="scss">

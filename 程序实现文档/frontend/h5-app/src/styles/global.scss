@@ -304,6 +304,7 @@ body {
   left: 50% !important;
   right: auto !important;
   transform: translateX(-50%);
+  z-index: 1000 !important;
 }
 
 // 弹出层居中

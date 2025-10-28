@@ -1,17 +1,16 @@
 <template>
-  <div v-if="encouragementMessages.length > 0" class="encouragement-tips">
-    <div
-      v-for="(message, index) in encouragementMessages"
-      :key="index"
-      class="tip-item"
-    >
-      <span class="tip-text">{{ message }}</span>
+  <!-- 只在数据准备好且有消息时才显示 -->
+  <Transition name="fade-slide">
+    <div v-if="showTips && finalMessage" class="encouragement-tips">
+      <div class="tip-item">
+        <span class="tip-text">{{ finalMessage }}</span>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -36,12 +35,35 @@ interface Props {
   hasCheckedIn: boolean;
   todayData: TodayData;
   nutritionData: NutritionData;
+  loading?: boolean; // 添加 loading 状态
 }
 
 const props = defineProps<Props>();
 
-// 计算鼓励消息
-const encouragementMessages = computed(() => {
+// 控制显示时机，避免闪烁
+const showTips = ref(false);
+
+// 计算最终显示的消息（只显示一条）
+const finalMessage = computed(() => {
+  // 如果正在加载，不显示
+  if (props.loading) {
+    return "";
+  }
+
+  // 如果所有数据都完整（健康打卡 + 饮食记录 + 运动 + 睡眠充足）
+  if (
+    props.hasCheckedIn &&
+    props.todayData.exercise &&
+    props.todayData.exercise > 0 &&
+    props.todayData.sleep &&
+    props.todayData.sleep >= 7 &&
+    props.nutritionData.total_calories &&
+    props.nutritionData.total_calories > 0
+  ) {
+    return t("encouragement.all-completed");
+  }
+
+  // 收集所有符合条件的消息
   const messages: string[] = [];
 
   // 如果已打卡健康数据
@@ -60,26 +82,17 @@ const encouragementMessages = computed(() => {
   }
 
   // 如果有饮食记录
-  if (props.nutritionData.total_calories && props.nutritionData.total_calories > 0) {
-    messages.push(t("encouragement.diet-recorded"));
-  }
-
-  // 如果所有数据都完整（健康打卡 + 饮食记录 + 运动 + 睡眠充足）
   if (
-    props.hasCheckedIn &&
-    props.todayData.exercise &&
-    props.todayData.exercise > 0 &&
-    props.todayData.sleep &&
-    props.todayData.sleep >= 7 &&
     props.nutritionData.total_calories &&
     props.nutritionData.total_calories > 0
   ) {
-    // 替换为完美的一天消息
-    return [t("encouragement.all-completed")];
+    messages.push(t("encouragement.diet-recorded"));
   }
 
-  // 随机添加一条额外的鼓励语（如果有消息的话）
+  // 如果有消息，随机选择一条显示
   if (messages.length > 0) {
+    // 优先显示最重要的消息（第一条）
+    // 或者添加一条额外的鼓励语
     const extraMessages = [
       "encouragement.keep-going",
       "encouragement.great-start",
@@ -87,15 +100,38 @@ const encouragementMessages = computed(() => {
       "encouragement.stay-motivated",
       "encouragement.well-done",
     ];
-    const randomIndex = Math.floor(Math.random() * extraMessages.length);
-    const extraMessage = extraMessages[randomIndex];
-    if (extraMessage) {
-      messages.push(t(extraMessage));
+
+    // 50% 概率显示主消息，50% 显示额外鼓励
+    if (Math.random() > 0.5) {
+      return messages[0];
+    } else {
+      const randomIndex = Math.floor(Math.random() * extraMessages.length);
+      const extraMessage = extraMessages[randomIndex];
+      return extraMessage ? t(extraMessage) : messages[0];
     }
   }
 
-  return messages;
+  return "";
 });
+
+// 监听消息变化，延迟显示避免闪烁
+watch(
+  finalMessage,
+  (newMessage) => {
+    if (newMessage) {
+      // 延迟一点显示，确保数据稳定
+      showTips.value = false;
+      nextTick(() => {
+        setTimeout(() => {
+          showTips.value = true;
+        }, 100);
+      });
+    } else {
+      showTips.value = false;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="scss">
@@ -140,14 +176,25 @@ const encouragementMessages = computed(() => {
   }
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+// 淡入滑动动画
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

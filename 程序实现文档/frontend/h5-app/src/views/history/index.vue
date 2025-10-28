@@ -3,18 +3,16 @@
     <van-nav-bar :title="t('history.title')" fixed placeholder />
 
     <div class="content">
+      <!-- 时间筛选按钮 -->
+      <div class="filter-bar">
+        <div class="filter-icon" @click="showFilterPopup = true">
+          <van-icon name="clock-o" />
+        </div>
+      </div>
+
       <van-tabs v-model:active="activeTab" @change="onTabChange">
         <!-- 健康打卡 Tab -->
         <van-tab :title="t('utils.quickActions.healthCheckIn')">
-          <!-- 日期筛选区域 -->
-          <div class="filter-bar">
-            <DateFilter
-              v-model="healthDateRange"
-              @change="onHealthDateChange"
-              @clear="onHealthDateClear"
-            />
-          </div>
-
           <van-pull-refresh
             v-model="healthRefreshing"
             @refresh="onHealthRefresh"
@@ -97,15 +95,6 @@
 
         <!-- 饮食记录 Tab -->
         <van-tab :title="t('utils.quickActions.dietRecord')">
-          <!-- 日期筛选区域 -->
-          <div class="filter-bar">
-            <DateFilter
-              v-model="dietDateRange"
-              @change="onDietDateChange"
-              @clear="onDietDateClear"
-            />
-          </div>
-
           <van-pull-refresh v-model="dietRefreshing" @refresh="onDietRefresh">
             <van-list
               v-model:loading="dietLoading"
@@ -210,6 +199,15 @@
           </van-pull-refresh>
         </van-tab>
       </van-tabs>
+
+      <!-- 统一的时间筛选弹窗 -->
+      <DateFilter
+        v-if="showFilterPopup"
+        v-model="currentDateRange"
+        @change="onDateChange"
+        @clear="onDateClear"
+        @close="showFilterPopup = false"
+      />
     </div>
   </div>
 </template>
@@ -223,6 +221,7 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const activeTab = ref(0);
+const showFilterPopup = ref(false);
 
 // 健康记录 Hook
 const {
@@ -252,56 +251,52 @@ const {
   clearDateRange: clearDietDateRange,
 } = useDietRecords();
 
-// 日期范围（用于 DateFilter 组件的 v-model）
-const healthDateRange = computed({
-  get: () => ({
-    startDate: healthStartDate.value,
-    endDate: healthEndDate.value,
-  }),
+// 当前选中的 Tab 对应的日期范围
+const currentDateRange = computed({
+  get: () => {
+    if (activeTab.value === 0) {
+      return {
+        startDate: healthStartDate.value,
+        endDate: healthEndDate.value,
+      };
+    } else {
+      return {
+        startDate: dietStartDate.value,
+        endDate: dietEndDate.value,
+      };
+    }
+  },
   set: (val) => {
-    // 通过事件处理，不需要在这里设置
-    console.log("健康记录日期范围设置:", val);
+    console.log("日期范围设置:", val);
   },
 });
 
-const dietDateRange = computed({
-  get: () => ({ startDate: dietStartDate.value, endDate: dietEndDate.value }),
-  set: (val) => {
-    // 通过事件处理，不需要在这里设置
-    console.log("饮食记录日期范围设置:", val);
-  },
-});
-
 /**
- * 健康记录日期筛选变化
+ * 统一的日期筛选变化处理
  */
-function onHealthDateChange(range: { startDate: string; endDate: string }) {
-  console.log("健康记录日期筛选:", range);
-  setHealthDateRange(range.startDate, range.endDate);
+function onDateChange(range: { startDate: string; endDate: string }) {
+  console.log("日期筛选变化:", range);
+  if (activeTab.value === 0) {
+    // 健康记录
+    setHealthDateRange(range.startDate, range.endDate);
+  } else {
+    // 饮食记录
+    setDietDateRange(range.startDate, range.endDate);
+  }
+  showFilterPopup.value = false;
 }
 
 /**
- * 清除健康记录日期筛选
+ * 统一的清除日期筛选处理
  */
-function onHealthDateClear() {
-  console.log("清除健康记录日期筛选");
-  clearHealthDateRange();
-}
-
-/**
- * 饮食记录日期筛选变化
- */
-function onDietDateChange(range: { startDate: string; endDate: string }) {
-  console.log("饮食记录日期筛选:", range);
-  setDietDateRange(range.startDate, range.endDate);
-}
-
-/**
- * 清除饮食记录日期筛选
- */
-function onDietDateClear() {
-  console.log("清除饮食记录日期筛选");
-  clearDietDateRange();
+function onDateClear() {
+  console.log("清除日期筛选");
+  if (activeTab.value === 0) {
+    clearHealthDateRange();
+  } else {
+    clearDietDateRange();
+  }
+  showFilterPopup.value = false;
 }
 
 /**
@@ -549,31 +544,54 @@ function getMealTypeText(type: string): string {
 
 .content {
   padding: 0 0 60px 0;
+  position: relative;
 
   :deep(.van-tabs__wrap) {
     position: sticky;
     top: 46px;
     z-index: 99;
+    width: calc(100% - 40px); // 留出右侧时间按钮的位置
   }
 
-  // 筛选栏样式 - 紧凑设计
+  // 时间筛选按钮 - 在右上角
   .filter-bar {
-    padding: 10px $space-md;
+    position: absolute;
+    top: 0px; // 导航栏高度
+    right: 0;
+    z-index: 100;
+    width: var(--van-tabs-line-height);
+    height: var(--van-tabs-line-height); // 与 tabs 高度一致
     background: $white;
-    border-bottom: 1px solid $border-color;
     display: flex;
+    align-items: center;
     justify-content: center;
+    border-radius: $radius-md;
+
+    .filter-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      .van-icon {
+        font-size: 20px;
+        color: $primary-color;
+      }
+    }
   }
 
   // 确保下拉刷新容器占满剩余空间
   :deep(.van-pull-refresh) {
-    min-height: calc(100vh - 46px - 44px - 45px); // 减去导航栏、tabs栏和筛选栏
+    min-height: calc(100vh - 46px - 44px); // 减去导航栏(46px)、tabs栏(44px)
   }
 
   // 空状态样式调整
   :deep(.van-empty) {
     padding: $space-lg 0;
-    min-height: calc(100vh - 46px - 44px - 45px - $space-lg * 2);
+    min-height: calc(100vh - 46px - 44px - $space-lg * 2);
     display: flex;
     flex-direction: column;
     justify-content: center;
