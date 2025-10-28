@@ -33,7 +33,7 @@ interface VersionCheckOptions {
  */
 export function useVersionCheck(options: VersionCheckOptions = {}) {
   const {
-    interval = 10000, // 默认 30 秒
+    interval = 30000, // 默认 30 秒
     immediate = true, // 默认 true
     mode = "hash", // 默认 'hash'，因为 ETag 可能被 CDN 或服务器配置影响
   } = options;
@@ -145,7 +145,6 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
         hasUpdate.value = true;
 
         // 停止轮询
-        stopPolling();
       }
     } catch (error) {
       console.error("[VersionCheck] 检查版本失败:", error);
@@ -157,9 +156,11 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
   /**
    * 开始轮询检查
    */
-  function startPolling() {
-    // 清除旧的定时器
-    stopPolling();
+  function startPolling(stop = true) {
+    if (stop) {
+      // 清除旧的定时器
+      stopPolling();
+    }
 
     // 立即执行一次检查
     if (immediate) {
@@ -190,8 +191,16 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
    */
   function ignoreUpdate() {
     hasUpdate.value = false;
-    // 继续轮询
-    startPolling();
+
+    let timerId: any = null;
+    // 稍后重新开始轮询
+    timerId = setTimeout(() => {
+      startPolling(false);
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    }, interval);
   }
 
   /**
@@ -205,14 +214,12 @@ export function useVersionCheck(options: VersionCheckOptions = {}) {
   onMounted(() => {
     // 开发环境和生产环境都启用（方便调试）
     // 如果只想在生产环境启用，取消下面的注释
-    if (import.meta.env.MODE === "production") {
-      startPolling();
-      console.log(
-        `[VersionCheck] 版本检查已启用 (${import.meta.env.MODE} 环境)`
-      );
-    } else {
-      console.log("[VersionCheck] 开发环境，跳过版本检查");
-    }
+    // if (import.meta.env.MODE === "production") {
+    startPolling();
+    console.log(`[VersionCheck] 版本检查已启用 (${import.meta.env.MODE} 环境)`);
+    // } else {
+    //   console.log("[VersionCheck] 开发环境，跳过版本检查");
+    // }
   });
 
   // 组件卸载时停止轮询

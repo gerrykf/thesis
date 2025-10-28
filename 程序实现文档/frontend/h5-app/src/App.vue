@@ -25,7 +25,7 @@
       </van-tabbar>
     </div>
     <UpdateNotification
-      :show="hasUpdate"
+      v-model:show="hasUpdate"
       @ignore="ignoreUpdate"
       @update="applyUpdate"
     />

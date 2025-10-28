@@ -1,7 +1,11 @@
 <template>
   <Teleport to="body">
     <Transition name="update-fade">
-      <div v-if="show" class="update-notification-overlay" @click="onOverlayClick">
+      <div
+        v-if="show"
+        class="update-notification-overlay"
+        @click="onOverlayClick"
+      >
         <Transition name="update-slide">
           <div v-if="show" class="update-notification-card" @click.stop>
             <!-- 顶部装饰 -->
@@ -47,7 +51,11 @@
             <div class="update-content">
               <h3 class="update-title">{{ t("xin-ban-ben-yi-fa-bu") }}</h3>
               <p class="update-description">
-                {{ t("fa-xian-xin-ban-ben-qing-shua-xin-ye-mian-yi-huo-qu-zui-xin-ti-yan") }}
+                {{
+                  t(
+                    "fa-xian-xin-ban-ben-qing-shua-xin-ye-mian-yi-huo-qu-zui-xin-ti-yan"
+                  )
+                }}
               </p>
             </div>
 
@@ -71,7 +79,9 @@
             </div>
 
             <!-- 提示文本 -->
-            <p class="update-hint">{{ t("geng-xin-ke-neng-xu-yao-ji-miao-zhong") }}</p>
+            <p class="update-hint">
+              {{ t("geng-xin-ke-neng-xu-yao-ji-miao-zhong") }}
+            </p>
           </div>
         </Transition>
       </div>
@@ -85,11 +95,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-interface Props {
-  show: boolean;
-}
-
-defineProps<Props>();
+const show = defineModel<boolean>("show");
 
 const emit = defineEmits<{
   ignore: [];
