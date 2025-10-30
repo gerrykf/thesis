@@ -19,6 +19,9 @@ import { AuthRequest } from '../middleware/auth';
  *         food_id:
  *           type: integer
  *           description: 食物ID
+ *         food_name:
+ *           type: string
+ *           description: 食物名称
  *         record_date:
  *           type: string
  *           format: date

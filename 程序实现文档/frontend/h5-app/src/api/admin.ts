@@ -650,7 +650,6 @@ export async function postAdminUsersIdAvatar(
     method: "POST",
     params: { ...queryParams },
     data: formData,
-    requestType: "form",
     ...(options || {}),
   });
 }

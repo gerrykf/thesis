@@ -113,6 +113,8 @@ declare namespace API {
     user_id?: number;
     /** 食物ID */
     food_id?: number;
+    /** 食物名称 */
+    food_name?: string;
     /** 记录日期 */
     record_date?: string;
     /** 餐次类型 */
