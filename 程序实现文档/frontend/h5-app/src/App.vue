@@ -25,6 +25,7 @@
       </van-tabbar>
     </div>
     <UpdateNotification v-model:show="hasUpdate" @update="applyUpdate" />
+    <PwaInstallPrompt />
   </van-config-provider>
 </template>
 
@@ -34,6 +35,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { startHeartbeat, stopHeartbeat } from "@/utils/heartbeat";
 import UpdateNotification from "./components/UpdateNotification.vue";
+import PwaInstallPrompt from "./components/PwaInstallPrompt.vue";
 import { useVersionCheck } from "./hooks/useVersionCheck";
 
 const { t } = useI18n();
