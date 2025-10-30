@@ -111,6 +111,7 @@ async function onUpdate() {
 
 <style scoped lang="scss">
 @use "@/styles/variables.scss" as *;
+@use "sass:color";
 
 .update-notification-overlay {
   position: fixed;
@@ -250,7 +251,7 @@ async function onUpdate() {
         border: none;
 
         &:hover {
-          background: darken(#f7f8fa, 5%);
+          background: color.adjust(#f7f8fa, $lightness: -5%);
         }
 
         &:active {
@@ -308,7 +309,7 @@ async function onUpdate() {
         color: $text-color-2;
 
         &:hover {
-          background: lighten(#3a3a3a, 5%);
+          background: color.adjust(#3a3a3a, $lightness: 5%);
         }
       }
     }
