@@ -4,12 +4,7 @@ import router from "./router";
 import i18n from "./i18n";
 import { initFlexible } from "./utils/flexible";
 import { useUserStore } from "./stores/user";
-import {
-  registerServiceWorker,
-  setupNetworkListeners,
-} from "./utils/registerServiceWorker";
 import VueTour from "vue3-tour";
-import { showSuccessToast, showToast } from "vant";
 import "@vant/touch-emulator";
 import "vant/lib/index.css";
 import "vue3-tour/dist/vue3-tour.css";
