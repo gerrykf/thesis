@@ -9,7 +9,8 @@
       "Bash(npm run build:h5:*)",
       "Bash(npm run build:h5:dev:*)",
       "Bash(npm run:*)",
-      "Read(//e/workspace/thesis/程序实现文档/backend/health-backend/**)"
+      "Read(//e/workspace/thesis/程序实现文档/backend/health-backend/**)",
+      "Read(//e/workspace/thesis/程序实现文档/**)"
     ],
     "deny": [],
     "ask": []

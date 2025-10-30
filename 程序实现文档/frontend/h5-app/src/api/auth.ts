@@ -40,8 +40,7 @@ export async function postAuthAvatar(
   }>("/api/auth/avatar", {
     method: "POST",
     data: formData,
-     ...(options || {}), // 这里可以加入其他自定义字段
-    ...(options || {}),
+    ...(options || {}), // 这里可以加入其他自定义字段
   });
 }
 

@@ -35,8 +35,12 @@ declare namespace API {
     sodium_per_100g?: number;
     /** 每100g糖(g) */
     sugar_per_100g?: number;
+    /** 食物图片URL */
+    image_url?: string;
     /** 条形码 */
     barcode?: string;
+    /** 是否启用 */
+    is_active?: boolean;
   };
 
   type CreateHealthRecordRequest = {
@@ -58,6 +62,25 @@ declare namespace API {
     notes?: string;
   };
 
+  type deleteAdminFoodsIdParams = {
+    id: number;
+  };
+
+  type deleteAdminMenusIdParams = {
+    /** 菜单ID */
+    id: number;
+  };
+
+  type deleteAdminRolesIdParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type deleteAdminUsersIdParams = {
+    /** 用户ID */
+    id: number;
+  };
+
   type deleteDietRecordsIdParams = {
     /** 记录ID */
     id: number;
@@ -75,6 +98,11 @@ declare namespace API {
 
   type deleteHealthRecordsIdParams = {
     /** 记录ID */
+    id: number;
+  };
+
+  type deleteMonitorOnlineUsersIdParams = {
+    /** 在线用户ID */
     id: number;
   };
 
@@ -105,10 +133,6 @@ declare namespace API {
     created_at?: string;
     /** 更新时间 */
     updated_at?: string;
-    /** 食物名称 (JOIN查询返回) */
-    food_name?: string;
-    /** 食物分类 (JOIN查询返回) */
-    food_category?: string;
   };
 
   type Food = {
@@ -150,6 +174,21 @@ declare namespace API {
     updated_at?: string;
   };
 
+  type getAdminFoodsIdParams = {
+    id: number;
+  };
+
+  type getAdminFoodsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    limit?: number;
+    /** 搜索关键词 */
+    search?: string;
+    /** 分类筛选 */
+    category?: string;
+  };
+
   type getAdminLogsParams = {
     /** 页码 */
     page?: number;
@@ -159,6 +198,97 @@ declare namespace API {
     action?: string;
     /** 用户ID筛选 */
     user_id?: number;
+  };
+
+  type getAdminMenusParams = {
+    /** 是否包含静态路由菜单（用于权限树配置时需要） */
+    include_static?: true | false;
+    /** 是否用于权限树（如果是，返回所有菜单；否则只返回已授权的菜单） */
+    for_permission_tree?: true | false;
+  };
+
+  type getAdminRolesIdMenusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type getAdminRolesParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    limit?: number;
+    /** 角色名称搜索 */
+    name?: string;
+    /** 角色标识搜索 */
+    code?: string;
+    /** 状态筛选 1:启用 0:禁用 */
+    status?: 0 | 1;
+  };
+
+  type getAdminStatsDietCheckinRateParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsHealthCheckinRateParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsUserActiveTrendParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminStatsUserRegistrationTrendParams = {
+    /** 统计天数 */
+    days?: number;
+    /** 时间维度 */
+    period?: "day" | "week" | "month" | "quarter" | "year";
+  };
+
+  type getAdminUsersIdDietRecordsParams = {
+    /** 用户ID */
+    id: number;
+    /** 页码 */
+    page?: number;
+    /** 每页条数 */
+    pageSize?: number;
+    /** 开始日期(YYYY-MM-DD) */
+    startDate?: string;
+    /** 结束日期(YYYY-MM-DD) */
+    endDate?: string;
+    /** 餐次类型 */
+    mealType?: "breakfast" | "lunch" | "dinner" | "snack";
+  };
+
+  type getAdminUsersIdGoalsParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type getAdminUsersIdHealthRecordsParams = {
+    /** 用户ID */
+    id: number;
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 开始日期(YYYY-MM-DD) */
+    startDate?: string;
+    /** 结束日期(YYYY-MM-DD) */
+    endDate?: string;
+  };
+
+  type getAdminUsersIdHealthStatsParams = {
+    /** 用户ID */
+    id: number;
   };
 
   type getAdminUsersIdParams = {
@@ -175,6 +305,8 @@ declare namespace API {
     search?: string;
     /** 用户角色筛选 */
     role?: "user" | "admin";
+    /** 账号状态筛选(true:启用, false:禁用) */
+    is_active?: boolean;
     /** 创建时间开始日期(YYYY-MM-DD) */
     createdStartDate?: string;
     /** 创建时间结束日期(YYYY-MM-DD) */
@@ -215,15 +347,15 @@ declare namespace API {
   };
 
   type getFoodsParams = {
-    /** 页码 */
+    /** 页码（从1开始） */
     page?: number;
-    /** 每页数量 */
+    /** 每页显示数量 */
     limit?: number;
-    /** 搜索关键词(食物名称) */
+    /** 搜索关键词（用于匹配食物名称） */
     search?: string;
-    /** 食物分类 */
+    /** 食物类别筛选 */
     category?: string;
-    /** 条形码查询 */
+    /** 根据条形码筛选 */
     barcode?: string;
   };
 
@@ -241,6 +373,47 @@ declare namespace API {
     start_date?: string;
     /** 结束日期 */
     end_date?: string;
+  };
+
+  type getMonitorLoginLogsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+    /** 登录状态（0-失败，1-成功） */
+    status?: number;
+    /** 开始时间 */
+    startTime?: string;
+    /** 结束时间 */
+    endTime?: string;
+  };
+
+  type getMonitorOnlineUsersParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+  };
+
+  type getMonitorOperationLogsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 用户名（模糊搜索） */
+    username?: string;
+    /** 所属模块（模糊搜索） */
+    module?: string;
+    /** 操作状态（0-失败，1-成功） */
+    status?: number;
+    /** 开始时间 */
+    startTime?: string;
+    /** 结束时间 */
+    endTime?: string;
   };
 
   type getStatsCaloriesTrendParams = {
@@ -261,6 +434,8 @@ declare namespace API {
   type getStatsOverviewParams = {
     /** 统计天数 */
     days?: number;
+    /** 用户ID（仅管理员可用） */
+    userId?: number;
   };
 
   type getStatsSleepQualityParams = {
@@ -313,7 +488,46 @@ declare namespace API {
     data?: { token?: string; user?: User };
   };
 
+  type patchAdminRolesIdStatusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
   type patchAdminUsersIdToggleStatusParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type postAdminUsersIdAvatarParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type putAdminFoodsIdParams = {
+    id: number;
+  };
+
+  type putAdminMenusIdParams = {
+    /** 菜单ID */
+    id: number;
+  };
+
+  type putAdminRolesIdMenusParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type putAdminRolesIdParams = {
+    /** 角色ID */
+    id: number;
+  };
+
+  type putAdminUsersIdParams = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type putAdminUsersIdRoleParams = {
     /** 用户ID */
     id: number;
   };
@@ -379,6 +593,12 @@ declare namespace API {
     avatar?: string;
     /** 用户角色 */
     role?: "user" | "admin";
+    /** 角色ID */
+    role_id?: number;
+    /** 用户权限列表(权限标识数组) */
+    permissions?: string[];
+    /** 账号状态 */
+    is_active?: boolean;
     /** 创建时间 */
     created_at?: string;
     /** 最后登录时间 */

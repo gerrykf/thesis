@@ -2,11 +2,22 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
+// 上传目录配置（生产环境使用绝对路径，开发环境使用相对路径）
+const uploadDir = process.env.UPLOAD_PATH
+  ? path.resolve(process.env.UPLOAD_PATH, 'avatars')
+  : path.join(__dirname, '../uploads/avatars');
+
 // 确保上传目录存在
-const uploadDir = path.join(__dirname, '../uploads/avatars');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('[Upload] 上传目录创建成功:', uploadDir);
+  } catch (error) {
+    console.error('[Upload] 上传目录创建失败:', uploadDir, error);
+  }
 }
+
+console.log('[Upload] 上传目录:', uploadDir);
 
 // 配置存储
 const storage = multer.diskStorage({

@@ -187,7 +187,8 @@ async function afterRead(file: UploaderFileListItem | UploaderFileListItem[]) {
   fileItem.message = t("shang-chuan-zhong-0");
 
   try {
-    const res = await postAuthAvatar(fileItem.file);
+    // 修复：第一个参数是 body（空对象），第二个参数才是文件
+    const res = await postAuthAvatar({}, fileItem.file);
 
     // axios 拦截器已解包数据
     const data = res as any;

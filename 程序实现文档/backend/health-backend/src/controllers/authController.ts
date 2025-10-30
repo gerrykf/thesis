@@ -935,13 +935,35 @@ export const uploadAvatar = async (
   res: Response
 ): Promise<void> => {
   try {
+    // 调试日志：记录请求信息
+    console.log('[Upload] 收到头像上传请求', {
+      userId: req.user?.userId,
+      hasFile: !!req.file,
+      contentType: req.headers['content-type'],
+      bodyKeys: Object.keys(req.body),
+      fileKeys: req.file ? Object.keys(req.file) : []
+    });
+
     if (!req.file) {
+      console.error('[Upload] 未检测到文件，可能原因：', {
+        contentType: req.headers['content-type'],
+        body: req.body,
+        files: (req as any).files
+      });
       res.status(400).json({
         success: false,
         message: "请上传头像文件",
       });
       return;
     }
+
+    console.log('[Upload] 文件信息:', {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
 
     // 生成头像URL路径
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
