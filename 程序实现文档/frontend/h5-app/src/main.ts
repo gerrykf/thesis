@@ -10,7 +10,10 @@ import "vant/lib/index.css";
 import "vue3-tour/dist/vue3-tour.css";
 import "./styles/global.scss";
 import App from "./App.vue";
-import { registerServiceWorker } from "./utils/registerServiceWorker";
+import {
+  registerServiceWorker,
+  setupNetworkListeners,
+} from "./utils/registerServiceWorker";
 import { showSuccessToast, showToast } from "vant";
 
 // 初始化rem适配
