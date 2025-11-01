@@ -1,5 +1,5 @@
 // Service Worker 版本号
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.0.1';  // 修复 POST 请求缓存错误
 const CACHE_NAME = `health-app-${CACHE_VERSION}`;
 
 // 需要缓存的静态资源
@@ -104,8 +104,9 @@ async function cacheFirstStrategy(request) {
     // 缓存未命中，请求网络
     const networkResponse = await fetch(request);
 
-    // 如果是成功响应，存入缓存
-    if (networkResponse.ok) {
+    // 如果是成功响应且是 GET 请求，存入缓存
+    // Cache API 只支持 GET 请求，不支持 POST/PUT/DELETE 等
+    if (networkResponse.ok && request.method === 'GET') {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
