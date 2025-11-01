@@ -125,7 +125,20 @@ const avatarUrl = computed(() => {
   if (!avatar) {
     return "";
   }
-  // 直接返回路径，vite 代理会自动转发到后端
+
+  // 如果是完整URL（http/https开头），直接返回
+  if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+    return avatar;
+  }
+
+  // 开发环境：vite 代理会自动转发到后端，直接返回相对路径
+  // 生产环境：需要拼接完整的后端地址
+  const staticBaseUrl = import.meta.env.VITE_STATIC_BASE_URL;
+  if (staticBaseUrl) {
+    return `${staticBaseUrl}${avatar}`;
+  }
+
+  // 兜底：返回原始路径（开发环境）
   return avatar;
 });
 
