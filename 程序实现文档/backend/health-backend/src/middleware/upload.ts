@@ -8,6 +8,8 @@ const uploadDir = process.env.UPLOAD_PATH
   ? path.resolve(process.env.UPLOAD_PATH, 'avatars')
   : path.join(__dirname, '../../uploads/avatars'); // 从src/middleware到项目根目录的uploads
 
+  console.log("UPLOAD_PATH:", process.env.UPLOAD_PATH);
+
 // 确保上传目录存在
 if (!fs.existsSync(uploadDir)) {
   try {

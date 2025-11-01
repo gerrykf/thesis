@@ -1,5 +1,5 @@
 // Service Worker 版本号
-const CACHE_VERSION = 'v1.0.1';  // 修复 POST 请求缓存错误
+const CACHE_VERSION = 'v1.0.2';  // 修复 POST 请求缓存错误
 const CACHE_NAME = `health-app-${CACHE_VERSION}`;
 
 // 需要缓存的静态资源
