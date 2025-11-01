@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onActivated } from "vue";
+import { computed, ref, onActivated, onMounted } from "vue";
 import { showToast, showConfirmDialog } from "vant";
 import type { UploaderFileListItem } from "vant";
 import { useRouter } from "vue-router";
@@ -143,6 +143,10 @@ const initAvatarUrl = () => {
 onActivated(() => {
   avatarUrl.value = initAvatarUrl();
   userStore.refreshUserInfo();
+});
+
+onMounted(() => {
+  avatarUrl.value = initAvatarUrl();
 });
 
 function goToEdit() {
