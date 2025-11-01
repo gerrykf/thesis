@@ -110,38 +110,39 @@ const router = useRouter();
 const userStore = useUserStore();
 const fileList = ref<UploaderFileListItem[]>([]);
 const isUploading = ref(false);
+// 获取头像URL
+const avatarUrl = ref<string | null>(null);
 
 // 从 store 获取用户信息
 const userName = computed(() => userStore.nickname);
 
-// 页面激活时刷新用户信息（包括首次挂载和从其他页面返回）
-onActivated(() => {
-  userStore.refreshUserInfo();
-});
-
-// 获取头像URL
-const avatarUrl = computed(() => {
+const initAvatarUrl = () => {
   const avatar = userStore.userInfo?.avatar;
   if (!avatar) {
     return "";
   }
 
   // 如果是完整URL（http/https开头），直接返回
-  if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+  if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
     return avatar;
   }
 
   // 开发环境：vite 代理会自动转发到后端，直接返回相对路径
   // 生产环境：需要拼接完整的后端地址
   const staticBaseUrl = import.meta.env.VITE_STATIC_BASE_URL;
+  console.log("生产环境头像URL:", `${staticBaseUrl}${avatar}`);
   if (staticBaseUrl) {
-    console.log("生产环境头像URL:", `${staticBaseUrl}${avatar}`);
     return `${staticBaseUrl}${avatar}`;
   }
 
-
   // 兜底：返回原始路径（开发环境）
   return avatar;
+};
+
+// 页面激活时刷新用户信息（包括首次挂载和从其他页面返回）
+onActivated(() => {
+  avatarUrl.value = initAvatarUrl();
+  userStore.refreshUserInfo();
 });
 
 function goToEdit() {
@@ -214,6 +215,7 @@ async function afterRead(file: UploaderFileListItem | UploaderFileListItem[]) {
 
       // 方式1: 立即更新 store 中的头像（快速响应）
       userStore.updateAvatar(data.data.avatarUrl);
+      avatarUrl.value = initAvatarUrl();
 
       // 方式2: 从服务器刷新完整用户信息（确保数据一致性）
       userStore.refreshUserInfo();

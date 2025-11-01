@@ -5,11 +5,11 @@ import fs from 'fs';
 // 上传目录配置（生产环境使用绝对路径，开发环境使用相对路径）
 // UPLOAD_PATH 应该设置为 uploads 目录，代码会自动追加 avatars
 const uploadDir = process.env.UPLOAD_PATH
-  ? path.join(process.env.UPLOAD_PATH, 'avatars')  // 生产环境：拼接 avatars
-  : path.join(__dirname, '../../uploads/avatars'); // 开发环境：相对路径
+  ? path.join(process.env.UPLOAD_PATH, "avatars") // 生产环境：拼接 avatars
+  : path.join(__dirname, "../uploads/avatars"); // 开发环境：相对路径
 
-console.log("UPLOAD_PATH:", process.env.UPLOAD_PATH);
-console.log('[Upload] 最终上传目录:', uploadDir);
+console.log("[Upload] UPLOAD_PATH 环境变量:", process.env.UPLOAD_PATH);
+console.log("[Upload] __dirname:", __dirname);
 
 // 确保上传目录存在
 if (!fs.existsSync(uploadDir)) {
