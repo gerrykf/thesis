@@ -136,9 +136,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestLogger);
 
 // 静态文件服务 - 提供上传的文件访问
-// 修正路径：上传目录在项目根目录，而非src目录
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-console.log('[Static] 静态文件目录:', path.join(__dirname, '../uploads'));
+const staticDir = process.env.UPLOAD_PATH
+  ? process.env.UPLOAD_PATH  // 生产环境：使用环境变量指定的目录
+  : path.join(__dirname, '../uploads'); // 开发环境：项目根目录的uploads
+
+app.use('/uploads', express.static(staticDir));
+console.log('[Static] 静态文件目录:', staticDir);
 
 // API文档路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
