@@ -135,8 +135,10 @@ const avatarUrl = computed(() => {
   // 生产环境：需要拼接完整的后端地址
   const staticBaseUrl = import.meta.env.VITE_STATIC_BASE_URL;
   if (staticBaseUrl) {
+    console.log("生产环境头像URL:", `${staticBaseUrl}${avatar}`);
     return `${staticBaseUrl}${avatar}`;
   }
+
 
   // 兜底：返回原始路径（开发环境）
   return avatar;
