@@ -121,7 +121,9 @@
       "Bash(__NEW_LINE__ echo \"=== 测试在线用户列表 ===\")",
       "Bash(__NEW_LINE__ echo \"=== 测试1: 在线用户 - 不存在的username ===\")",
       "Bash(for file in \"E:\\workspace\\thesis\\程序实现文档\\backend\\health-backend\\src\\controllers\"/*Controller.ts)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(__NEW_LINE__ echo \"\n测试命令(需要一个真实的图片文件):\")",
+      "Bash(echo 'curl -X POST http://localhost:3000/api/admin/users/17/avatar \\'\necho ' -H \"Authorization: Bearer $TOKEN\" '')"
     ],
     "deny": [],
     "ask": []

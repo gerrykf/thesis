@@ -42,7 +42,6 @@ if (import.meta.env.PROD) {
     onRegistered: (_registration) => {
       console.log("[SW] Service Worker 已注册");
       console.log("[SW] 缓存策略已生效，支持离线访问");
-      showSuccessToast("离线功能已启用");
     },
     onUpdated: (_registration) => {
       console.log("[SW] Service Worker 有新版本");

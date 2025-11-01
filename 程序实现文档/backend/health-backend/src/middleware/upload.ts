@@ -3,9 +3,10 @@ import path from 'path';
 import fs from 'fs';
 
 // 上传目录配置（生产环境使用绝对路径，开发环境使用相对路径）
+// 上传目录应该在项目根目录的uploads/avatars，而不是src/uploads/avatars
 const uploadDir = process.env.UPLOAD_PATH
   ? path.resolve(process.env.UPLOAD_PATH, 'avatars')
-  : path.join(__dirname, '../uploads/avatars');
+  : path.join(__dirname, '../../uploads/avatars'); // 从src/middleware到项目根目录的uploads
 
 // 确保上传目录存在
 if (!fs.existsSync(uploadDir)) {

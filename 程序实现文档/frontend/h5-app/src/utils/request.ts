@@ -7,9 +7,6 @@ import { showToast } from "vant";
 // 创建 axios 实例
 const request: AxiosInstance = axios.create({
   timeout: 15000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // 请求拦截器
@@ -27,6 +24,12 @@ request.interceptors.request.use(
     // 自动携带语言参数 (通过标准的 Accept-Language Header)
     const locale = localStorage.getItem("locale") || "zh-CN";
     config.headers["Accept-Language"] = locale;
+
+    // 如果是 FormData，让浏览器自动设置 Content-Type (包含 boundary)
+    // 否则设置为 application/json
+    if (!(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
 
     return config;
   },
