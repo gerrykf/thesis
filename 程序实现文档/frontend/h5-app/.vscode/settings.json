@@ -1,0 +1,30 @@
+{
+  "i18n-ally.localesPaths": [
+    "src/locales"
+  ],
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.namespace": false,
+  "i18n-ally.pathMatcher": "{locale}.json",
+  "i18n-ally.enabledParsers": [
+    "json",
+    "ts"
+  ],
+  "i18n-ally.sourceLanguage": "zh-CN",
+  "i18n-ally.displayLanguage": "zh-CN",
+  "i18n-ally.enabledFrameworks": [
+    "vue",
+    "vue-sfc"
+  ],
+  "i18n-ally.extract.autoDetect": true,
+  "i18n-ally.includeSubfolders": true,
+  "i18n-ally.include": [
+    "/*.vue",
+    "/.js",
+    "**/.ts"
+  ],
+  "i18n-ally.hardStrings.enable": false,
+  "i18n-ally.extract.saveTo": "src/locales",
+  "i18n-ally.extract.saveFormat": "nested",
+  "i18n-ally.enable": true
+}
