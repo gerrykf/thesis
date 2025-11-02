@@ -27,7 +27,10 @@ export function formatDateTime(
   if (!dateString) return "-";
 
   try {
-    return dayjs(dateString).tz(BEIJING_TIMEZONE).format(format);
+    // 如果后端返回的是普通日期字符串（无时区信息），直接格式化
+    // 因为后端存储的已经是北京时间（UTC+8）
+    // 不要再用 .tz() 转换，否则会重复加 8 小时
+    return dayjs(dateString).format(format);
   } catch (error) {
     console.error("日期格式化失败:", error);
     return "-";
@@ -47,7 +50,8 @@ export function formatDate(
   if (!dateString) return "-";
 
   try {
-    return dayjs(dateString).tz(BEIJING_TIMEZONE).format(format);
+    // 后端返回的已经是北京时间，直接格式化
+    return dayjs(dateString).format(format);
   } catch (error) {
     console.error("日期格式化失败:", error);
     return "-";
@@ -67,7 +71,8 @@ export function formatTime(
   if (!dateString) return "-";
 
   try {
-    return dayjs(dateString).tz(BEIJING_TIMEZONE).format(format);
+    // 后端返回的已经是北京时间，直接格式化
+    return dayjs(dateString).format(format);
   } catch (error) {
     console.error("时间格式化失败:", error);
     return "-";
@@ -83,8 +88,9 @@ export function formatRelativeTime(dateString: string | null | undefined): strin
   if (!dateString) return "-";
 
   try {
-    const targetTime = dayjs(dateString).tz(BEIJING_TIMEZONE);
-    const now = dayjs().tz(BEIJING_TIMEZONE);
+    // 后端返回的已经是北京时间，直接使用
+    const targetTime = dayjs(dateString);
+    const now = dayjs();
 
     const diffMinutes = now.diff(targetTime, "minute");
     const diffHours = now.diff(targetTime, "hour");
@@ -137,8 +143,8 @@ export function calculateAge(birthday: string | null | undefined): number {
   if (!birthday) return 0;
 
   try {
-    const today = dayjs().tz(BEIJING_TIMEZONE);
-    const birthDate = dayjs(birthday).tz(BEIJING_TIMEZONE);
+    const today = dayjs();
+    const birthDate = dayjs(birthday);
 
     let age = today.year() - birthDate.year();
     const monthDiff = today.month() - birthDate.month();

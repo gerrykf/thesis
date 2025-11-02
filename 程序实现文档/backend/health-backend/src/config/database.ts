@@ -13,7 +13,9 @@ const dbConfig = {
   connectionLimit: 10,
   queueLimit: 0,
   acquireTimeout: 60000,
-  timeout: 60000
+  timeout: 60000,
+  // 设置时区为北京时间（UTC+8）
+  timezone: '+08:00'
 };
 
 // 创建连接池
