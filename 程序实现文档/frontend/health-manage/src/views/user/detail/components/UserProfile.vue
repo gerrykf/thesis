@@ -63,7 +63,7 @@
             >
               <el-avatar
                 :size="80"
-                :src="userInfo.avatar || undefined"
+                :src="avatarUrl || undefined"
                 class="user-avatar"
               >
                 <el-icon :size="50"><UserFilled /></el-icon>
@@ -146,6 +146,7 @@ import type { UserInfo } from "../utils/types";
 import { formatDate, formatDateTime, getGenderText } from "../utils/helpers";
 import { getToken } from "@/utils/auth";
 import { UserPermission } from "@/utils/rbac";
+import { getAvatarUrl } from "@/utils/avatar";
 
 defineOptions({
   name: "UserProfile"
@@ -167,6 +168,9 @@ const emit = defineEmits<{
 const windowWidth = ref(
   typeof window !== "undefined" ? window.innerWidth : 1200
 );
+
+// 计算完整的头像URL
+const avatarUrl = computed(() => getAvatarUrl(props.userInfo.avatar));
 
 // 上传配置 - 使用管理员专用接口
 const uploadAction = computed(

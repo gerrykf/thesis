@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
+import { formatDateTime } from "@/utils/datetime";
 import {
   getMonitorOnlineUsers as getOnlineUsers,
   deleteMonitorOnlineUsersId as forceOfflineUser
@@ -66,8 +66,7 @@ export function useOnlineUsers() {
       label: "登录时间",
       prop: "login_time",
       minWidth: 180,
-      formatter: ({ login_time }) =>
-        login_time ? dayjs(login_time).format("YYYY-MM-DD HH:mm:ss") : "-"
+      formatter: ({ login_time }) => formatDateTime(login_time)
     },
     {
       label: "操作",

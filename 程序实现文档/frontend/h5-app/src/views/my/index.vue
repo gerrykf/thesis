@@ -140,12 +140,17 @@ const initAvatarUrl = () => {
 };
 
 // 页面激活时刷新用户信息（包括首次挂载和从其他页面返回）
-onActivated(() => {
+onActivated(async () => {
+  // 先设置当前头像（避免闪烁）
   avatarUrl.value = initAvatarUrl();
-  userStore.refreshUserInfo();
+  // 刷新用户信息（获取最新数据）
+  await userStore.refreshUserInfo();
+  // 刷新后更新头像
+  avatarUrl.value = initAvatarUrl();
 });
 
 onMounted(() => {
+  // 首次挂载时设置头像
   avatarUrl.value = initAvatarUrl();
 });
 

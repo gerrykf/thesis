@@ -1,25 +1,27 @@
 // 用户管理模块工具函数
 
 import { sleepQualityOptions, moodOptions } from "./options";
+import {
+  formatDateTime as formatDateTimeUtil,
+  formatDate as formatDateUtil
+} from "@/utils/datetime";
 
 /**
- * 格式化日期
+ * 格式化日期时间（使用北京时间）
  * @param dateString 日期字符串
- * @returns 格式化后的日期字符串
+ * @returns 格式化后的日期时间字符串
  */
 export function formatDate(dateString: string): string {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("zh-CN");
+  return formatDateTimeUtil(dateString);
 }
 
 /**
- * 格式化日期为短格式
+ * 格式化日期为短格式（使用北京时间）
  * @param dateString 日期字符串
  * @returns 格式化后的日期字符串
  */
 export function formatDateShort(dateString: string): string {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleDateString("zh-CN");
+  return formatDateUtil(dateString);
 }
 
 /**
@@ -164,25 +166,12 @@ export function generateRandomColor(): string {
 }
 
 /**
- * 计算年龄
+ * 计算年龄（使用北京时间）
  * @param birthday 生日
  * @returns 年龄
  */
 export function calculateAge(birthday: string): number {
-  if (!birthday) return 0;
-  const today = new Date();
-  const birthDate = new Date(birthday);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-
-  return age;
+  return require("@/utils/datetime").calculateAge(birthday);
 }
 
 /**

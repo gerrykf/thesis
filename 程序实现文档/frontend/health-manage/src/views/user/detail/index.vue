@@ -518,6 +518,7 @@ const viewActiveDays = () => {
 // 处理头像更新
 const handleAvatarUpdated = (avatarUrl: string) => {
   userInfo.avatar = avatarUrl;
+  userStore.SET_AVATAR(avatarUrl);
 };
 
 // 页面初始化

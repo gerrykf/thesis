@@ -108,7 +108,7 @@
             <el-avatar
               v-if="row.avatar"
               :size="40"
-              :src="row.avatar"
+              :src="getAvatarUrl(row.avatar)"
               class="user-avatar"
             />
             <el-avatar
@@ -355,6 +355,7 @@ import {
 } from "@element-plus/icons-vue";
 import { ElMessage, type FormInstance } from "element-plus";
 import { useUserStoreHook } from "@/store/modules/user";
+import { getAvatarUrl } from "@/utils/avatar";
 import {
   useUserList,
   useUserStats,

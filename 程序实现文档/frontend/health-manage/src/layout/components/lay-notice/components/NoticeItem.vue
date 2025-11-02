@@ -3,6 +3,7 @@ import { ListItem } from "../data";
 import { ref, PropType, nextTick } from "vue";
 import { useNav } from "@/layout/hooks/useNav";
 import { deviceDetection } from "@pureadmin/utils";
+import { getAvatarUrl } from "@/utils/avatar";
 
 defineProps({
   noticeItem: {
@@ -54,7 +55,7 @@ function hoverDescription(event, description) {
     <el-avatar
       v-if="noticeItem.avatar"
       :size="30"
-      :src="noticeItem.avatar"
+      :src="getAvatarUrl(noticeItem.avatar)"
       class="notice-container-avatar"
     />
     <div class="notice-container-text">

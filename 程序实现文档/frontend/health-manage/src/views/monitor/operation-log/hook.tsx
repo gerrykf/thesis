@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { formatDateTime, getBeijingTime } from "@/utils/datetime";
 import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
 import { getKeyList } from "@pureadmin/utils";
@@ -91,10 +91,7 @@ export function useOperationLogs(tableRef: Ref) {
       label: "操作时间",
       prop: "operating_time",
       minWidth: 180,
-      formatter: ({ operating_time }) =>
-        operating_time
-          ? dayjs(operating_time).format("YYYY-MM-DD HH:mm:ss")
-          : "-"
+      formatter: ({ operating_time }) => formatDateTime(operating_time)
     }
   ];
 
@@ -167,10 +164,10 @@ export function useOperationLogs(tableRef: Ref) {
         Array.isArray(form.operatingTime) &&
         form.operatingTime.length === 2
       ) {
-        params.startTime = dayjs(form.operatingTime[0]).format(
+        params.startTime = getBeijingTime(form.operatingTime[0]).format(
           "YYYY-MM-DD HH:mm:ss"
         );
-        params.endTime = dayjs(form.operatingTime[1]).format(
+        params.endTime = getBeijingTime(form.operatingTime[1]).format(
           "YYYY-MM-DD HH:mm:ss"
         );
       }

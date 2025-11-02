@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { unwrap } from "@/utils/api";
+import { formatDateTime, getBeijingTime } from "@/utils/datetime";
 import { getKeyList } from "@pureadmin/utils";
 import {
   getMonitorLoginLogs as getLoginLogs,
@@ -85,8 +85,7 @@ export function useLoginLogs(tableRef: Ref) {
       label: "登录时间",
       prop: "login_time",
       minWidth: 180,
-      formatter: ({ login_time }) =>
-        login_time ? dayjs(login_time).format("YYYY-MM-DD HH:mm:ss") : "-"
+      formatter: ({ login_time }) => formatDateTime(login_time)
     }
   ];
 
@@ -158,10 +157,10 @@ export function useLoginLogs(tableRef: Ref) {
         Array.isArray(form.loginTime) &&
         form.loginTime.length === 2
       ) {
-        params.startTime = dayjs(form.loginTime[0]).format(
+        params.startTime = getBeijingTime(form.loginTime[0]).format(
           "YYYY-MM-DD HH:mm:ss"
         );
-        params.endTime = dayjs(form.loginTime[1]).format("YYYY-MM-DD HH:mm:ss");
+        params.endTime = getBeijingTime(form.loginTime[1]).format("YYYY-MM-DD HH:mm:ss");
       }
 
       const response = await unwrap(getLoginLogs(params));

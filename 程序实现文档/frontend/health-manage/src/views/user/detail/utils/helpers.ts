@@ -2,16 +2,16 @@
  * 用户详情页面工具函数
  */
 
-// 格式化日期
+import { formatDate as formatDateUtil, formatDateTime as formatDateTimeUtil } from "@/utils/datetime";
+
+// 格式化日期（使用北京时间）
 export const formatDate = (dateString: string): string => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleDateString("zh-CN");
+  return formatDateUtil(dateString);
 };
 
-// 格式化日期时间
+// 格式化日期时间（使用北京时间）
 export const formatDateTime = (dateString: string): string => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("zh-CN");
+  return formatDateTimeUtil(dateString);
 };
 
 // 获取性别文本
