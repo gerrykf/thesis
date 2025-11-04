@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { db } from "../config/database";
 import { AuthRequest } from "../middleware/auth";
-import { getAddressFromIP } from "../utils/ipAddress";
+import { ipCache } from "../utils/ipCache";
 import path from "path";
 import fs from "fs";
 
@@ -259,8 +259,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 密码加密
-    const saltRounds = 12;
+    // 密码加密（使用10轮，在安全性和性能之间取得平衡）
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // 创建用户
@@ -360,18 +360,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     else if (userAgent.includes("Edge")) browser = "Edge";
   }
 
-  // 记录登录日志的辅助函数
+  // 记录登录日志的辅助函数（接受预先获取的address参数）
   const recordLoginLog = async (
     userId: number | null,
     username: string,
     status: number,
     behavior: string,
+    address: string,
     errorMessage: string | null = null
   ) => {
     try {
-      // 获取 IP 地址对应的地理位置
-      const address = await getAddressFromIP(ipAddress);
-
       await db.execute(
         `INSERT INTO login_logs (
           user_id, username, ip, address, \`system\`, browser,
@@ -415,8 +413,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const users = rows as any[];
     if (users.length === 0) {
-      // 记录登录失败日志
-      await recordLoginLog(null, username, 0, "登录", "用户名不存在");
+      // 记录登录失败日志（异步执行，不阻塞响应，使用IP缓存）
+      ipCache.getAddress(ipAddress).then(address => {
+        recordLoginLog(null, username, 0, "登录", address, "用户名不存在");
+      }).catch(err => console.error("记录失败日志错误:", err));
+
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -428,8 +429,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 检查账号是否被禁用
     if (!user.is_active) {
-      // 记录登录失败日志
-      await recordLoginLog(user.id, username, 0, "登录", "账号已被禁用");
+      // 记录登录失败日志（异步执行，不阻塞响应，使用IP缓存）
+      ipCache.getAddress(ipAddress).then(address => {
+        recordLoginLog(user.id, username, 0, "登录", address, "账号已被禁用");
+      }).catch(err => console.error("记录失败日志错误:", err));
+
       res.status(401).json({
         success: false,
         message: "账号已被禁用，请联系管理员",
@@ -440,8 +444,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 验证密码
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      // 记录登录失败日志
-      await recordLoginLog(user.id, username, 0, "登录", "密码错误");
+      // 记录登录失败日志（异步执行，不阻塞响应，使用IP缓存）
+      ipCache.getAddress(ipAddress).then(address => {
+        recordLoginLog(user.id, username, 0, "登录", address, "密码错误");
+      }).catch(err => console.error("记录失败日志错误:", err));
+
       res.status(400).json({
         success: false,
         message: "用户名或密码错误",
@@ -483,45 +490,38 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // 计算令牌过期时间 (默认7天)
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // 记录登录成功日志
-    await recordLoginLog(user.id, username, 1, "登录", null);
-
-    // 获取地址信息
-    const address = await getAddressFromIP(ipAddress);
-
     // 获取客户端类型（从请求头中获取，默认为h5）
     const clientType = (req.headers["x-client-type"] as string) || "h5";
 
-    // 记录在线用户
-    try {
-      // 先删除该用户的旧在线记录（同一用户同一客户端类型只保留一条）
-      await db.execute(
+    // 异步执行登录日志和在线用户记录（不阻塞响应，显著提升性能，使用IP缓存）
+    ipCache.getAddress(ipAddress).then(address => {
+      // 记录登录成功日志
+      recordLoginLog(user.id, username, 1, "登录", address, null);
+
+      // 记录在线用户
+      db.execute(
         "DELETE FROM online_users WHERE user_id = ? AND client_type = ?",
         [user.id, clientType]
-      );
-
-      // 插入新的在线用户记录
-      await db.execute(
-        `INSERT INTO online_users (
-          user_id, username, client_type, token, ip, address, \`system\`, browser,
-          login_time, last_active_time, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
-        [
-          user.id,
-          username,
-          clientType,
-          token,
-          ipAddress,
-          address,
-          system,
-          browser,
-          expiresAt,
-        ]
-      );
-    } catch (error) {
-      console.error("记录在线用户失败:", error);
-      // 不影响登录流程
-    }
+      ).then(() => {
+        return db.execute(
+          `INSERT INTO online_users (
+            user_id, username, client_type, token, ip, address, \`system\`, browser,
+            login_time, last_active_time, expires_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
+          [
+            user.id,
+            username,
+            clientType,
+            token,
+            ipAddress,
+            address,
+            system,
+            browser,
+            expiresAt,
+          ]
+        );
+      }).catch(err => console.error("记录在线用户失败:", err));
+    }).catch(err => console.error("记录登录日志失败:", err));
 
     // 返回用户信息（不包含密码）
     const { password: _, ...userWithoutPassword } = user;
@@ -860,8 +860,8 @@ export const updatePassword = async (
       return;
     }
 
-    // 加密新密码
-    const saltRounds = 12;
+    // 加密新密码（使用10轮，在安全性和性能之间取得平衡）
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // 更新密码

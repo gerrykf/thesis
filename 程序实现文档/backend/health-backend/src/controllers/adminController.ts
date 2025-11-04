@@ -4102,7 +4102,7 @@ export const getUserGoals = async (
     }
 
     // 查询用户目标
-    const [rows] = await db.query(
+    const [rows] = await db.execute(
       `SELECT * FROM user_goals
        WHERE user_id = ?
        ORDER BY
