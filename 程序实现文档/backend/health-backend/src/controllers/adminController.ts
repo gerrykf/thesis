@@ -919,17 +919,24 @@ export const updateUserById = async (
 
     Object.keys(req.body).forEach((key) => {
       if (allowedFields.includes(key)) {
+        const value = req.body[key];
+
+        // 跳过空字符串和null值（除了is_active字段）
+        if ((value === '' || value === null) && key !== 'is_active') {
+          return;
+        }
+
         updateFields.push(`${key} = ?`);
 
         // 处理日期格式：将ISO 8601格式转换为MySQL DATE格式 (YYYY-MM-DD)
-        if (key === 'birth_date' && req.body[key]) {
-          const date = new Date(req.body[key]);
+        if (key === 'birth_date' && value) {
+          const date = new Date(value);
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
           updateValues.push(`${year}-${month}-${day}`);
         } else {
-          updateValues.push(req.body[key]);
+          updateValues.push(value);
         }
       }
     });

@@ -518,7 +518,11 @@ const viewActiveDays = () => {
 // 处理头像更新
 const handleAvatarUpdated = (avatarUrl: string) => {
   userInfo.avatar = avatarUrl;
-  userStore.SET_AVATAR(avatarUrl);
+
+  // 只有当编辑的是当前登录用户时，才更新 store 中的头像
+  if (userInfo.id === currentUserId.value) {
+    userStore.SET_AVATAR(avatarUrl);
+  }
 };
 
 // 页面初始化

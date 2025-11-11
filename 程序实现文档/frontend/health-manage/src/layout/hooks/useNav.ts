@@ -14,6 +14,7 @@ import { useGlobal, isAllEmpty } from "@pureadmin/utils";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import ExitFullscreen from "~icons/ri/fullscreen-exit-fill";
 import Fullscreen from "~icons/ri/fullscreen-fill";
+import { getAvatarUrl } from "@/utils/avatar";
 
 const errorInfo =
   "The current routing configuration is incorrect, please check the configuration";
@@ -24,6 +25,11 @@ export function useNav() {
   const routers = useRouter().options.routes;
   const { isFullscreen, toggle } = useFullscreen();
   const { wholeMenus } = storeToRefs(usePermissionStoreHook());
+  const {
+    avatar,
+    username: userName,
+    nickname
+  } = storeToRefs(useUserStoreHook());
   /** 平台`layout`中所有`el-tooltip`的`effect`配置，默认`light` */
   const tooltipEffect = getConfig()?.TooltipEffect ?? "light";
 
@@ -39,16 +45,18 @@ export function useNav() {
 
   /** 头像（如果头像为空则使用 src/assets/user.jpg ） */
   const userAvatar = computed(() => {
-    return isAllEmpty(useUserStoreHook()?.avatar)
-      ? Avatar
-      : useUserStoreHook()?.avatar;
+    console.log("avatar.value:", avatar.value);
+    if (isAllEmpty(avatar.value)) {
+      return Avatar;
+    }
+    // 使用 getAvatarUrl 处理头像路径，确保在生产环境正确显示
+    const fullUrl = getAvatarUrl(avatar.value);
+    return fullUrl || Avatar;
   });
 
   /** 昵称（如果昵称为空则显示用户名） */
   const username = computed(() => {
-    return isAllEmpty(useUserStoreHook()?.nickname)
-      ? useUserStoreHook()?.username
-      : useUserStoreHook()?.nickname;
+    return isAllEmpty(nickname.value) ? userName.value : nickname.value;
   });
 
   const avatarsStyle = computed(() => {

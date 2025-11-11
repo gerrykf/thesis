@@ -103,13 +103,16 @@
         style="width: 100%"
       >
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="头像" width="80">
+        <el-table-column label="头像" width="100">
           <template #default="{ row }">
-            <el-avatar
+            <el-image
               v-if="row.avatar"
-              :size="40"
               :src="getAvatarUrl(row.avatar)"
-              class="user-avatar"
+              :preview-src-list="[getAvatarUrl(row.avatar)]"
+              :initial-index="0"
+              fit="cover"
+              class="user-avatar-image"
+              preview-teleported
             />
             <el-avatar
               v-else
@@ -641,6 +644,14 @@ onMounted(() => {
 }
 
 .user-avatar {
+  border: 2px solid #f0f0f0;
+}
+
+.user-avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
   border: 2px solid #f0f0f0;
 }
 
