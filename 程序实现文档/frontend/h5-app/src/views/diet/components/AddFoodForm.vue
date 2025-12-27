@@ -26,7 +26,7 @@
 
       <!-- 表单内容 -->
       <div class="form-content">
-        <van-form ref="formRef">
+        <van-form>
           <!-- 基本信息 -->
           <div class="form-section">
             <div class="section-title">{{ t("ji-ben-xin-xi") }}</div>
@@ -231,7 +231,6 @@ const submitting = ref(false);
 const showCategoryPicker = ref(false);
 const showCategoryInput = ref(false);
 const customCategory = ref("");
-const formRef = ref();
 
 // 分类选项
 const categoryColumns = computed(() => {
