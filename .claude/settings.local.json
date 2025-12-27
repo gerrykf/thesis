@@ -7,7 +7,9 @@
       "Bash(mysql:*)",
       "Bash(npm run build)",
       "Bash(pm2 restart:*)",
-      "Bash(npm run pm2:start:*)"
+      "Bash(npm run pm2:start:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
