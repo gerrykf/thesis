@@ -373,7 +373,7 @@ CREATE TABLE IF NOT EXISTS system_logs (
     url VARCHAR(500) COMMENT '请求URL',
     ip_address VARCHAR(45) COMMENT 'IP地址',
     user_agent TEXT COMMENT '用户代理',
-    request_data JSON COMMENT '请求数据',
+request_data TEXT COMMENT '请求数据',
     response_status INT COMMENT '响应状态码',
     response_time INT COMMENT '响应时间(ms)',
     error_message TEXT COMMENT '错误信息',
@@ -438,7 +438,7 @@ CREATE TABLE IF NOT EXISTS online_users (
     last_active_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后活跃时间',
     expires_at TIMESTAMP NOT NULL COMMENT 'Token过期时间',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_token (token (255)),
+    UNIQUE KEY uk_token (token (191)),
     INDEX idx_user_id (user_id),
     INDEX idx_username (username),
     INDEX idx_client_type (client_type),
@@ -456,7 +456,7 @@ CREATE TABLE IF NOT EXISTS token_blacklist (
     reason VARCHAR(200) DEFAULT '强制下线' COMMENT '拉黑原因',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     expires_at TIMESTAMP NOT NULL COMMENT 'Token过期时间',
-    INDEX idx_token (token (255)),
+    INDEX idx_token (token (191)),
     INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'Token黑名单表';
