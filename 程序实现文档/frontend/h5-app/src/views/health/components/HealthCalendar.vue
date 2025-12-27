@@ -285,19 +285,15 @@ async function loadRecords() {
       recentRecords.value = records.slice(0, 10);
 
       // 构建已打卡日期集合
+      // 后端返回的是 ISO 8601 格式的时间戳（北京时间的UTC表示）
+      // 需要转换为用户本地时区的日期
       checkedDates.value = new Set(
         records.map((r: any) => {
-          // 直接使用后端返回的日期字符串，避免时区转换问题
-          // 如果是 ISO 格式（如 "2025-12-27T00:00:00.000Z"），提取日期部分
-          // 如果已经是纯日期格式（如 "2025-12-27"），直接使用
-          const dateStr = r.record_date;
-          if (typeof dateStr === 'string') {
-            // 提取日期部分（YYYY-MM-DD）
-            return dateStr.split('T')[0];
-          }
-          // 兼容处理：如果是 Date 对象，转换为本地日期
-          const date = new Date(dateStr);
-          return formatDate(date);
+          // 将 ISO 8601 时间戳转换为本地时间
+          // 例如：后端返回 "2025-12-27T16:00:00.000Z"（北京时间28号00:00的UTC表示）
+          // 在柬埔寨用户的设备上，转换为本地时间后是 27号23:00
+          const date = new Date(r.record_date);
+          return formatDate(date); // 提取本地日期部分
         })
       );
     }

@@ -487,8 +487,28 @@ async function onSubmit() {
       较差: "poor",
     };
 
+    // 将日期字符串转换为完整的时间戳（包含当前时间和时区信息）
+    // 例如：用户在北京（UTC+8）的 12:43:26 提交 "2025-12-27"
+    // 生成：2025-12-27T12:43:26+08:00（保留本地时区）
+    const now = new Date();
+    const dateStr = formData.value.date; // "2025-12-27"
+
+    // 构建当前时间部分
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    // 获取时区偏移（分钟）
+    const timezoneOffset = -now.getTimezoneOffset(); // 注意：getTimezoneOffset() 返回的是相反的符号
+    const offsetHours = String(Math.floor(Math.abs(timezoneOffset) / 60)).padStart(2, '0');
+    const offsetMinutes = String(Math.abs(timezoneOffset) % 60).padStart(2, '0');
+    const offsetSign = timezoneOffset >= 0 ? '+' : '-';
+
+    // 使用用户选择的日期，但使用当前时间
+    const recordDateTimeISO = `${dateStr}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
+
     const submitData: any = {
-      record_date: formData.value.date,
+      record_date: recordDateTimeISO, // ISO 8601格式，带时区偏移
       weight: weight,
       exercise_duration: formData.value.exercise_duration
         ? parseInt(formData.value.exercise_duration)
@@ -503,6 +523,8 @@ async function onSubmit() {
     };
 
     console.log("准备提交的数据:", submitData);
+    console.log("record_date (ISO):", submitData.record_date);
+    console.log("用户本地时间:", now.toString());
 
     // 创建或更新记录（后端POST接口会自动判断）
     const response = await postHealthRecords(submitData);

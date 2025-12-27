@@ -160,10 +160,19 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
 
     const userId = req.user?.userId;
 
-    // 检查该日期是否已有记录
+    // 将前端传来的时间（ISO 8601格式，包含用户时区）转换为 UTC 时间存储
+    // 例如：用户在柬埔寨 2025-12-27T11:46:12+07:00 -> UTC 2025-12-27T04:46:12.000Z
+    const userDateTime = new Date(record_date);
+
+    // 转换为 MySQL DATETIME 格式 (YYYY-MM-DD HH:MM:SS)
+    // toISOString() 返回 UTC 时间，然后去掉 'T' 和 'Z'，保留到秒
+    const isoString = userDateTime.toISOString(); // "2025-12-27T04:46:12.000Z"
+    const mysqlDateTime = isoString.replace('T', ' ').replace(/\.\d{3}Z$/, ''); // "2025-12-27 04:46:12"
+
+    // 检查该时间点是否已有记录（精确到秒）
     const [existing] = await db.execute(
       'SELECT id FROM health_records WHERE user_id = ? AND record_date = ?',
-      [userId, record_date]
+      [userId, mysqlDateTime]
     );
 
     let recordId: number;
@@ -175,8 +184,8 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
       await db.execute(
         `UPDATE health_records SET
          weight = ?, exercise_duration = ?, exercise_type = ?,
-         sleep_hours = ?, sleep_quality = ?, mood = ?, notes = ?
-         WHERE user_id = ? AND record_date = ?`,
+         sleep_hours = ?, sleep_quality = ?, mood = ?, notes = ?, record_date = ?
+         WHERE user_id = ? AND id = ?`,
         [
           weight,
           exercise_duration ?? null,
@@ -185,8 +194,9 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
           sleep_quality ?? null,
           mood ?? null,
           notes ?? null,
+          mysqlDateTime,
           userId,
-          record_date
+          recordId
         ]
       );
     } else {
@@ -197,7 +207,7 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           userId,
-          record_date,
+          mysqlDateTime,
           weight,
           exercise_duration ?? null,
           exercise_type ?? null,
@@ -218,12 +228,12 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
     );
     const record = (recordRows as any[])[0];
 
-    // 格式化日期，避免时区问题
+    // 返回完整的时间戳（ISO 8601格式），前端会根据用户时区转换
     const formattedRecord = {
       ...record,
       record_date: record.record_date instanceof Date
-        ? record.record_date.toISOString().split('T')[0]
-        : record.record_date
+        ? record.record_date.toISOString()
+        : new Date(record.record_date).toISOString()
     };
 
     res.status(isNew ? 201 : 200).json({
@@ -331,17 +341,21 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
     const countParams: (number | string)[] = [userId];
 
     if (startDate) {
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的开始时间 00:00:00
+      const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
       query += ' AND record_date >= ?';
       countQuery += ' AND record_date >= ?';
-      params.push(startDate);
-      countParams.push(startDate);
+      params.push(startDateTime);
+      countParams.push(startDateTime);
     }
 
     if (endDate) {
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的结束时间 23:59:59
+      const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
       query += ' AND record_date <= ?';
       countQuery += ' AND record_date <= ?';
-      params.push(endDate);
-      countParams.push(endDate);
+      params.push(endDateTime);
+      countParams.push(endDateTime);
     }
 
     query += ` ORDER BY record_date DESC LIMIT ${limit} OFFSET ${offset}`;
@@ -350,12 +364,12 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
     const [countResult] = await db.execute(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
-    // 格式化日期，避免时区问题
+    // 返回完整的时间戳（ISO 8601格式），前端会根据用户时区转换
     const formattedRecords = (records as any[]).map(record => ({
       ...record,
       record_date: record.record_date instanceof Date
-        ? record.record_date.toISOString().split('T')[0]
-        : record.record_date
+        ? record.record_date.toISOString()
+        : new Date(record.record_date).toISOString()
     }));
 
     res.json({
@@ -438,13 +452,13 @@ export const getHealthRecordById = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
-    // 格式化日期，避免时区问题
+    // 返回完整的时间戳（ISO 8601格式），前端会根据用户时区转换
     const record = records[0];
     const formattedRecord = {
       ...record,
       record_date: record.record_date instanceof Date
-        ? record.record_date.toISOString().split('T')[0]
-        : record.record_date
+        ? record.record_date.toISOString()
+        : new Date(record.record_date).toISOString()
     };
 
     res.json({
