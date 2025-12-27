@@ -117,7 +117,6 @@ const {
   loading,
   handleLogin,
   goToRegister,
-  handleForgotPassword
 } = useLoginForm()
 
 // 语言设置
