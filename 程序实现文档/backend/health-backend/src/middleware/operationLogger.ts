@@ -185,6 +185,12 @@ export const operationLogger = async (
       // 获取 IP 地址对应的地理位置
       const address = await getAddressFromIP(ipAddress);
 
+      // 获取 user_id：优先从 req.user 获取，如果是登录操作则从响应体中获取
+      let userId = req.user?.userId || null;
+      if (req.originalUrl.includes('/login') && responseBody?.success && responseBody?.data?.user?.id) {
+        userId = responseBody.data.user.id;
+      }
+
       // 记录操作日志
       await db.execute(
         `INSERT INTO system_logs (
@@ -194,7 +200,7 @@ export const operationLogger = async (
           error_message, operating_time
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
         [
-          req.user?.userId || null,
+          userId,
           module,
           summary,
           req.method.toLowerCase(),
