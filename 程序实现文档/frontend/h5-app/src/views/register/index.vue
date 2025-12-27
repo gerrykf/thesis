@@ -61,7 +61,7 @@
         </van-cell-group>
 
         <!-- 用户协议 -->
-        <div class="agreement-section">
+        <!-- <div class="agreement-section">
           <van-checkbox v-model="formData.agree">
             {{ t("wo-yi-yue-du-bing-tong-yi") }}
             <span class="link" @click.stop="showToast('功能开发中')">{{
@@ -72,7 +72,7 @@
               t("yin-si-zheng-ce")
             }}</span>
           </van-checkbox>
-        </div>
+        </div> -->
 
         <!-- 注册按钮 -->
         <div class="submit-section">

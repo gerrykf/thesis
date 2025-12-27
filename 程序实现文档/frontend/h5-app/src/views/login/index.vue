@@ -51,7 +51,7 @@
         <!-- 记住我 & 忘记密码 -->
         <div class="form-options">
           <van-checkbox v-model="formData.remember">{{ t('login.rememberMe') }}</van-checkbox>
-          <span class="link-text" @click="handleForgotPassword">{{ t('login.forgotPassword') }}</span>
+          <!-- <span class="link-text" @click="handleForgotPassword">{{ t('login.forgotPassword') }}</span> -->
         </div>
 
         <!-- 登录按钮 -->
