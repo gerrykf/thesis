@@ -59,28 +59,24 @@ jobs:
           echo "在$(pwd)中构建"
           npm install --no-audit --no-fund
           npm run build
-      - name: 清理旧文件
+      - name: 清理旧文件并上传新文件
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # 清理旧文件
             rm -rf /opt/1panel/www/sites/frontend/index/*
-      - name: 准备dist目录路径
-        run: |
-          cd "$GITHUB_WORKSPACE/程序实现文档/frontend/h5-app/dist"
-          echo "从：$(pwd) 上传"
-          ls -la
-          echo "DIST_PATH=$(pwd)" >> $GITHUB_ENV
-      - name: 只上传dist内容
+      - name: 上传dist文件
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "${{ env.DIST_PATH }}/*" # 只上传dist目录内容
-          target: "/opt/1panel/www/sites/frontend/index"
+          source: "程序实现文档/frontend/h5-app/dist/*"
+          target: "/opt/1panel/www/sites/frontend/index/"
+          strip_components: 4
       - name: 重新加载Nginx（可选）
         uses: appleboy/ssh-action@v0.1.10
         with:
