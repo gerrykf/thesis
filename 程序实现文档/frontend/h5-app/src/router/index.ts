@@ -8,8 +8,8 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     redirect: () => {
-      // 根据登录状态重定向
-      const token = localStorage.getItem("token");
+      // 根据登录状态重定向（同时检查 localStorage 和 sessionStorage）
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       return token ? "/home" : "/login";
     },
   },
@@ -113,8 +113,8 @@ router.beforeEach((to, _from, next) => {
     return;
   }
 
-  // 不允许匿名访问，检查是否有 token
-  const token = localStorage.getItem("token");
+  // 不允许匿名访问，检查是否有 token（同时检查 localStorage 和 sessionStorage）
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if (token) {
     // 有 token，放行

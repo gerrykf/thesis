@@ -6,6 +6,41 @@ import { validationRules } from './options'
 import type { LoginFormData, ValidationResult } from './types'
 
 /**
+ * 简单加密函数（Base64 + 简单混淆）
+ * @param text 要加密的文本
+ * @returns 加密后的文本
+ */
+function encryptPassword(text: string): string {
+  try {
+    // 添加时间戳作为盐值（取后4位）
+    const salt = Date.now().toString().slice(-4)
+    const textWithSalt = `${salt}${text}${salt}`
+    // Base64编码
+    return btoa(encodeURIComponent(textWithSalt))
+  } catch (error) {
+    console.error('加密失败:', error)
+    return text
+  }
+}
+
+/**
+ * 简单解密函数
+ * @param encryptedText 加密的文本
+ * @returns 解密后的文本
+ */
+function decryptPassword(encryptedText: string): string {
+  try {
+    // Base64解码
+    const decoded = decodeURIComponent(atob(encryptedText))
+    // 去除盐值（前4位和后4位）
+    return decoded.slice(4, -4)
+  } catch (error) {
+    console.error('解密失败:', error)
+    return encryptedText
+  }
+}
+
+/**
  * 验证用户名
  * @param username 用户名
  * @returns 验证结果
@@ -120,10 +155,12 @@ export function saveLoginInfo(
   const storage = remember ? localStorage : sessionStorage
   storage.setItem('token', token)
 
-  // 如果勾选记住密码，保存用户名和密码
+  // 如果勾选记住密码，保存用户名和加密后的密码
   if (remember && username && password) {
     localStorage.setItem('rememberedUsername', username)
-    localStorage.setItem('rememberedPassword', password)
+    // 加密密码后保存
+    const encryptedPassword = encryptPassword(password)
+    localStorage.setItem('rememberedPassword', encryptedPassword)
     localStorage.setItem('rememberMe', 'true')
   } else {
     // 如果没有勾选，清除已保存的用户名密码
@@ -149,9 +186,11 @@ export function getRememberedLoginInfo(): {
   }
 
   const username = localStorage.getItem('rememberedUsername')
-  const password = localStorage.getItem('rememberedPassword')
+  const encryptedPassword = localStorage.getItem('rememberedPassword')
 
-  if (username && password) {
+  if (username && encryptedPassword) {
+    // 解密密码
+    const password = decryptPassword(encryptedPassword)
     return {
       username,
       password,

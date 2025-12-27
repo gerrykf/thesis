@@ -21,8 +21,8 @@ const createDietRecordValidation = [
     .isInt()
     .withMessage('食物ID必须是整数'),
   body('record_date')
-    .isDate()
-    .withMessage('记录日期格式不正确'),
+    .isISO8601()
+    .withMessage('记录日期时间格式不正确，需要ISO 8601格式'),
   body('meal_type')
     .isIn(['breakfast', 'lunch', 'dinner', 'snack'])
     .withMessage('餐次类型无效'),

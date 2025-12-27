@@ -12,8 +12,8 @@ const request: AxiosInstance = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   (config) => {
-    // 从本地存储获取 token
-    const token = localStorage.getItem("token");
+    // 从本地存储获取 token（同时检查 localStorage 和 sessionStorage）
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -147,6 +147,13 @@ export const createDietRecord = async (req: AuthRequest, res: Response): Promise
     const { food_id, record_date, meal_type, quantity, notes } = req.body;
     const userId = req.user?.userId;
 
+    // 将前端传来的时间（ISO 8601格式，包含用户时区）转换为 UTC 时间存储
+    const userDateTime = new Date(record_date);
+
+    // 转换为 MySQL DATETIME 格式 (YYYY-MM-DD HH:MM:SS)
+    const isoString = userDateTime.toISOString();
+    const mysqlDateTime = isoString.replace('T', ' ').replace(/\.\d{3}Z$/, '');
+
     // 获取食物营养信息
     const [foodRows] = await db.execute('SELECT * FROM foods WHERE id = ?', [food_id]);
     const foods = foodRows as any[];
@@ -172,16 +179,33 @@ export const createDietRecord = async (req: AuthRequest, res: Response): Promise
       `INSERT INTO diet_records
        (user_id, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes ?? null]
+      [userId, food_id, mysqlDateTime, meal_type, quantity, calories, protein, fat, carbs, notes ?? null]
     );
+
+    const recordId = (result as any).insertId;
+
+    // 查询并返回完整的记录数据
+    const [recordRows] = await db.execute(
+      `SELECT dr.*, f.name as food_name, f.category as food_category
+       FROM diet_records dr
+       LEFT JOIN foods f ON dr.food_id = f.id
+       WHERE dr.id = ?`,
+      [recordId]
+    );
+    const record = (recordRows as any[])[0];
+
+    // 返回完整的时间戳（ISO 8601格式），前端会根据用户时区转换
+    const formattedRecord = {
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString()
+        : new Date(record.record_date).toISOString()
+    };
 
     res.status(201).json({
       success: true,
       message: '饮食记录创建成功',
-      data: {
-        recordId: (result as any).insertId,
-        nutrition: { calories, protein, fat, carbs }
-      }
+      data: formattedRecord
     });
   } catch (error) {
     console.error('创建饮食记录错误:', error);
@@ -297,23 +321,30 @@ export const getDietRecords = async (req: AuthRequest, res: Response): Promise<v
     const countParams: any[] = [userId];
 
     if (date) {
-      query += ' AND dr.record_date = ?';
-      countQuery += ' AND record_date = ?';
-      params.push(date);
-      countParams.push(date);
+      // 如果查询特定日期，需要匹配整天的数据
+      const startOfDay = date.includes('T') ? date : `${date} 00:00:00`;
+      const endOfDay = date.includes('T') ? date : `${date} 23:59:59`;
+      query += ' AND dr.record_date >= ? AND dr.record_date <= ?';
+      countQuery += ' AND record_date >= ? AND record_date <= ?';
+      params.push(startOfDay, endOfDay);
+      countParams.push(startOfDay, endOfDay);
     } else {
       if (startDate) {
+        // 如果是纯日期格式（YYYY-MM-DD），转换为当天的开始时间 00:00:00
+        const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
         query += ' AND dr.record_date >= ?';
         countQuery += ' AND record_date >= ?';
-        params.push(startDate);
-        countParams.push(startDate);
+        params.push(startDateTime);
+        countParams.push(startDateTime);
       }
 
       if (endDate) {
+        // 如果是纯日期格式（YYYY-MM-DD），转换为当天的结束时间 23:59:59
+        const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
         query += ' AND dr.record_date <= ?';
         countQuery += ' AND record_date <= ?';
-        params.push(endDate);
-        countParams.push(endDate);
+        params.push(endDateTime);
+        countParams.push(endDateTime);
       }
     }
 
@@ -331,10 +362,18 @@ export const getDietRecords = async (req: AuthRequest, res: Response): Promise<v
     const [countResult] = await db.query(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
+    // 返回完整的时间戳（ISO 8601格式），前端会根据用户时区转换
+    const formattedRecords = (records as any[]).map(record => ({
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString()
+        : new Date(record.record_date).toISOString()
+    }));
+
     res.json({
       success: true,
       data: {
-        records,
+        records: formattedRecords,
         pagination: {
           page,
           limit,
@@ -505,16 +544,21 @@ export const getDietSummary = async (req: AuthRequest, res: Response): Promise<v
     const params: any[] = [userId];
 
     if (date) {
-      query += ' AND record_date = ?';
-      params.push(date);
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的时间范围（00:00:00 到 23:59:59）
+      const startDateTime = date.includes('T') ? date : `${date} 00:00:00`;
+      const endDateTime = date.includes('T') ? date : `${date} 23:59:59`;
+      query += ' AND record_date >= ? AND record_date <= ?';
+      params.push(startDateTime, endDateTime);
     } else {
       if (startDate) {
+        const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
         query += ' AND record_date >= ?';
-        params.push(startDate);
+        params.push(startDateTime);
       }
       if (endDate) {
+        const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
         query += ' AND record_date <= ?';
-        params.push(endDate);
+        params.push(endDateTime);
       }
     }
 
@@ -535,16 +579,21 @@ export const getDietSummary = async (req: AuthRequest, res: Response): Promise<v
     const mealParams: any[] = [userId];
 
     if (date) {
-      mealQuery += ' AND record_date = ?';
-      mealParams.push(date);
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的时间范围（00:00:00 到 23:59:59）
+      const startDateTime = date.includes('T') ? date : `${date} 00:00:00`;
+      const endDateTime = date.includes('T') ? date : `${date} 23:59:59`;
+      mealQuery += ' AND record_date >= ? AND record_date <= ?';
+      mealParams.push(startDateTime, endDateTime);
     } else {
       if (startDate) {
+        const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
         mealQuery += ' AND record_date >= ?';
-        mealParams.push(startDate);
+        mealParams.push(startDateTime);
       }
       if (endDate) {
+        const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
         mealQuery += ' AND record_date <= ?';
-        mealParams.push(endDate);
+        mealParams.push(endDateTime);
       }
     }
 

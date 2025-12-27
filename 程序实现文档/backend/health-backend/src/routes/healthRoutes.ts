@@ -16,8 +16,8 @@ router.use(authenticateToken);
 // 创建健康记录验证规则
 const createHealthRecordValidation = [
   body('record_date')
-    .isDate()
-    .withMessage('记录日期格式不正确'),
+    .isISO8601()
+    .withMessage('记录日期时间格式不正确，需要ISO 8601格式'),
   body('weight')
     .optional()
     .isFloat({ min: 0, max: 500 })
