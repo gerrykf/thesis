@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xcopy \"src\\uploads\\avatars\\*.*\" \"uploads\\avatars\"\" /Y)"
+      "Bash(net stop:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(wmic process where \"ProcessId=16656\" delete)",
+      "Bash(tasklist:*)"
     ],
     "deny": [],
     "ask": []
