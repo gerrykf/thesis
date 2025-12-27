@@ -284,11 +284,19 @@ async function loadRecords() {
     if (records && records.length > 0) {
       recentRecords.value = records.slice(0, 10);
 
-      // 构建已打卡日期集合 - 需要按本地时区处理
+      // 构建已打卡日期集合
       checkedDates.value = new Set(
         records.map((r: any) => {
-          // 将ISO日期字符串转换为本地日期
-          const date = new Date(r.record_date);
+          // 直接使用后端返回的日期字符串，避免时区转换问题
+          // 如果是 ISO 格式（如 "2025-12-27T00:00:00.000Z"），提取日期部分
+          // 如果已经是纯日期格式（如 "2025-12-27"），直接使用
+          const dateStr = r.record_date;
+          if (typeof dateStr === 'string') {
+            // 提取日期部分（YYYY-MM-DD）
+            return dateStr.split('T')[0];
+          }
+          // 兼容处理：如果是 Date 对象，转换为本地日期
+          const date = new Date(dateStr);
           return formatDate(date);
         })
       );

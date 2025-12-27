@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xcopy \"src\\uploads\\avatars\\*.*\" \"uploads\\avatars\"\" /Y)"
+      "Bash(node reset_password.js:*)",
+      "Bash(node:*)",
+      "Bash(python3:*)",
+      "Bash(mysql:*)"
     ],
     "deny": [],
     "ask": []

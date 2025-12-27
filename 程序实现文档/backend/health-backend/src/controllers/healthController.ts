@@ -166,8 +166,12 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
       [userId, record_date]
     );
 
+    let recordId: number;
+    let isNew = false;
+
     if ((existing as any[]).length > 0) {
       // 更新现有记录
+      recordId = (existing as any[])[0].id;
       await db.execute(
         `UPDATE health_records SET
          weight = ?, exercise_duration = ?, exercise_type = ?,
@@ -185,12 +189,6 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
           record_date
         ]
       );
-
-      res.json({
-        success: true,
-        message: '健康记录更新成功',
-        data: { recordId: (existing as any[])[0].id }
-      });
     } else {
       // 创建新记录
       const [result] = await db.execute(
@@ -209,13 +207,30 @@ export const createHealthRecord = async (req: AuthRequest, res: Response): Promi
           notes ?? null
         ]
       );
-
-      res.status(201).json({
-        success: true,
-        message: '健康记录创建成功',
-        data: { recordId: (result as any).insertId }
-      });
+      recordId = (result as any).insertId;
+      isNew = true;
     }
+
+    // 查询并返回完整的记录数据
+    const [recordRows] = await db.execute(
+      'SELECT * FROM health_records WHERE id = ?',
+      [recordId]
+    );
+    const record = (recordRows as any[])[0];
+
+    // 格式化日期，避免时区问题
+    const formattedRecord = {
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString().split('T')[0]
+        : record.record_date
+    };
+
+    res.status(isNew ? 201 : 200).json({
+      success: true,
+      message: isNew ? '健康记录创建成功' : '健康记录更新成功',
+      data: formattedRecord
+    });
   } catch (error) {
     console.error('创建健康记录错误:', error);
     res.status(500).json({
@@ -335,10 +350,18 @@ export const getHealthRecords = async (req: AuthRequest, res: Response): Promise
     const [countResult] = await db.execute(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
+    // 格式化日期，避免时区问题
+    const formattedRecords = (records as any[]).map(record => ({
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString().split('T')[0]
+        : record.record_date
+    }));
+
     res.json({
       success: true,
       data: {
-        records,
+        records: formattedRecords,
         pagination: {
           page,
           limit,
@@ -415,9 +438,18 @@ export const getHealthRecordById = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
+    // 格式化日期，避免时区问题
+    const record = records[0];
+    const formattedRecord = {
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString().split('T')[0]
+        : record.record_date
+    };
+
     res.json({
       success: true,
-      data: records[0]
+      data: formattedRecord
     });
   } catch (error) {
     console.error('获取健康记录错误:', error);

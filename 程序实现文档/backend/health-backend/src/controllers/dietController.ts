@@ -175,13 +175,30 @@ export const createDietRecord = async (req: AuthRequest, res: Response): Promise
       [userId, food_id, record_date, meal_type, quantity, calories, protein, fat, carbs, notes ?? null]
     );
 
+    const recordId = (result as any).insertId;
+
+    // 查询并返回完整的记录数据
+    const [recordRows] = await db.execute(
+      `SELECT dr.*, f.name as food_name, f.category as food_category
+       FROM diet_records dr
+       LEFT JOIN foods f ON dr.food_id = f.id
+       WHERE dr.id = ?`,
+      [recordId]
+    );
+    const record = (recordRows as any[])[0];
+
+    // 格式化日期，避免时区问题
+    const formattedRecord = {
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString().split('T')[0]
+        : record.record_date
+    };
+
     res.status(201).json({
       success: true,
       message: '饮食记录创建成功',
-      data: {
-        recordId: (result as any).insertId,
-        nutrition: { calories, protein, fat, carbs }
-      }
+      data: formattedRecord
     });
   } catch (error) {
     console.error('创建饮食记录错误:', error);
@@ -331,10 +348,18 @@ export const getDietRecords = async (req: AuthRequest, res: Response): Promise<v
     const [countResult] = await db.query(countQuery, countParams);
     const total = (countResult as any[])[0].total;
 
+    // 格式化日期，避免时区问题
+    const formattedRecords = (records as any[]).map(record => ({
+      ...record,
+      record_date: record.record_date instanceof Date
+        ? record.record_date.toISOString().split('T')[0]
+        : record.record_date
+    }));
+
     res.json({
       success: true,
       data: {
-        records,
+        records: formattedRecords,
         pagination: {
           page,
           limit,
