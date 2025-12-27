@@ -544,16 +544,21 @@ export const getDietSummary = async (req: AuthRequest, res: Response): Promise<v
     const params: any[] = [userId];
 
     if (date) {
-      query += ' AND record_date = ?';
-      params.push(date);
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的时间范围（00:00:00 到 23:59:59）
+      const startDateTime = date.includes('T') ? date : `${date} 00:00:00`;
+      const endDateTime = date.includes('T') ? date : `${date} 23:59:59`;
+      query += ' AND record_date >= ? AND record_date <= ?';
+      params.push(startDateTime, endDateTime);
     } else {
       if (startDate) {
+        const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
         query += ' AND record_date >= ?';
-        params.push(startDate);
+        params.push(startDateTime);
       }
       if (endDate) {
+        const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
         query += ' AND record_date <= ?';
-        params.push(endDate);
+        params.push(endDateTime);
       }
     }
 
@@ -574,16 +579,21 @@ export const getDietSummary = async (req: AuthRequest, res: Response): Promise<v
     const mealParams: any[] = [userId];
 
     if (date) {
-      mealQuery += ' AND record_date = ?';
-      mealParams.push(date);
+      // 如果是纯日期格式（YYYY-MM-DD），转换为当天的时间范围（00:00:00 到 23:59:59）
+      const startDateTime = date.includes('T') ? date : `${date} 00:00:00`;
+      const endDateTime = date.includes('T') ? date : `${date} 23:59:59`;
+      mealQuery += ' AND record_date >= ? AND record_date <= ?';
+      mealParams.push(startDateTime, endDateTime);
     } else {
       if (startDate) {
+        const startDateTime = startDate.includes('T') ? startDate : `${startDate} 00:00:00`;
         mealQuery += ' AND record_date >= ?';
-        mealParams.push(startDate);
+        mealParams.push(startDateTime);
       }
       if (endDate) {
+        const endDateTime = endDate.includes('T') ? endDate : `${endDate} 23:59:59`;
         mealQuery += ' AND record_date <= ?';
-        mealParams.push(endDate);
+        mealParams.push(endDateTime);
       }
     }
 

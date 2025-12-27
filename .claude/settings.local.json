@@ -4,7 +4,10 @@
       "Bash(node reset_password.js:*)",
       "Bash(node:*)",
       "Bash(python3:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(npm run build)",
+      "Bash(pm2 restart:*)",
+      "Bash(npm run pm2:start:*)"
     ],
     "deny": [],
     "ask": []

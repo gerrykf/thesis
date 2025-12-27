@@ -95,7 +95,7 @@ export const getStatsOverview = async (req: AuthRequest, res: Response): Promise
     const days = parseInt(req.query.days as string) || 7;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    const startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
 
     // 健康记录统计
     const [healthStats] = await db.execute(
@@ -202,8 +202,8 @@ export const getWeightTrend = async (req: AuthRequest, res: Response): Promise<v
       const days = parseInt(req.query.days as string) || 30;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
-      startDateStr = startDate.toISOString().split('T')[0];
-      endDateStr = new Date().toISOString().split('T')[0];
+      startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
+      endDateStr = `${new Date().toISOString().split('T')[0]} 23:59:59`;
     }
 
     const [rows] = await db.execute(
@@ -282,19 +282,19 @@ export const getCaloriesTrend = async (req: AuthRequest, res: Response): Promise
     const days = parseInt(req.query.days as string) || 30;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString().split('T')[0];
+    const startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
 
     const [rows] = await db.execute(
       `SELECT
-        record_date,
+        DATE(record_date) as record_date,
         SUM(calories) as total_calories,
         SUM(protein) as total_protein,
         SUM(fat) as total_fat,
         SUM(carbs) as total_carbs
        FROM diet_records
        WHERE user_id = ? AND record_date >= ?
-       GROUP BY record_date
-       ORDER BY record_date ASC`,
+       GROUP BY DATE(record_date)
+       ORDER BY DATE(record_date) ASC`,
       [targetUserId, startDateStr]
     );
 
@@ -371,8 +371,8 @@ export const getExerciseTrend = async (req: AuthRequest, res: Response): Promise
       const days = parseInt(req.query.days as string) || 30;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
-      startDateStr = startDate.toISOString().split('T')[0];
-      endDateStr = new Date().toISOString().split('T')[0];
+      startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
+      endDateStr = `${new Date().toISOString().split('T')[0]} 23:59:59`;
     }
 
     const [rows] = await db.execute(
@@ -462,8 +462,8 @@ export const getSleepQuality = async (req: AuthRequest, res: Response): Promise<
       const days = parseInt(req.query.days as string) || 30;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
-      startDateStr = startDate.toISOString().split('T')[0];
-      endDateStr = new Date().toISOString().split('T')[0];
+      startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
+      endDateStr = `${new Date().toISOString().split('T')[0]} 23:59:59`;
     }
 
     // 获取睡眠趋势
@@ -583,8 +583,8 @@ export const getNutritionAnalysis = async (req: AuthRequest, res: Response): Pro
       days = parseInt(req.query.days as string) || 7;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
-      startDateStr = startDate.toISOString().split('T')[0];
-      endDateStr = new Date().toISOString().split('T')[0];
+      startDateStr = `${startDate.toISOString().split('T')[0]} 00:00:00`;
+      endDateStr = `${new Date().toISOString().split('T')[0]} 23:59:59`;
     }
 
     const [rows] = await db.execute(
