@@ -164,15 +164,12 @@
         :columns="categoryColumns"
         @confirm="onCategoryConfirm"
         @cancel="showCategoryPicker = false"
-      >
-        <template #toolbar>
-          <div class="picker-toolbar">
-            <van-button size="small" @click="showCategoryInput = true">
-              {{ t("zi-ding-yi-fen-lei") }}
-            </van-button>
-          </div>
-        </template>
-      </van-picker>
+      />
+      <div class="picker-custom-action">
+        <van-button block plain @click="showCategoryInput = true">
+          {{ t("zi-ding-yi-fen-lei") }}
+        </van-button>
+      </div>
     </van-popup>
 
     <!-- 自定义分类输入 -->
@@ -406,9 +403,9 @@ function resetForm() {
   }
 }
 
-.picker-toolbar {
-  display: flex;
-  justify-content: center;
-  padding: $space-sm;
+.picker-custom-action {
+  padding: $space-sm $space-md;
+  background: $white;
+  border-top: 1px solid $border-color;
 }
 </style>

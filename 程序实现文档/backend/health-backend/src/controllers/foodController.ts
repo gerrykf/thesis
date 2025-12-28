@@ -851,7 +851,7 @@ export const getFoodCategories = async (
       `SELECT ${categoryField} as category, COUNT(*) as count
        FROM foods
        WHERE is_active = true
-       GROUP BY category, category_en
+       GROUP BY ${categoryField}
        ORDER BY category`
     );
 

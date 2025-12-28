@@ -21,8 +21,7 @@ export function useRegisterForm() {
   const formData = ref<RegisterFormData>({
     username: '',
     password: '',
-    confirmPassword: '',
-    agree: false
+    confirmPassword: ''
   })
 
   /**

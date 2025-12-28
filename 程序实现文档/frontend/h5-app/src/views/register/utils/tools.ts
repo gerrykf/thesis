@@ -130,9 +130,5 @@ export function validateRegisterForm(formData: RegisterFormData): ValidationResu
     return confirmPasswordValidation
   }
 
-  if (!formData.agree) {
-    return { valid: false, message: '请阅读并同意用户协议和隐私政策' }
-  }
-
   return { valid: true, message: '' }
 }
